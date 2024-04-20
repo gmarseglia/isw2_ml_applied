@@ -5,50 +5,63 @@ import it.gmarseglia.app.model.JiraIssue;
 import it.gmarseglia.app.model.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class IssueFactory {
 
-    private static Map<String, IssueFactory> instances = new HashMap<>();
-    private GitController gc;
-    private DatasetController dc;
+    private static final Map<String, IssueFactory> instances = new HashMap<>();
+    private final DatasetController dc;
 
-    public static IssueFactory getInstance(String projName) {
-         IssueFactory.instances.computeIfAbsent(projName, string -> new IssueFactory(projName));
-        return IssueFactory.instances.get(projName);
-    }
-
-    private IssueFactory(String projName){
-        this.gc = GitController.getInstance(projName);
+    private IssueFactory(String projName) {
         this.dc = DatasetController.getInstance(projName);
     }
 
-    public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException, IOException {
-        Version ov = dc.getAllValidVersions().stream()
+    public static IssueFactory getInstance(String projName) {
+        IssueFactory.instances.computeIfAbsent(projName, string -> new IssueFactory(projName));
+        return IssueFactory.instances.get(projName);
+    }
+
+    /**
+     * The date present on Jira are compared to the valid versions obtained earlier.
+     * <p>
+     * The creation date on Jira is used to set the OV.
+     * The resolution date on Jira is used to set the FV.
+     * The release date of the oldest version in AffectsVersion (if present) is used to set the IV.
+     *
+     * @param jiraIssue Version from Jira.
+     * @return Version with OV, FV and IV set to valid versions.
+     * @throws GitAPIException due to {@link GitController}
+     */
+    public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException {
+        Version ov;
+        Version fv;
+        Version iv;
+
+        ov = dc.getAllValidVersions()
+                .stream()
                 .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
 
-        Version fv = dc.getAllValidVersions().stream()
+        fv = dc.getAllValidVersions()
+                .stream()
                 .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
                 .findFirst()
                 .orElse(null);
 
-        Version iv;
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
             iv = null;
         } else {
-            iv = dc.getAllValidVersions().stream()
+            iv = dc.getAllValidVersions()
+                    .stream()
                     .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
                     .findFirst()
                     .orElse(null);
         }
 
-        return new Issue(jiraIssue.getKey(), ov, fv, iv);
-
+        return new Issue(jiraIssue.getKey(), ov, fv, iv,
+                jiraIssue.getFields().getCreated(),
+                jiraIssue.getFields().getResolutiondate());
     }
-
-
 }

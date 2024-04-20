@@ -4,24 +4,19 @@ import java.util.Date;
 
 public class Version {
 
-    private String id;
     private String name;
-    private boolean released;
     private Date releaseDate;
+    private Date JiraReleaseDate;
 
-    public Version(String id, String name, boolean released, Date releaseDate) {
-        this.id = id;
+    public Version(String name, Date releaseDate) {
         this.name = name;
-        this.released = released;
         this.releaseDate = releaseDate;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public Version(String name, Date releaseDate, Date jiraReleaseDate) {
+        this.name = name;
+        this.releaseDate = releaseDate;
+        JiraReleaseDate = jiraReleaseDate;
     }
 
     public String getName() {
@@ -32,14 +27,6 @@ public class Version {
         this.name = name;
     }
 
-    public boolean isReleased() {
-        return released;
-    }
-
-    public void setReleased(boolean released) {
-        this.released = released;
-    }
-
     public Date getReleaseDate() {
         return releaseDate;
     }
@@ -48,13 +35,20 @@ public class Version {
         this.releaseDate = releaseDate;
     }
 
+    public Date getJiraReleaseDate() {
+        return JiraReleaseDate;
+    }
+
+    public void setJiraReleaseDate(Date jiraReleaseDate) {
+        JiraReleaseDate = jiraReleaseDate;
+    }
+
     @Override
     public String toString() {
         return "Version{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", released=" + released +
+                "name='" + name + '\'' +
                 ", releaseDate=" + releaseDate +
+                ", JiraReleaseDate=" + JiraReleaseDate +
                 '}';
     }
 }

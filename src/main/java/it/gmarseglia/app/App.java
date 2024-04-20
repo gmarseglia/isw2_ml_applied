@@ -1,21 +1,18 @@
 package it.gmarseglia.app;
 
-import it.gmarseglia.app.boundary.IssueJSONGetter;
 import it.gmarseglia.app.controller.DatasetController;
 import it.gmarseglia.app.controller.GitController;
 import it.gmarseglia.app.controller.IssueController;
 import it.gmarseglia.app.controller.ProjectController;
 import it.gmarseglia.app.model.Issue;
-import it.gmarseglia.app.model.JiraIssueReport;
+import it.gmarseglia.app.model.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.io.IOException;
 import java.util.List;
 
 
-public class App 
-{
-    public static void main( String[] args ) {
+public class App {
+    public static void main(String[] args) {
         String projName = "OPENJPA";
 
         test(projName);
@@ -23,28 +20,45 @@ public class App
 
     private static void test(String projName) {
 
+        System.out.println("Printing all versions on Jira:");
         ProjectController pc = new ProjectController(projName);
-
         pc.getProject().getVersions().forEach(System.out::println);
 
+        System.out.println("\n\nPrinting all tags on GitHub:");
         GitController gc = GitController.getInstance(projName);
-
         try {
             gc.listTags().forEach(System.out::println);
-        } catch (IOException | GitAPIException e) {
+        } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
-//
-//        IssueController ic = IssueController.getInstance(projName);
-//
-//        List<Issue> issues = null;
-//        try {
-//            issues = ic.getAllIssues(true);
-//        } catch (GitAPIException | IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        issues.forEach(System.out::println);
+
+        System.out.println("\n\nPrinting all valid version crossing data from Jira and GitHub:");
+        DatasetController dc = DatasetController.getInstance(projName);
+        List<Version> allValidVersions;
+        try {
+            allValidVersions = dc.getAllValidVersions();
+        } catch (GitAPIException e) {
+            throw new RuntimeException(e);
+        }
+        allValidVersions.forEach(System.out::println);
+
+        System.out.println("\n\nPrinting all issues crossing data from Jira and GitHub:");
+        IssueController ic = IssueController.getInstance(projName);
+        List<Issue> issues;
+        try {
+            issues = ic.getAllIssues(true);
+        } catch (GitAPIException e) {
+            throw new RuntimeException(e);
+        }
+        issues.forEach(System.out::println);
+
+        long count = issues.stream()
+                .filter(issue -> issue.getInjectVersion() != null)
+                .filter(issue -> issue.getInjectVersion().getReleaseDate().after(issue.getOpeningVersion().getReleaseDate()))
+                .count();
+
+        System.out.printf("Invalid issues due to fix version after opening version: %d\n", count);
+
     }
 
     private static void run(String projName) {
@@ -53,7 +67,7 @@ public class App
 
         try {
             dc.populateDataset(true);
-        } catch (GitAPIException | IOException e) {
+        } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
 

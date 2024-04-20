@@ -5,9 +5,9 @@ import java.util.List;
 public class Project {
 
     private String key;
-    private List<Version> versions;
+    private List<JiraVersion> versions;
 
-    public Project(String key, List<Version> versions) {
+    public Project(String key, List<JiraVersion> versions) {
         this.key = key;
         this.versions = versions;
     }
@@ -20,11 +20,11 @@ public class Project {
         this.key = key;
     }
 
-    public List<Version> getVersions() {
+    public List<JiraVersion> getVersions() {
         return versions;
     }
 
-    public void setVersions(List<Version> versions) {
+    public void setVersions(List<JiraVersion> versions) {
         this.versions = versions;
     }
 

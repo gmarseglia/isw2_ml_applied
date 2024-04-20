@@ -10,12 +10,11 @@ import java.nio.charset.Charset;
 
 public class IssueJSONGetter {
 
-    public static final int MAX_RESULT = 30;
     private final String urlBase = "https://issues.apache.org/jira/rest/api/2/search?" +
             "jql=QUERY" +
-            "&startAt=STARTAT" +
-            "&maxResults=MAXRESULT";
-    private final String query = "project = PROJNAME" +
+            "&startAt=START_AT" +
+            "&maxResults=MAX_RESULT";
+    private final String query = "project = PROJ_NAME" +
             " AND issueType = Bug" +
             " AND ( status = closed OR status = resolved)" +
             " AND resolution = fixed";
@@ -26,22 +25,22 @@ public class IssueJSONGetter {
         this.projName = projName;
     }
 
-    private String buildQuery(){
+    private String buildQuery() {
         return this.query
-                .replace("PROJNAME", this.projName);
+                .replace("PROJ_NAME", this.projName);
     }
 
-    private String buildURL(int startAt, int maxResult){
+    private String buildURL(int startAt, int maxResult) {
         return this.urlBase
                 .replace("QUERY", this.buildQuery())
-                .replace("STARTAT", String.valueOf(startAt))
-                .replace("MAXRESULT", String.valueOf(maxResult))
+                .replace("START_AT", String.valueOf(startAt))
+                .replace("MAX_RESULT", String.valueOf(maxResult))
                 .replace(" ", "%20");
     }
 
     public String getIssueJSON(int startAt, int maxResult) {
         String textJson;
-        InputStream isJson = null;
+        InputStream isJson;
 
         try {
             isJson = new URL(this.buildURL(startAt, maxResult)).openStream();
@@ -57,7 +56,7 @@ public class IssueJSONGetter {
         return textJson;
     }
 
-    public JiraIssueReport getIssueReport(int startAt, int maxResult){
+    public JiraIssueReport getIssueReport(int startAt, int maxResult) {
         Gson gson = new Gson();
         return gson.fromJson(this.getIssueJSON(startAt, maxResult), JiraIssueReport.class);
     }

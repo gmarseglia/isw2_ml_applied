@@ -6,7 +6,6 @@ import it.gmarseglia.app.model.JiraIssue;
 import it.gmarseglia.app.model.JiraIssueReport;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,41 +19,58 @@ public class IssueController {
     private final IssueFactory issueFactory;
     private final List<JiraIssue> allJiraIssues = new ArrayList<>();
 
-
-    public static IssueController getInstance(String projName){
-        IssueController.instances.computeIfAbsent(projName, IssueController::new);
-        return IssueController.instances.get(projName);
-    }
-
-    private IssueController(String projName){
+    private IssueController(String projName) {
         this.issueJSONGetter = new IssueJSONGetter(projName);
         this.issueFactory = IssueFactory.getInstance(projName);
     }
 
-    public List<Issue> getAllIssues(boolean verbose) throws GitAPIException, IOException {
+    public static IssueController getInstance(String projName) {
+        IssueController.instances.computeIfAbsent(projName, IssueController::new);
+        return IssueController.instances.get(projName);
+    }
+
+    /**
+     * 1. Gets all the issues from Jira, via {@code getAllJiraIssues}.
+     * 2. For each issue:
+     * Assigns the OV, FV and AV by comparing Jira and GitHub info. Look {@link IssueFactory} for more.
+     *
+     * @param verbose Option.
+     * @return A list of all issues.
+     * @throws GitAPIException due to {@link GitController}
+     */
+    public List<Issue> getAllIssues(boolean verbose) throws GitAPIException {
+        List<Issue> result = new ArrayList<>();
+
         // get all Jira issues
         this.getAllJiraIssues(verbose);
 
-        List<Issue> result = new ArrayList<>();
-
-        for (JiraIssue jiraIssue : this.allJiraIssues){
+        for (JiraIssue jiraIssue : this.allJiraIssues) {
             result.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
         }
 
         return result;
     }
 
+    /**
+     * Call multiple time {@link IssueJSONGetter} to obtain all the Jira issues.
+     * {@code allJiraIssues} holds the list.
+     *
+     * @param verbose Option.
+     */
     private void getAllJiraIssues(boolean verbose) {
         JiraIssueReport jiraIssueReport;
 
         int maxResult = 1000;
         int total = maxResult;
-        int maxTotal = Integer.MAX_VALUE;
+        int maxTotal = 100000;
 
-        for (int i = 0; i < Math.min(total, maxTotal); i += maxResult){
-            System.out.printf("Getting Jira issues from %d to %d.\n", i, Math.min(total, maxTotal));
+        for (int i = 0; i < Math.min(total, maxTotal); i += maxResult) {
+            if (verbose) System.out.printf("Getting Jira issues from %d to %d.\n", i, Math.min(total, maxTotal));
+
             jiraIssueReport = issueJSONGetter.getIssueReport(i, Math.min(maxTotal - i, maxResult));
+
             total = jiraIssueReport.getTotal();
+
             this.allJiraIssues.addAll(jiraIssueReport.getIssues());
         }
     }

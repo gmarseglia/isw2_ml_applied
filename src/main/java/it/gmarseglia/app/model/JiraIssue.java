@@ -9,7 +9,7 @@ public class JiraIssue {
     public static class Fields {
         private Date resolutiondate;
         private Date created;
-        private List<Version> versions;
+        private List<JiraVersion> versions;
 
         public Date getResolutiondate() {
             return resolutiondate;
@@ -27,18 +27,18 @@ public class JiraIssue {
             this.created = created;
         }
 
-        public List<Version> getVersions() {
+        public List<JiraVersion> getVersions() {
             return versions;
         }
 
-        public void setVersions(List<Version> versions) {
+        public void setVersions(List<JiraVersion> versions) {
             this.versions = versions;
         }
 
-        public Version getOldestAffectedVersion () {
+        public JiraVersion getOldestAffectedVersion () {
             return  this.getVersions().stream()
                     .filter(version -> version.getReleaseDate() != null)
-                    .min(Comparator.comparing(Version::getReleaseDate))
+                    .min(Comparator.comparing(JiraVersion::getReleaseDate))
                     .orElse(null);
         }
 

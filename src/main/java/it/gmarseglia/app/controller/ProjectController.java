@@ -7,20 +7,21 @@ import it.gmarseglia.app.model.Project;
 public class ProjectController {
 
     private final String projName;
-    private ProjectJSONGetter tjg;
+    private final ProjectJSONGetter projectJSONGetter;
 
     public ProjectController(String projName) {
         this.projName = projName;
-        this.tjg = new ProjectJSONGetter(this.projName);
+        this.projectJSONGetter = new ProjectJSONGetter(this.projName);
     }
 
-    public String getUrl(){
-        return tjg.getUrl();
-    }
-
-    public Project getProject(){
+    /**
+     * Uses {@code Gson} to map Json to {@link Project}
+     *
+     * @return {@code Project} from Json of Jira REST API.
+     */
+    public Project getProject() {
         Gson gson = new Gson();
-        String textJson = tjg.getJSONFromResources();
+        String textJson = projectJSONGetter.getJSONFromResources();
 
         return gson.fromJson(textJson, Project.class);
     }
