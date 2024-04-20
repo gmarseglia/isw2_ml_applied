@@ -22,7 +22,7 @@ public class EntriesController {
         List<Entry> entriesForVersion = new ArrayList<>();
 
         for (Path p : javaSrcPathsForVersion) {
-            entriesForVersion.add(new Entry(p, version));
+            entriesForVersion.add(new Entry(p, version, p.toString().replace(localPath.toString(), "")));
         }
 
         this.allEntries.addAll(entriesForVersion);
