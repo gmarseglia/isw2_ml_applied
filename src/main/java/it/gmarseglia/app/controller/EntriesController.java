@@ -22,7 +22,7 @@ public class EntriesController {
         List<Entry> entriesForVersion = new ArrayList<>();
 
         for (Path p : javaSrcPathsForVersion) {
-            entriesForVersion.add(new Entry(p.getFileName(), version));
+            entriesForVersion.add(new Entry(p, version));
         }
 
         this.allEntries.addAll(entriesForVersion);

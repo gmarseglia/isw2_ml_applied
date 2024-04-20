@@ -18,7 +18,7 @@ public class Entry {
 
     public String toCsvLine() {
         return this.version.getName() + "," +
-                this.name + "," +
+                this.path + "," +
                 buggy;
     }
 
@@ -52,5 +52,9 @@ public class Entry {
 
     public void setBuggy(boolean buggy) {
         this.buggy = buggy;
+    }
+
+    private String getModule() {
+        String tillSrc = this.getPath().toString().split("src")[0]
     }
 }
