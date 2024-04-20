@@ -7,9 +7,14 @@ import it.gmarseglia.app.model.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DatasetController {
+
+    private static final Map<String, DatasetController> instances = new HashMap<>();
 
     private final String projName;
     private final ProjectController pc;
@@ -17,10 +22,19 @@ public class DatasetController {
     private final EntriesController ec;
     private final CsvEntryBoundary cb;
 
-    public DatasetController(String projName) {
+    private List<String> allTags = null;
+    private List<Version> allVersions = null;
+    private List<Version> allValidVersions = null;
+
+    public static DatasetController getInstance(String projName){
+        DatasetController.instances.computeIfAbsent(projName,string -> new DatasetController(projName));
+        return DatasetController.instances.get(projName);
+    }
+
+    private DatasetController(String projName) {
         this.projName = projName;
         this.pc = new ProjectController(projName);
-        this.gc = new GitController(projName);
+        this.gc = GitController.getInstance(projName);
         this.ec = new EntriesController();
         this.cb = new CsvEntryBoundary(projName);
     }
@@ -43,19 +57,24 @@ public class DatasetController {
 
     private List<Version> getHalfVersion () throws GitAPIException, IOException {
         // Get all versions on Jira
-        List<Version> allVersion = pc.getProject().getVersions();
+        getAllVersions();
 
         // Get all versions by tags on GitHub
-        List<String> allTags = gc.listTags();
+        getAllTags();
 
         // Filter only versions in both
-        List<Version> validVersion = allVersion
-                .stream()
+        long lost = this.allVersions.stream()
                 .filter(version -> allTags.contains(version.getName()))
-                .toList();
+                .filter(version -> version.getReleaseDate() == null)
+                .count();
+
+        System.out.printf("Lost %d valid versions due to \"missing releaseDate\".\n", lost);
+
+        // get all valid versions
+        getAllValidVersions();
 
         // half the size
-        return validVersion.subList(0, validVersion.size()/2);
+        return this.allValidVersions.subList(0, this.allValidVersions.size()/2);
     }
 
     private void appendEntriesForVersion(Version version, boolean verbose) throws IOException {
@@ -73,5 +92,34 @@ public class DatasetController {
         } catch (GitAPIException e) {
             if (verbose) System.out.print("\tnot found on Git.\n");
         }
+    }
+
+    public List<String> getAllTags() throws GitAPIException, IOException {
+        if (this.allTags == null) {
+            this.allTags = gc.listTags();
+        }
+        return this.allTags;
+    }
+
+    public List<Version> getAllVersions() {
+        if (this.allVersions == null) {
+            this.allVersions = pc.getProject().getVersions()
+                    .stream()
+                    .toList();
+        }
+        return this.allVersions;
+    }
+
+    public List<Version> getAllValidVersions() throws GitAPIException, IOException {
+        if (this.allValidVersions == null) {
+            this.getAllTags();
+            this.allValidVersions = this.getAllVersions()
+                    .stream()
+                    .filter(version -> this.allTags.contains(version.getName()))
+                    .filter(version -> version.getReleaseDate() != null)
+                    .sorted(Comparator.comparing(Version::getReleaseDate))
+                    .toList();
+        }
+        return this.allValidVersions;
     }
 }

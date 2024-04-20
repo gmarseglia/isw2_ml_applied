@@ -12,16 +12,25 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GitController {
+
+    private static final Map<String, GitController> instances = new HashMap<>();
 
     private final String projName;
     private final String repoBase = "https://github.com/apache/%s.git";
     private String repoUrl;
     private Path localPath;
 
-    public GitController(String projName) {
+    public static GitController getInstance(String projName){
+        GitController.instances.computeIfAbsent(projName, GitController::new);
+        return GitController.instances.get(projName);
+    }
+
+    private GitController(String projName) {
         this.projName = projName;
         this.repoUrl = String.format(repoBase, projName);
         this.localPath = Paths.get(System.getProperty("java.io.tmpdir"), this.projName);
