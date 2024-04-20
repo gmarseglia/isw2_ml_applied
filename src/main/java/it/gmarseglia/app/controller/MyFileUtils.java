@@ -24,9 +24,11 @@ public class MyFileUtils {
     public static List<Path> getAllJavaSrcFiles(Path localPath) {
         List<Path> result;
 
+        String srcString = "src" + File.separator + "main";
+
         try (Stream<Path> pathStream = Files.find(localPath,
                 Integer.MAX_VALUE,
-                (p, basicFileAttributes) -> p.getFileName().toString().endsWith(".java") && p.toString().contains("src"))
+                (p, basicFileAttributes) -> p.getFileName().toString().endsWith(".java") && p.toString().contains(srcString))
         ) {
             result = pathStream.toList();
         } catch (IOException e) {
