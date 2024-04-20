@@ -3,6 +3,7 @@ package it.gmarseglia.app.controller;
 import it.gmarseglia.app.model.JiraVersion;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -37,11 +38,11 @@ public class GitController {
      * @return If a corresponding tag exists: the date of the last commit; else {@code null}
      */
     public Date getVersionGitDate(JiraVersion jiraVersion) throws GitAPIException {
-        this.checkoutByTag(jiraVersion.getName());
         try {
+            this.checkoutByTag(jiraVersion.getName());
             RevCommit lastCommit = this.getLastCommit();
             return new Date(lastCommit.getCommitTime() * 1000L);
-        } catch (GitAPIException e) {
+        } catch (RefNotFoundException e) {
             return null;
         }
     }
