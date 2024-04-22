@@ -14,35 +14,20 @@ public class DatasetController {
     private static final Map<String, DatasetController> instances = new HashMap<>();
 
     private final String projName;
-    private final ProjectController pc;
+    private final VersionsController vc;
     private final GitController gc;
     private final EntriesController ec;
     private final CsvEntryBoundary cb;
 
-    private List<String> allTags = null;
-    private List<JiraVersion> allJiraVersions = null;
-    private List<Version> allVersions = null;
-    private List<Version> allValidVersions = null;
 
-    /**
-     * Private constructor
-     *
-     * @param projName project name
-     */
     private DatasetController(String projName) {
         this.projName = projName;
-        this.pc = ProjectController.getInstance(projName);
+        this.vc = VersionsController.getInstance(projName);
         this.gc = GitController.getInstance(projName);
         this.ec = new EntriesController();
         this.cb = new CsvEntryBoundary(projName);
     }
 
-    /**
-     * Singleton
-     *
-     * @param projName project name
-     * @return singleton instance
-     */
     public static DatasetController getInstance(String projName) {
         DatasetController.instances.computeIfAbsent(projName, string -> new DatasetController(projName));
         return DatasetController.instances.get(projName);
@@ -64,7 +49,7 @@ public class DatasetController {
      */
     public void populateDataset(boolean verbose) throws GitAPIException {
         // Get the oldest half valid versions
-        List<Version> halfVersions = this.getHalfVersion();
+        List<Version> halfVersions = this.vc.getHalfVersion();
 
         if (verbose) System.out.printf("Half valid version count: %d\n", halfVersions.size());
 
@@ -76,32 +61,6 @@ public class DatasetController {
 
         // write all the found entries on the .csv files
         cb.writeEntries(ec.getAllEntries());
-    }
-
-    /**
-     * @return The list of oldest half valid versions.
-     * @throws GitAPIException due to <code>GitController</code>
-     */
-    private List<Version> getHalfVersion() throws GitAPIException {
-        // Get all versions on Jira
-        getAllJiraVersions();
-
-        // get all versions by merging data with GitHub
-        getAllVersions();
-
-        // Get all versions by tags on GitHub
-        setAllTags();
-
-        // Filter only versions in both
-        long lost = this.allJiraVersions.stream().filter(version -> allTags.contains(version.getName())).filter(version -> version.getReleaseDate() == null).count();
-
-        System.out.printf("Lost %d valid versions due to \"missing releaseDate\".\n", lost);
-
-        // get all valid versions
-        getAllValidVersions();
-
-        // half the size
-        return this.allValidVersions.subList(0, this.allValidVersions.size() / 2);
     }
 
     /**
@@ -127,57 +86,5 @@ public class DatasetController {
         } catch (GitAPIException e) {
             if (verbose) System.out.print("\tnot found on Git.\n");
         }
-    }
-
-    /**
-     * Get all tags from GitHub.
-     *
-     * @throws GitAPIException due to {@link GitController}
-     */
-    public void setAllTags() throws GitAPIException {
-        if (this.allTags == null) {
-            this.allTags = gc.listTags();
-        }
-    }
-
-    /**
-     * @return A list of the versions listed in Jira.
-     */
-    public List<JiraVersion> getAllJiraVersions() {
-        if (this.allJiraVersions == null) {
-            this.allJiraVersions = pc.getProject().getVersions().stream().toList();
-        }
-        return this.allJiraVersions;
-    }
-
-    /**
-     * Cached instance is kept in {@code allVersions}.
-     *
-     * @return A list of all the versions listed in Jira, but the release date is set by their last tag on GitHub or is {@code null}.
-     * @throws GitAPIException due to {@link GitController}
-     */
-    public List<Version> getAllVersions() throws GitAPIException {
-        if (this.allVersions == null) {
-            this.allVersions = new ArrayList<>();
-
-            VersionFactory versionFactory = VersionFactory.getInstance(projName);
-
-            for (JiraVersion jiraVersion : this.getAllJiraVersions()) {
-                allVersions.add(versionFactory.versionFromJiraVersion(jiraVersion));
-            }
-        }
-        return this.allVersions;
-    }
-
-    /**
-     * @return A list of all valid version present both on GitHub and Jira, with the release date set by the last commit on GitHub.
-     * @throws GitAPIException due to {@link GitController}
-     */
-    public List<Version> getAllValidVersions() throws GitAPIException {
-        if (this.allValidVersions == null) {
-            this.setAllTags();
-            this.allValidVersions = this.getAllVersions().stream().filter(version -> this.allTags.contains(version.getName())).filter(version -> version.getReleaseDate() != null).sorted(Comparator.comparing(Version::getReleaseDate)).toList();
-        }
-        return this.allValidVersions;
     }
 }

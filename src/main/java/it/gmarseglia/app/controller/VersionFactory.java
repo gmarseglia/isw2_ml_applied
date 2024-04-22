@@ -23,7 +23,7 @@ public class VersionFactory {
     }
 
     /**
-     * Sets the date of the version by using GitHub information over Jira information.a
+     * Sets the date of the version by using GitHub information over Jira information.
      *
      * @param jiraVersion Version from Jira.
      * @return Version with release date set using GitHub commits or {@code null}.

@@ -1,9 +1,6 @@
 package it.gmarseglia.app;
 
-import it.gmarseglia.app.controller.DatasetController;
-import it.gmarseglia.app.controller.GitController;
-import it.gmarseglia.app.controller.IssueController;
-import it.gmarseglia.app.controller.ProjectController;
+import it.gmarseglia.app.controller.*;
 import it.gmarseglia.app.model.Issue;
 import it.gmarseglia.app.model.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -15,7 +12,7 @@ public class App {
     public static void main(String[] args) {
         String projName = "OPENJPA";
 
-        test(projName);
+        run(projName);
     }
 
     private static void test(String projName) {
@@ -33,10 +30,10 @@ public class App {
         }
 
         System.out.println("\n\nPrinting all valid version crossing data from Jira and GitHub:");
-        DatasetController dc = DatasetController.getInstance(projName);
+        VersionsController vc = VersionsController.getInstance(projName);
         List<Version> allValidVersions;
         try {
-            allValidVersions = dc.getAllValidVersions();
+            allValidVersions = vc.getAllValidVersions();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }

@@ -11,10 +11,10 @@ import java.util.Map;
 public class IssueFactory {
 
     private static final Map<String, IssueFactory> instances = new HashMap<>();
-    private final DatasetController dc;
+    private final VersionsController vc;
 
     private IssueFactory(String projName) {
-        this.dc = DatasetController.getInstance(projName);
+        this.vc = VersionsController.getInstance(projName);
     }
 
     public static IssueFactory getInstance(String projName) {
@@ -38,13 +38,13 @@ public class IssueFactory {
         Version fv;
         Version iv;
 
-        ov = dc.getAllValidVersions()
+        ov = vc.getAllValidVersions()
                 .stream()
                 .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
 
-        fv = dc.getAllValidVersions()
+        fv = vc.getAllValidVersions()
                 .stream()
                 .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
                 .findFirst()
@@ -53,7 +53,7 @@ public class IssueFactory {
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
             iv = null;
         } else {
-            iv = dc.getAllValidVersions()
+            iv = vc.getAllValidVersions()
                     .stream()
                     .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
                     .findFirst()
