@@ -3,7 +3,6 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.boundary.CsvEntryBoundary;
 import it.gmarseglia.app.model.Entry;
-import it.gmarseglia.app.model.JiraVersion;
 import it.gmarseglia.app.model.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -13,15 +12,14 @@ public class DatasetController {
 
     private static final Map<String, DatasetController> instances = new HashMap<>();
 
-    private final String projName;
     private final VersionsController vc;
     private final GitController gc;
     private final EntriesController ec;
     private final CsvEntryBoundary cb;
+    private final MyLogger logger = MyLogger.getInstance(this.getClass());
 
 
     private DatasetController(String projName) {
-        this.projName = projName;
         this.vc = VersionsController.getInstance(projName);
         this.gc = GitController.getInstance(projName);
         this.ec = new EntriesController();
@@ -48,15 +46,17 @@ public class DatasetController {
      * @throws GitAPIException uses <code>GitController</code>
      */
     public void populateDataset(boolean verbose) throws GitAPIException {
+        MyLogger.setStaticVerbose(verbose);
+
         // Get the oldest half valid versions
         List<Version> halfVersions = this.vc.getHalfVersion();
 
-        if (verbose) System.out.printf("Half valid version count: %d\n", halfVersions.size());
+        logger.log(() -> System.out.printf("Half valid version count: %d\n", halfVersions.size()));
 
         // for each version, get all the .java src files
         for (Version v : halfVersions) {
-            appendEntriesForVersion(v, verbose);
-            if (verbose) System.out.printf("Total count: %d\n", ec.getAllEntries().size());
+            appendEntriesForVersion(v);
+            logger.log(() -> System.out.printf("Total count: %d\n", ec.getAllEntries().size()));
         }
 
         // write all the found entries on the .csv files
@@ -69,11 +69,10 @@ public class DatasetController {
      * 3. Appends them using {@link EntriesController}.{@code findAndAppendEntries}
      *
      * @param version Version to check out.
-     * @param verbose option
      */
-    private void appendEntriesForVersion(Version version, boolean verbose) {
+    private void appendEntriesForVersion(Version version) {
         try {
-            if (verbose) System.out.printf("Release %s:", version.getName());
+            logger.log(() -> System.out.printf("Release %s:", version.getName()));
 
             // checkout local Git dir at given version
             gc.checkoutByTag(version.getName());
@@ -81,10 +80,10 @@ public class DatasetController {
             // get all the .jav src files in given version
             List<Entry> entriesByVersion = ec.findAndAppendEntries(gc.getLocalPath(), version);
 
-            if (verbose) System.out.printf(" %d .java src files found.\n", entriesByVersion.size());
+            logger.log(() -> System.out.printf(" %d .java src files found.\n", entriesByVersion.size()));
 
         } catch (GitAPIException e) {
-            if (verbose) System.out.print("\tnot found on Git.\n");
+            logger.log(() -> System.out.print("\tnot found on Git.\n"));
         }
     }
 }
