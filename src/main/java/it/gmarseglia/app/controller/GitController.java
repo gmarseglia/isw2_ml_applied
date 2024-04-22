@@ -1,36 +1,93 @@
 package it.gmarseglia.app.controller;
 
+import it.gmarseglia.app.model.Issue;
 import it.gmarseglia.app.model.JiraVersion;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.*;
 
 public class GitController {
 
     private static final Map<String, GitController> instances = new HashMap<>();
+    private final MyLogger logger;
 
     private final String repoUrl;
     private final Path localPath;
+
 
     private GitController(String projName) {
         String repoBase = "https://github.com/apache/%s.git";
         this.repoUrl = String.format(repoBase, projName);
         this.localPath = Paths.get(System.getProperty("java.io.tmpdir"), projName);
+        this.logger = MyLogger.getInstance(this.getClass());
     }
 
     public static GitController getInstance(String projName) {
         GitController.instances.computeIfAbsent(projName, GitController::new);
         return GitController.instances.get(projName);
+    }
+
+    public List<Path> getAllPathByCommit(RevCommit revCommit) throws GitAPIException {
+        List<Path> result = new ArrayList<>();
+
+        /* https://www.eclipse.org/forums/index.php/t/213979/ */
+        RevWalk rw = new RevWalk(this.getLocalGit().getRepository());
+        RevCommit parent = null;
+        try {
+            parent = rw.parseCommit(revCommit.getParent(0).getId());
+            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+            df.setRepository(this.getLocalGit().getRepository());
+            df.setDiffComparator(RawTextComparator.DEFAULT);
+            df.setDetectRenames(true);
+            List<DiffEntry> diffs = df.scan(parent.getTree(), revCommit.getTree());
+            for (DiffEntry diff : diffs) {
+                result.add(Paths.get(diff.getNewPath()));
+                logger.log(() ->
+                        System.out.println(MessageFormat.format("({0} {1} {2}",
+                                diff.getChangeType().name(),
+                                diff.getNewMode().getBits(),
+                                diff.getNewPath())));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Looks for all commits which contains {@code issue.getKey()} in their full message.
+     */
+    public List<RevCommit> getAllCommitsByIssue(Issue issue) throws GitAPIException {
+        String issueID = issue.getKey();
+
+        List<RevCommit> result = new ArrayList<>();
+
+        try {
+            for (RevCommit revCommit : this.getLocalGit().log().all().call()) {
+                if (revCommit.getFullMessage().contains(issueID)) result.add(revCommit);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 
     /**

@@ -21,6 +21,11 @@ public class MyFileUtils {
         }
     }
 
+    public static boolean isJavaSrcFile(Path p){
+        String srcString = "src" + File.separator + "main";
+        return p.getFileName().toString().endsWith(".java") && p.toString().contains(srcString);
+    }
+
     public static List<Path> getAllJavaSrcFiles(Path localPath) {
         List<Path> result;
 
@@ -28,7 +33,7 @@ public class MyFileUtils {
 
         try (Stream<Path> pathStream = Files.find(localPath,
                 Integer.MAX_VALUE,
-                (p, basicFileAttributes) -> p.getFileName().toString().endsWith(".java") && p.toString().contains(srcString))
+                (p, basicFileAttributes) -> isJavaSrcFile(p))
         ) {
             result = pathStream.toList();
         } catch (IOException e) {

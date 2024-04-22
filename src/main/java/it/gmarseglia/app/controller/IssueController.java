@@ -19,16 +19,6 @@ public class IssueController {
     private final IssueFactory issueFactory;
     private final List<JiraIssue> allJiraIssues = new ArrayList<>();
 
-    private IssueController(String projName) {
-        this.issueJSONGetter = new IssueJSONGetter(projName);
-        this.issueFactory = IssueFactory.getInstance(projName);
-    }
-
-    public static IssueController getInstance(String projName) {
-        IssueController.instances.computeIfAbsent(projName, IssueController::new);
-        return IssueController.instances.get(projName);
-    }
-
     /**
      * 1. Gets all the issues from Jira, via {@code getAllJiraIssues}.
      * 2. For each issue:
@@ -38,11 +28,11 @@ public class IssueController {
      * @return A list of all issues.
      * @throws GitAPIException due to {@link GitController}
      */
-    public List<Issue> getAllIssues(boolean verbose) throws GitAPIException {
+    public List<Issue> getIssues(int maxTotal, boolean verbose) throws GitAPIException {
         List<Issue> result = new ArrayList<>();
 
         // get all Jira issues
-        this.getAllJiraIssues(verbose);
+        this.getJiraIssues(maxTotal, verbose);
 
         for (JiraIssue jiraIssue : this.allJiraIssues) {
             result.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
@@ -57,12 +47,11 @@ public class IssueController {
      *
      * @param verbose Option.
      */
-    private void getAllJiraIssues(boolean verbose) {
+    private void getJiraIssues(int maxTotal, boolean verbose) {
         JiraIssueReport jiraIssueReport;
 
         int maxResult = 1000;
         int total = maxResult;
-        int maxTotal = 100000;
 
         for (int i = 0; i < Math.min(total, maxTotal); i += maxResult) {
             if (verbose) System.out.printf("Getting Jira issues from %d to %d.\n", i, Math.min(total, maxTotal));
@@ -73,6 +62,16 @@ public class IssueController {
 
             this.allJiraIssues.addAll(jiraIssueReport.getIssues());
         }
+    }
+
+    private IssueController(String projName) {
+        this.issueJSONGetter = new IssueJSONGetter(projName);
+        this.issueFactory = IssueFactory.getInstance(projName);
+    }
+
+    public static IssueController getInstance(String projName) {
+        IssueController.instances.computeIfAbsent(projName, IssueController::new);
+        return IssueController.instances.get(projName);
     }
 
 
