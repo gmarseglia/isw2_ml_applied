@@ -22,7 +22,7 @@ public class DatasetController {
     private DatasetController(String projName) {
         this.vc = VersionsController.getInstance(projName);
         this.gc = GitController.getInstance(projName);
-        this.ec = new EntriesController();
+        this.ec = EntriesController.getInstance(projName);
         this.cb = new CsvEntryBoundary(projName);
     }
 

@@ -5,11 +5,20 @@ import it.gmarseglia.app.model.Version;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntriesController {
 
+    private static final Map<String, EntriesController> instances = new HashMap<>();
+
     private final List<Entry> allEntries = new ArrayList<>();
+
+    public static EntriesController getInstance(String projName){
+        instances.computeIfAbsent(projName, string -> new EntriesController());
+        return instances.get(projName);
+    }
 
     /**
      * @param localPath Path of the dir in which the files are expected
