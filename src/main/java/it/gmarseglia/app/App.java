@@ -21,7 +21,7 @@ public class App {
     private static void test(String projName) {
 
         System.out.println("Printing all versions on Jira:");
-        ProjectController pc = new ProjectController(projName);
+        ProjectController pc = ProjectController.getInstance(projName);
         pc.getProject().getVersions().forEach(System.out::println);
 
         System.out.println("\n\nPrinting all tags on GitHub:");
@@ -46,7 +46,7 @@ public class App {
         IssueController ic = IssueController.getInstance(projName);
         List<Issue> issues;
         try {
-            issues = ic.getAllIssues(true);
+            issues = ic.getIssues(Integer.MAX_VALUE, true);
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }

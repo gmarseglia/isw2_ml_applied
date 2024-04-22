@@ -4,15 +4,26 @@ import com.google.gson.Gson;
 import it.gmarseglia.app.boundary.ProjectJSONGetter;
 import it.gmarseglia.app.model.Project;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProjectController {
+
+    private static final Map<String, ProjectController> instances = new HashMap<>();
 
     private final String projName;
     private final ProjectJSONGetter projectJSONGetter;
 
-    public ProjectController(String projName) {
+    private ProjectController(String projName) {
         this.projName = projName;
         this.projectJSONGetter = new ProjectJSONGetter(this.projName);
     }
+
+    public static ProjectController getInstance(String projName){
+        ProjectController.instances.computeIfAbsent(projName, string -> new ProjectController(projName));
+        return ProjectController.instances.get(projName);
+    }
+
 
     /**
      * Uses {@code Gson} to map Json to {@link Project}

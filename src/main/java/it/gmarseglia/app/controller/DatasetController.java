@@ -31,7 +31,7 @@ public class DatasetController {
      */
     private DatasetController(String projName) {
         this.projName = projName;
-        this.pc = new ProjectController(projName);
+        this.pc = ProjectController.getInstance(projName);
         this.gc = GitController.getInstance(projName);
         this.ec = new EntriesController();
         this.cb = new CsvEntryBoundary(projName);
