@@ -12,10 +12,11 @@ public class App {
     public static void main(String[] args) {
         String projName = "OPENJPA";
 
-        run(projName);
+        test(projName);
     }
 
     private static void test(String projName) {
+        MyLogger.setStaticVerbose(true);
 
         System.out.println("Printing all versions on Jira:");
         ProjectController pc = ProjectController.getInstance(projName);
@@ -43,7 +44,7 @@ public class App {
         IssueController ic = IssueController.getInstance(projName);
         List<Issue> issues;
         try {
-            issues = ic.getIssues(Integer.MAX_VALUE);
+            issues = ic.getValidIssues(Integer.MAX_VALUE);
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }

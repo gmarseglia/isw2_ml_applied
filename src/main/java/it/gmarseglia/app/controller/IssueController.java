@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class IssueController {
 
@@ -19,16 +20,72 @@ public class IssueController {
     private final IssueFactory issueFactory;
     private final List<JiraIssue> allJiraIssues = new ArrayList<>();
     private final MyLogger logger;
+    private final GitController gc;
 
     private IssueController(String projName) {
         this.issueJSONGetter = new IssueJSONGetter(projName);
         this.issueFactory = IssueFactory.getInstance(projName);
         this.logger = MyLogger.getInstance(this.getClass());
+        this.gc = GitController.getInstance(projName);
     }
 
     public static IssueController getInstance(String projName) {
         IssueController.instances.computeIfAbsent(projName, IssueController::new);
         return IssueController.instances.get(projName);
+    }
+
+    public List<Issue> getValidIssues(int maxTotal) throws GitAPIException {
+        List<Issue> allIssues = this.getIssues(maxTotal);
+
+        logger.log(() -> System.out.printf("All issues found: %d\n", allIssues.size()));
+
+        // commits > 0
+        Predicate<Issue> noCommitFilter = issue -> {
+            try {
+                return !gc.getAllCommitsByIssue(issue).isEmpty();
+            } catch (GitAPIException e) {
+                return false;
+            }
+        };
+        logger.log(() -> System.out.printf("Issues which fails \"noCommitFilter\": %d\n", allIssues.stream().filter(noCommitFilter.negate()).count()));
+
+        // IV < FV
+        Predicate<Issue> nonPostReleaseFilter = issue -> {
+            if (issue.getInjectVersion() != null) {
+                return issue.getInjectVersion().getReleaseDate().compareTo(issue.getFixVersion().getReleaseDate()) < 0;
+            } else {
+                return true;
+            }
+        };
+        logger.log(() -> System.out.printf("Issues which fails \"nonPostRelease\": %d\n", allIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+
+
+        // IV <= OV
+        Predicate<Issue> IVConsistencyFilter = issue -> {
+            if (issue.getInjectVersion() != null) {
+                return issue.getInjectVersion().getReleaseDate().compareTo(issue.getOpeningVersion().getReleaseDate()) <= 0;
+            } else {
+                return true;
+            }
+        };
+        logger.log(() -> System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n", allIssues.stream().filter(IVConsistencyFilter.negate()).count()));
+
+
+        // OV <= FV
+        Predicate<Issue> openingConsistencyFilter = issue -> issue.getOpeningVersion().getReleaseDate().compareTo(issue.getFixVersion().getReleaseDate()) <= 0;
+        logger.log(() -> System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n", allIssues.stream().filter(openingConsistencyFilter.negate()).count()));
+
+
+        List<Issue> filteredIssues = allIssues.stream()
+                .filter(nonPostReleaseFilter)
+                .filter(IVConsistencyFilter)
+                .filter(openingConsistencyFilter)
+                .filter(noCommitFilter)
+                .toList();
+
+        logger.log(() -> System.out.printf("All valid issues found: %d\n", filteredIssues.size()));
+
+        return filteredIssues;
     }
 
     /**
