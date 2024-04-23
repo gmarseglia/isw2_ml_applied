@@ -1,6 +1,8 @@
 package it.gmarseglia.app.boundary;
 
 import com.google.gson.Gson;
+import it.gmarseglia.app.controller.JsonCacheUtils;
+import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.app.model.JiraIssueReport;
 
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class IssueJSONGetter {
             " AND resolution = fixed";
 
     private final String projName;
+    private final MyLogger logger = MyLogger.getInstance(IssueJSONGetter.class);
 
     public IssueJSONGetter(String projName) {
         this.projName = projName;
@@ -39,21 +42,10 @@ public class IssueJSONGetter {
     }
 
     public String getIssueJSON(int startAt, int maxResult) {
-        String textJson;
-        InputStream isJson;
+        String targetUrl = this.buildURL(startAt, maxResult);
+        String targetFile = String.format("%s_issues-%d-%d.json", this.projName, startAt, maxResult);
 
-        try {
-            isJson = new URL(this.buildURL(startAt, maxResult)).openStream();
-
-            textJson = new String(isJson.readAllBytes(), Charset.defaultCharset());
-
-            isJson.close();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return textJson;
+        return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl, logger);
     }
 
     public JiraIssueReport getIssueReport(int startAt, int maxResult) {
