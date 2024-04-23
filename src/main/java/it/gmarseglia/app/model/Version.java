@@ -1,6 +1,7 @@
 package it.gmarseglia.app.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class Version {
 
@@ -50,5 +51,18 @@ public class Version {
                 ", releaseDate=" + releaseDate +
                 ", JiraReleaseDate=" + JiraReleaseDate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Version version = (Version) object;
+        return Objects.equals(name, version.name) && Objects.equals(releaseDate, version.releaseDate) && Objects.equals(JiraReleaseDate, version.JiraReleaseDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, releaseDate, JiraReleaseDate);
     }
 }
