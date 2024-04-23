@@ -46,9 +46,11 @@ public class GitController {
     public List<Path> getAllPathByCommit(RevCommit revCommit) throws GitAPIException {
         List<Path> result = new ArrayList<>();
 
+        logger.logFinest(() -> System.out.printf("Getting all paths for commit: %s\n", revCommit.getId()));
+
         /* https://www.eclipse.org/forums/index.php/t/213979/ */
         RevWalk rw = new RevWalk(this.getLocalGit().getRepository());
-        RevCommit parent = null;
+        RevCommit parent;
         try {
             parent = rw.parseCommit(revCommit.getParent(0).getId());
             DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
@@ -77,11 +79,14 @@ public class GitController {
     public List<RevCommit> getAllCommitsByIssue(Issue issue) throws GitAPIException {
         String issueID = issue.getKey();
 
+        logger.logFinest(() -> System.out.printf("Getting all commits for issue: %s\n", issueID));
+
         List<RevCommit> result = new ArrayList<>();
 
         try {
             for (RevCommit revCommit : this.getLocalGit().log().all().call()) {
-                if (revCommit.getFullMessage().contains(issueID)) result.add(revCommit);
+                if (revCommit.getFullMessage().contains(issueID))
+                    result.add(revCommit);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

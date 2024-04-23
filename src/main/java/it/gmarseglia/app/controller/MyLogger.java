@@ -9,9 +9,11 @@ public class MyLogger {
     private static final Map<String, MyLogger> instances = new HashMap<>();
     private static Boolean staticVerbose = false;
     private static Boolean staticVerboseFine = false;
+    private static Boolean staticVerboseFinest = false;
     private final String className;
     private Boolean verbose;
     private Boolean verboseFine;
+    private Boolean verboseFinest;
 
     private MyLogger(String className) {
         this.className = className;
@@ -25,6 +27,10 @@ public class MyLogger {
     public static MyLogger getInstance(Class<?> actualClass) {
         String simplePackageName = Arrays.stream(actualClass.getPackageName().split("\\.")).toList().getLast();
         return MyLogger.getInstance(simplePackageName + "." + actualClass.getSimpleName());
+    }
+
+    public static void setStaticVerboseFinest(Boolean staticVerboseFinest) {
+        MyLogger.staticVerboseFinest = staticVerboseFinest;
     }
 
     public static void setStaticVerbose(Boolean staticVerbose) {
@@ -49,15 +55,27 @@ public class MyLogger {
         }
     }
 
+    public void logFinest(Runnable runnable) {
+        if ((verboseFinest == null && staticVerboseFinest) || Boolean.TRUE.equals(verboseFinest)) {
+            System.out.printf("%s logs:\t", this.className);
+            runnable.run();
+        }
+    }
+
     public void logObject(Object object) {
         this.log(() -> System.out.println(object));
     }
 
-    public void setVerbose(boolean verbose) {
+    public void setVerbose(Boolean verbose) {
         this.verbose = verbose;
     }
 
     public void setVerboseFine(Boolean verboseFine) {
         this.verboseFine = verboseFine;
     }
+
+    public void setVerboseFinest(Boolean verboseFinest) {
+        this.verboseFinest = verboseFinest;
+    }
+
 }
