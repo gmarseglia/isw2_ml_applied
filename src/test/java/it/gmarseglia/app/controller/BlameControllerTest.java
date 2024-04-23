@@ -1,11 +1,6 @@
-package it.gmarseglia.app;
+package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.controller.BlameController;
-import it.gmarseglia.app.controller.GitController;
-import it.gmarseglia.app.controller.IssueController;
-import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.app.model.Issue;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -31,7 +26,7 @@ public class BlameControllerTest
         IssueController issueController = IssueController.getInstance(projName);
         BlameController blameController = BlameController.getInstance(projName);
 
-        List<Issue> issues = issueController.getIssues(issueNumber + 1, true);
+        List<Issue> issues = issueController.getIssues(issueNumber + 1);
 
         Issue target = issues.get(issueNumber);
         System.out.println(target);
@@ -50,7 +45,7 @@ public class BlameControllerTest
         IssueController issueController = IssueController.getInstance(projName);
         BlameController blameController = BlameController.getInstance(projName);
 
-        List<Issue> issues = issueController.getIssues(40, true);
+        List<Issue> issues = issueController.getIssues(40);
 
         Issue target = issues.get(39);
         System.out.println(target);

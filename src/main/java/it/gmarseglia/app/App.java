@@ -43,7 +43,7 @@ public class App {
         IssueController ic = IssueController.getInstance(projName);
         List<Issue> issues;
         try {
-            issues = ic.getIssues(Integer.MAX_VALUE, true);
+            issues = ic.getIssues(Integer.MAX_VALUE);
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }

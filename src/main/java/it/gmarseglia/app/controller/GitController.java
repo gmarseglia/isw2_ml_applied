@@ -172,11 +172,11 @@ public class GitController {
         // delete dir
         MyFileUtils.deleteDirectory(localPath);
 
-        System.out.print("Cloning...");
+        logger.log(() -> System.out.print("Cloning..."));
 
         // clone the repository
         Git.cloneRepository().setURI(repoUrl).setDirectory(localPath.toFile()).call();
 
-        System.out.print("Done.\n");
+        logger.log(() -> System.out.print("Done.\n"));
     }
 }

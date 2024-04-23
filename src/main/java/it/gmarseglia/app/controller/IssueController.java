@@ -18,21 +18,32 @@ public class IssueController {
     private final IssueJSONGetter issueJSONGetter;
     private final IssueFactory issueFactory;
     private final List<JiraIssue> allJiraIssues = new ArrayList<>();
+    private final MyLogger logger;
+
+    private IssueController(String projName) {
+        this.issueJSONGetter = new IssueJSONGetter(projName);
+        this.issueFactory = IssueFactory.getInstance(projName);
+        this.logger = MyLogger.getInstance(this.getClass());
+    }
+
+    public static IssueController getInstance(String projName) {
+        IssueController.instances.computeIfAbsent(projName, IssueController::new);
+        return IssueController.instances.get(projName);
+    }
 
     /**
      * 1. Gets all the issues from Jira, via {@code getAllJiraIssues}.
      * 2. For each issue:
      * Assigns the OV, FV and AV by comparing Jira and GitHub info. Look {@link IssueFactory} for more.
      *
-     * @param verbose Option.
      * @return A list of all issues.
      * @throws GitAPIException due to {@link GitController}
      */
-    public List<Issue> getIssues(int maxTotal, boolean verbose) throws GitAPIException {
+    public List<Issue> getIssues(int maxTotal) throws GitAPIException {
         List<Issue> result = new ArrayList<>();
 
         // get all Jira issues
-        this.getJiraIssues(maxTotal, verbose);
+        this.getJiraIssues(maxTotal);
 
         for (JiraIssue jiraIssue : this.allJiraIssues) {
             result.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
@@ -44,17 +55,18 @@ public class IssueController {
     /**
      * Call multiple time {@link IssueJSONGetter} to obtain all the Jira issues.
      * {@code allJiraIssues} holds the list.
-     *
-     * @param verbose Option.
      */
-    private void getJiraIssues(int maxTotal, boolean verbose) {
+    private void getJiraIssues(int maxTotal) {
         JiraIssueReport jiraIssueReport;
 
         int maxResult = 1000;
         int total = maxResult;
 
         for (int i = 0; i < Math.min(total, maxTotal); i += maxResult) {
-            if (verbose) System.out.printf("Getting Jira issues from %d to %d.\n", i, Math.min(total, maxTotal));
+
+            int finalI = i;
+            int finalTotal = total;
+            logger.log(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, Math.min(finalTotal, maxTotal)));
 
             jiraIssueReport = issueJSONGetter.getIssueReport(i, Math.min(maxTotal - i, maxResult));
 
@@ -62,16 +74,6 @@ public class IssueController {
 
             this.allJiraIssues.addAll(jiraIssueReport.getIssues());
         }
-    }
-
-    private IssueController(String projName) {
-        this.issueJSONGetter = new IssueJSONGetter(projName);
-        this.issueFactory = IssueFactory.getInstance(projName);
-    }
-
-    public static IssueController getInstance(String projName) {
-        IssueController.instances.computeIfAbsent(projName, IssueController::new);
-        return IssueController.instances.get(projName);
     }
 
 
