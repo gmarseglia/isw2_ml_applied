@@ -47,7 +47,7 @@ public class IssueController {
                 return false;
             }
         };
-        logger.log(() -> System.out.printf("Issues which fails \"noCommitFilter\": %d\n", allIssues.stream().filter(noCommitFilter.negate()).count()));
+        logger.logFine(() -> System.out.printf("Issues which fails \"noCommitFilter\": %d\n", allIssues.stream().filter(noCommitFilter.negate()).count()));
 
         // IV < FV
         Predicate<Issue> nonPostReleaseFilter = issue -> {
@@ -57,7 +57,7 @@ public class IssueController {
                 return true;
             }
         };
-        logger.log(() -> System.out.printf("Issues which fails \"nonPostRelease\": %d\n", allIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+        logger.logFine(() -> System.out.printf("Issues which fails \"nonPostRelease\": %d\n", allIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
 
 
         // IV <= OV
@@ -68,12 +68,12 @@ public class IssueController {
                 return true;
             }
         };
-        logger.log(() -> System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n", allIssues.stream().filter(IVConsistencyFilter.negate()).count()));
+        logger.logFine(() -> System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n", allIssues.stream().filter(IVConsistencyFilter.negate()).count()));
 
 
         // OV <= FV
         Predicate<Issue> openingConsistencyFilter = issue -> issue.getOpeningVersion().getReleaseDate().compareTo(issue.getFixVersion().getReleaseDate()) <= 0;
-        logger.log(() -> System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n", allIssues.stream().filter(openingConsistencyFilter.negate()).count()));
+        logger.logFine(() -> System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n", allIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
 
         List<Issue> filteredIssues = allIssues.stream()
