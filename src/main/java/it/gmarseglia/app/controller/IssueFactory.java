@@ -1,8 +1,8 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.model.Issue;
-import it.gmarseglia.app.model.JiraIssue;
-import it.gmarseglia.app.model.Version;
+import it.gmarseglia.app.entity.Issue;
+import it.gmarseglia.app.entity.JiraIssue;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.HashMap;

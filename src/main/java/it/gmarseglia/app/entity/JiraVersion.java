@@ -1,4 +1,4 @@
-package it.gmarseglia.app.model;
+package it.gmarseglia.app.entity;
 
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.model.Issue;
+import it.gmarseglia.app.entity.Issue;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;

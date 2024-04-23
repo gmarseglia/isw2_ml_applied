@@ -3,12 +3,7 @@ package it.gmarseglia.app.boundary;
 import com.google.gson.Gson;
 import it.gmarseglia.app.controller.JsonCacheUtils;
 import it.gmarseglia.app.controller.MyLogger;
-import it.gmarseglia.app.model.JiraIssueReport;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.Charset;
+import it.gmarseglia.app.entity.JiraIssueReport;
 
 public class IssueJSONGetter {
 

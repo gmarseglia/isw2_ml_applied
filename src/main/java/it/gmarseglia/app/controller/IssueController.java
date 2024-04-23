@@ -1,9 +1,9 @@
 package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.boundary.IssueJSONGetter;
-import it.gmarseglia.app.model.Issue;
-import it.gmarseglia.app.model.JiraIssue;
-import it.gmarseglia.app.model.JiraIssueReport;
+import it.gmarseglia.app.entity.Issue;
+import it.gmarseglia.app.entity.JiraIssue;
+import it.gmarseglia.app.entity.JiraIssueReport;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.ArrayList;

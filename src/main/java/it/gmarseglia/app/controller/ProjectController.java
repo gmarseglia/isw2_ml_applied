@@ -2,7 +2,7 @@ package it.gmarseglia.app.controller;
 
 import com.google.gson.Gson;
 import it.gmarseglia.app.boundary.ProjectJSONGetter;
-import it.gmarseglia.app.model.Project;
+import it.gmarseglia.app.entity.Project;
 
 import java.util.HashMap;
 import java.util.Map;

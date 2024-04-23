@@ -1,7 +1,7 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.model.Issue;
-import it.gmarseglia.app.model.JiraVersion;
+import it.gmarseglia.app.entity.Issue;
+import it.gmarseglia.app.entity.JiraVersion;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;

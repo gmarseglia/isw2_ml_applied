@@ -1,7 +1,7 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.model.Entry;
-import it.gmarseglia.app.model.Version;
+import it.gmarseglia.app.entity.Entry;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.nio.file.Path;

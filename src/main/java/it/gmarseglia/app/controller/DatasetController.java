@@ -2,7 +2,7 @@ package it.gmarseglia.app.controller;
 
 
 import it.gmarseglia.app.boundary.CsvEntryBoundary;
-import it.gmarseglia.app.model.Entry;
+import it.gmarseglia.app.entity.Entry;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.*;

@@ -1,7 +1,7 @@
 package it.gmarseglia.app.boundary;
 
 import it.gmarseglia.app.controller.MyFileUtils;
-import it.gmarseglia.app.model.Entry;
+import it.gmarseglia.app.entity.Entry;
 
 import java.io.IOException;
 import java.nio.file.Files;
