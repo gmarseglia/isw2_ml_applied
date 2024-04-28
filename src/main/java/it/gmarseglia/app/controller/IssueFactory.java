@@ -40,13 +40,13 @@ public class IssueFactory {
 
         ov = vc.getAllValidVersions()
                 .stream()
-                .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getCreated()))
+                .filter(version -> version.getGithubReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
 
         fv = vc.getAllValidVersions()
                 .stream()
-                .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
+                .filter(version -> version.getGithubReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
                 .findFirst()
                 .orElse(null);
 
@@ -55,7 +55,7 @@ public class IssueFactory {
         } else {
             iv = vc.getAllValidVersions()
                     .stream()
-                    .filter(version -> version.getReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
+                    .filter(version -> version.getGithubReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
                     .findFirst()
                     .orElse(null);
         }

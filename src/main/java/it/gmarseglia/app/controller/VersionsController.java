@@ -82,8 +82,8 @@ public class VersionsController {
             this.allValidVersions = this.getAllVersions()
                     .stream()
                     .filter(Version::isReleased)
-                    .filter(version -> version.getReleaseDate() != null)
-                    .sorted(Comparator.comparing(Version::getReleaseDate))
+                    .filter(version -> version.getGithubReleaseDate() != null)
+                    .sorted(Comparator.comparing(Version::getGithubReleaseDate))
                     .toList();
         }
         return this.allValidVersions;

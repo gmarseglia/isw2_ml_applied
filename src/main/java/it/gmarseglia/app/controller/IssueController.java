@@ -52,7 +52,7 @@ public class IssueController {
         // IV < FV
         Predicate<Issue> nonPostReleaseFilter = issue -> {
             if (issue.getInjectVersion() != null) {
-                return issue.getInjectVersion().getReleaseDate().compareTo(issue.getFixVersion().getReleaseDate()) < 0;
+                return issue.getInjectVersion().getGithubReleaseDate().compareTo(issue.getFixVersion().getGithubReleaseDate()) < 0;
             } else {
                 return true;
             }
@@ -63,7 +63,7 @@ public class IssueController {
         // IV <= OV
         Predicate<Issue> IVConsistencyFilter = issue -> {
             if (issue.getInjectVersion() != null) {
-                return issue.getInjectVersion().getReleaseDate().compareTo(issue.getOpeningVersion().getReleaseDate()) <= 0;
+                return issue.getInjectVersion().getGithubReleaseDate().compareTo(issue.getOpeningVersion().getGithubReleaseDate()) <= 0;
             } else {
                 return true;
             }
@@ -72,7 +72,7 @@ public class IssueController {
 
 
         // OV <= FV
-        Predicate<Issue> openingConsistencyFilter = issue -> issue.getOpeningVersion().getReleaseDate().compareTo(issue.getFixVersion().getReleaseDate()) <= 0;
+        Predicate<Issue> openingConsistencyFilter = issue -> issue.getOpeningVersion().getGithubReleaseDate().compareTo(issue.getFixVersion().getGithubReleaseDate()) <= 0;
         logger.logFine(() -> System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n", allIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
 

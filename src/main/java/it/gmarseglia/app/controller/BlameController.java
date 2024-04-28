@@ -48,7 +48,7 @@ public class BlameController {
         /* Filter commits after FV GitHub release date */
         Iterator<RevCommit> iterator = commits
                 .stream()
-                .filter(revCommit -> revCommit.getAuthorIdent().getWhen().before(issue.getFixVersion().getReleaseDate()))
+                .filter(revCommit -> revCommit.getAuthorIdent().getWhen().before(issue.getFixVersion().getGithubReleaseDate()))
                 .iterator();
 
         while (iterator.hasNext()) {

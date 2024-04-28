@@ -6,14 +6,14 @@ import java.util.Objects;
 public class Version {
 
     private String name;
-    private Date releaseDate;
+    private Date GithubReleaseDate;
     private Date JiraReleaseDate;
     private boolean released;
 
-    public Version(String name, Date releaseDate, Date jiraReleaseDate, boolean released) {
+    public Version(String name, Date GithubReleaseDate, Date jiraReleaseDate, boolean released) {
         this.name = name;
-        this.releaseDate = releaseDate;
-        JiraReleaseDate = jiraReleaseDate;
+        this.GithubReleaseDate = GithubReleaseDate;
+        this.JiraReleaseDate = jiraReleaseDate;
         this.released = released;
     }
 
@@ -25,12 +25,12 @@ public class Version {
         this.name = name;
     }
 
-    public Date getReleaseDate() {
-        return releaseDate;
+    public Date getGithubReleaseDate() {
+        return GithubReleaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
+    public void setGithubReleaseDate(Date githubReleaseDate) {
+        this.GithubReleaseDate = githubReleaseDate;
     }
 
     public Date getJiraReleaseDate() {
@@ -49,7 +49,7 @@ public class Version {
     public String toString() {
         return "Version{" +
                 "name='" + name + '\'' +
-                ", releaseDate=" + releaseDate +
+                ", GithubReleaseDate=" + GithubReleaseDate +
                 ", JiraReleaseDate=" + JiraReleaseDate +
                 '}';
     }
@@ -59,11 +59,11 @@ public class Version {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Version version = (Version) object;
-        return Objects.equals(name, version.name) && Objects.equals(releaseDate, version.releaseDate) && Objects.equals(JiraReleaseDate, version.JiraReleaseDate);
+        return Objects.equals(name, version.name) && Objects.equals(GithubReleaseDate, version.GithubReleaseDate) && Objects.equals(JiraReleaseDate, version.JiraReleaseDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, releaseDate, JiraReleaseDate);
+        return Objects.hash(name, GithubReleaseDate, JiraReleaseDate);
     }
 }
