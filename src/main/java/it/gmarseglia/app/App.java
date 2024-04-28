@@ -12,6 +12,10 @@ public class App {
     public static void main(String[] args) {
         String projName = "OPENJPA";
 
+        MyLogger.setStaticVerbose(true);
+        MyLogger.setStaticVerboseFine(true);
+        MyLogger.setStaticVerboseFinest(false);
+
         test(projName);
     }
 
@@ -49,13 +53,6 @@ public class App {
             throw new RuntimeException(e);
         }
         issues.forEach(System.out::println);
-
-        long count = issues.stream()
-                .filter(issue -> issue.getInjectVersion() != null)
-                .filter(issue -> issue.getInjectVersion().getReleaseDate().after(issue.getOpeningVersion().getReleaseDate()))
-                .count();
-
-        System.out.printf("Invalid issues due to fix version after opening version: %d\n", count);
 
     }
 
