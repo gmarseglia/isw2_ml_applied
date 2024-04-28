@@ -1,6 +1,7 @@
 package it.gmarseglia.app.entity;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class Issue {
 
@@ -77,11 +78,14 @@ public class Issue {
 
     @Override
     public String toString() {
+        String strOV = Objects.isNull(openingVersion) ? "null" : openingVersion.toShortString();
+        String strFV = Objects.isNull(fixVersion) ? "null" : fixVersion.toShortString();
+        String strIV = Objects.isNull(injectVersion) ? "null" : injectVersion.toShortString();
         return "Issue{" +
                 "key='" + key + '\'' +
-                ", openingVersion=" + openingVersion +
-                ", fixVersion=" + fixVersion +
-                ", injectVersion=" + injectVersion +
+                ", openingVersion=" + strOV +
+                ", fixVersion=" + strFV +
+                ", injectVersion=" + strIV +
                 ", jiraCreationDate=" + jiraCreationDate +
                 ", jiraResolutionDate=" + jiraResolutionDate +
                 '}';

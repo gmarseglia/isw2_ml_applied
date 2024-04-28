@@ -62,6 +62,10 @@ public class Version {
                 '}';
     }
 
+    public String toShortString() {
+        return "v{" + name + ", " + getJiraReleaseDate() + "}";
+    }
+
 
     @Override
     public boolean equals(Object object) {
