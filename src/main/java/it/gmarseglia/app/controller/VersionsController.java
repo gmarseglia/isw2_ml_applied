@@ -70,6 +70,9 @@ public class VersionsController {
     }
 
     /**
+     * A version is considered valid when a release date with GitHub has been found and
+     * has been indicated as released on Jira.
+     *
      * @return A list of all valid version present both on GitHub and Jira, with the release date set by the last commit on GitHub.
      * @throws GitAPIException due to {@link GitController}
      */
@@ -78,7 +81,7 @@ public class VersionsController {
             this.setAllTags();
             this.allValidVersions = this.getAllVersions()
                     .stream()
-                    .filter(version -> this.allTags.contains(version.getName()))
+                    .filter(Version::isReleased)
                     .filter(version -> version.getReleaseDate() != null)
                     .sorted(Comparator.comparing(Version::getReleaseDate))
                     .toList();

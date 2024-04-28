@@ -8,16 +8,13 @@ public class Version {
     private String name;
     private Date releaseDate;
     private Date JiraReleaseDate;
+    private boolean released;
 
-    public Version(String name, Date releaseDate) {
-        this.name = name;
-        this.releaseDate = releaseDate;
-    }
-
-    public Version(String name, Date releaseDate, Date jiraReleaseDate) {
+    public Version(String name, Date releaseDate, Date jiraReleaseDate, boolean released) {
         this.name = name;
         this.releaseDate = releaseDate;
         JiraReleaseDate = jiraReleaseDate;
+        this.released = released;
     }
 
     public String getName() {
@@ -42,6 +39,10 @@ public class Version {
 
     public void setJiraReleaseDate(Date jiraReleaseDate) {
         JiraReleaseDate = jiraReleaseDate;
+    }
+
+    public boolean isReleased() {
+        return released;
     }
 
     @Override
