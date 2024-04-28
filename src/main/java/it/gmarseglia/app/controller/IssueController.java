@@ -18,6 +18,7 @@ public class IssueController {
 
     private final IssueJSONGetter issueJSONGetter;
     private final IssueFactory issueFactory;
+    private Integer lastMaxTotal;
     private final List<JiraIssue> allJiraIssues = new ArrayList<>();
     private final MyLogger logger;
     private final GitController gc;
@@ -105,8 +106,13 @@ public class IssueController {
     public List<Issue> getIssues(int maxTotal) throws GitAPIException {
         List<Issue> result = new ArrayList<>();
 
-        // get all Jira issues
-        this.getJiraIssues(maxTotal);
+        if (this.lastMaxTotal == null || maxTotal != this.lastMaxTotal) {
+            // get all Jira issues
+            this.lastMaxTotal = maxTotal;
+            this.setJiraIssues(maxTotal);
+        }
+
+        logger.log(() -> System.out.printf("Found %d Jira Issues.\n", this.allJiraIssues.size()));
 
         for (JiraIssue jiraIssue : this.allJiraIssues) {
             result.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
@@ -119,7 +125,9 @@ public class IssueController {
      * Call multiple time {@link IssueJSONGetter} to obtain all the Jira issues.
      * {@code allJiraIssues} holds the list.
      */
-    private void getJiraIssues(int maxTotal) {
+    private void setJiraIssues(int maxTotal) {
+        this.allJiraIssues.clear();
+
         JiraIssueReport jiraIssueReport;
 
         int maxResult = 1000;
