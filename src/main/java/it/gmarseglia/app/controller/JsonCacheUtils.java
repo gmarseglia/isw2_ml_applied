@@ -8,8 +8,7 @@ import java.nio.charset.Charset;
 public class JsonCacheUtils {
 
     public static String getStringFromResourcesThenURL(String targetFile, String targetUrl, MyLogger logger) {
-        logger.setVerboseFine(false);
-        logger.logFine(() -> System.out.println(targetUrl));
+        logger.logFinest(() -> System.out.println(targetUrl));
         InputStream isJson;
         String textJson;
 
