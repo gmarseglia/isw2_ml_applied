@@ -90,4 +90,17 @@ public class Issue {
                 ", jiraResolutionDate=" + jiraResolutionDate +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Issue issue = (Issue) object;
+        return Objects.equals(key, issue.key) && Objects.equals(openingVersion, issue.openingVersion) && Objects.equals(fixVersion, issue.fixVersion) && Objects.equals(injectVersion, issue.injectVersion) && Objects.equals(jiraCreationDate, issue.jiraCreationDate) && Objects.equals(jiraResolutionDate, issue.jiraResolutionDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, openingVersion, fixVersion, injectVersion, jiraCreationDate, jiraResolutionDate);
+    }
 }

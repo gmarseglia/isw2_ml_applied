@@ -2,11 +2,13 @@ package it.gmarseglia.app;
 
 import it.gmarseglia.app.controller.IssueController;
 import it.gmarseglia.app.controller.MyLogger;
+import it.gmarseglia.app.controller.VersionsController;
 import it.gmarseglia.app.entity.Issue;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class Statistics {
 
@@ -14,28 +16,42 @@ public class Statistics {
 
     public static void main(String[] args) {
         try {
-            nonPostReleaseStats();
+            issueStats();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void nonPostReleaseStats() throws GitAPIException {
+    private static void issueStats() throws GitAPIException {
         String projName = "OPENJPA";
+
         MyLogger.setStaticVerbose(true);
+        MyLogger.setStaticVerboseFine(true);
+        logger.setVerbose(true);
+
+        VersionsController vc = VersionsController.getInstance(projName);
+        List<Version> allVersions = vc.getAllVersions();
+        logger.log(() -> System.out.printf("\n\nAll Versions: %d\n", allVersions.size()));
+        allVersions.forEach(logger::logObject);
+
+        List<Version> allValidVersions = vc.getAllValidVersions();
+        logger.log(() -> System.out.printf("\n\nAll Valid versions: %d\n", allValidVersions.size()));
+        allValidVersions.forEach(logger::logObject);
 
         IssueController ic = IssueController.getInstance(projName);
 
         List<Issue> allIssues = ic.getIssues(Integer.MAX_VALUE);
+        logger.log(() -> System.out.printf("\n\nAll Issues size: %d\n", allIssues.size()));
+        allIssues.forEach(logger::logObject);
 
-        logger.log(() -> System.out.printf("All Issues size: %d\n", allIssues.size()));
+        List<Issue> allValidIssues = ic.getValidIssues(Integer.MAX_VALUE);
+        logger.log(() -> System.out.printf("\n\nAll Valid issues size: %d\n", allValidIssues.size()));
+        allValidIssues.forEach(logger::logObject);
 
-        Predicate<Issue> filterNonPostRelease = issue -> issue.getFixVersion().equals(issue.getInjectVersion());
+        List<Issue> allNonValidIssues = new ArrayList<>(allIssues);
+        allNonValidIssues.removeAll(allValidIssues);
+        logger.log(() -> System.out.printf("\n\nAll Non valid issues size: %d\n", allNonValidIssues.size()));
+        allNonValidIssues.forEach(logger::logObject);
 
-        long nonPostReleaseCount = allIssues.stream()
-                .filter(filterNonPostRelease)
-                .count();
-
-        logger.log(() -> System.out.printf("All non post release issue size: %d\n", nonPostReleaseCount));
     }
 }
