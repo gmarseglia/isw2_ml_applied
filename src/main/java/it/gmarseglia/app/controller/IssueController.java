@@ -63,7 +63,7 @@ public class IssueController {
 
         // IV <= OV
         Predicate<Issue> IVConsistencyFilter = issue -> {
-            if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
+            if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
                 return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
             } else {
                 return true;
