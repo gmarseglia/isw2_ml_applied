@@ -41,6 +41,12 @@ public class MyLogger {
         MyLogger.staticVerboseFine = staticVerboseFine;
     }
 
+    public void logPrefixless(Runnable runnable) {
+        if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
+            runnable.run();
+        }
+    }
+
     public void log(Runnable runnable) {
         if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
             System.out.printf("%s logs:\t", this.className);
@@ -64,6 +70,10 @@ public class MyLogger {
 
     public void logObject(Object object) {
         this.log(() -> System.out.println(object));
+    }
+
+    public void logObjectPrefixless(Object object) {
+        this.logPrefixless(() -> System.out.println(object));
     }
 
     public void setVerbose(Boolean verbose) {
