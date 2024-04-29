@@ -39,6 +39,7 @@ public class IssueFactory {
         Version ov;
         Version fv;
         Version iv;
+        boolean hasExplicitIV;
 
         ov = vc.getAllValidVersions()
                 .stream()
@@ -53,8 +54,11 @@ public class IssueFactory {
                 .orElse(null);
 
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
+            hasExplicitIV = false;
             iv = null;
         } else {
+            hasExplicitIV = true;
+
             List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
             
             iv = vc.getAllValidVersions()
@@ -75,6 +79,7 @@ public class IssueFactory {
         }
 
         return new Issue(jiraIssue.getKey(), ov, fv, iv,
+                hasExplicitIV,
                 jiraIssue.getFields().getCreated(),
                 jiraIssue.getFields().getResolutiondate());
     }

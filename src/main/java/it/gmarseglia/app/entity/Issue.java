@@ -9,21 +9,17 @@ public class Issue {
     private Version openingVersion;
     private Version fixVersion;
     private Version injectVersion;
+    private final boolean hasExplicitIV;
     private Date jiraCreationDate;
     private Date jiraResolutionDate;
 
-    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion) {
-        this.key = key;
-        this.openingVersion = openingVersion;
-        this.fixVersion = fixVersion;
-        this.injectVersion = injectVersion;
-    }
 
-    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate) {
+    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, boolean hasExplicitIV, Date jiraCreationDate, Date jiraResolutionDate) {
         this.key = key;
         this.openingVersion = openingVersion;
         this.fixVersion = fixVersion;
         this.injectVersion = injectVersion;
+        this.hasExplicitIV = hasExplicitIV;
         this.jiraCreationDate = jiraCreationDate;
         this.jiraResolutionDate = jiraResolutionDate;
     }
@@ -60,6 +56,10 @@ public class Issue {
         this.injectVersion = injectVersion;
     }
 
+    public boolean isHasExplicitIV() {
+        return hasExplicitIV;
+    }
+
     public Date getJiraCreationDate() {
         return jiraCreationDate;
     }
@@ -86,6 +86,7 @@ public class Issue {
                 ", openingVersion=" + strOV +
                 ", fixVersion=" + strFV +
                 ", injectVersion=" + strIV +
+                ", hasExplicitIV=" + hasExplicitIV +
                 ", jiraCreationDate=" + jiraCreationDate +
                 ", jiraResolutionDate=" + jiraResolutionDate +
                 '}';
@@ -96,11 +97,11 @@ public class Issue {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Issue issue = (Issue) object;
-        return Objects.equals(key, issue.key) && Objects.equals(openingVersion, issue.openingVersion) && Objects.equals(fixVersion, issue.fixVersion) && Objects.equals(injectVersion, issue.injectVersion) && Objects.equals(jiraCreationDate, issue.jiraCreationDate) && Objects.equals(jiraResolutionDate, issue.jiraResolutionDate);
+        return hasExplicitIV == issue.hasExplicitIV && Objects.equals(key, issue.key) && Objects.equals(openingVersion, issue.openingVersion) && Objects.equals(fixVersion, issue.fixVersion) && Objects.equals(injectVersion, issue.injectVersion) && Objects.equals(jiraCreationDate, issue.jiraCreationDate) && Objects.equals(jiraResolutionDate, issue.jiraResolutionDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, openingVersion, fixVersion, injectVersion, jiraCreationDate, jiraResolutionDate);
+        return Objects.hash(hasExplicitIV, key, openingVersion, fixVersion, injectVersion, jiraCreationDate, jiraResolutionDate);
     }
 }

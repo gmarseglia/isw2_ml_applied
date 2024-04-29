@@ -1,5 +1,6 @@
 package it.gmarseglia.app;
 
+import it.gmarseglia.app.controller.GitController;
 import it.gmarseglia.app.controller.IssueController;
 import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.app.controller.VersionsController;
@@ -23,7 +24,10 @@ public class Statistics {
     }
 
     private static void issueStats() throws GitAPIException {
-        String projName = "OPENJPA";
+        String projName = "BOOKKEEPER";
+        String tagsRegex = "(release-)?%v";
+
+        GitController.getInstance(projName).setTagsRegex(tagsRegex);
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
