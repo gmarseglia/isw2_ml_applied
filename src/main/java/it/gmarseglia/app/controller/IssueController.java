@@ -141,8 +141,8 @@ public class IssueController {
         for (int i = 0; i < Math.min(total, maxTotal); i += maxResult) {
 
             int finalI = i;
-            int finalTotal = total;
-            logger.log(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, Math.min(finalTotal, maxTotal)));
+            int finalTotal = Math.min(total, maxTotal);
+            logger.log(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, finalTotal));
 
             jiraIssueReport = issueJSONGetter.getIssueReport(i, Math.min(maxTotal - i, maxResult));
 
