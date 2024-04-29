@@ -37,6 +37,7 @@ public class IssueFactory {
      */
     public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException {
         Version ov;
+        boolean isFirstOV;
         Version fv;
         Version iv;
         boolean hasExplicitIV;
@@ -46,6 +47,8 @@ public class IssueFactory {
                 .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
+
+        isFirstOV = vc.getAllValidVersions().getFirst().equals(ov);
 
         fv = vc.getAllValidVersions()
                 .stream()
@@ -78,8 +81,10 @@ public class IssueFactory {
             }
         }
 
-        return new Issue(jiraIssue.getKey(), ov, fv, iv,
-                hasExplicitIV,
+        return new Issue(jiraIssue.getKey(),
+                ov, isFirstOV,
+                fv,
+                iv, hasExplicitIV,
                 jiraIssue.getFields().getCreated(),
                 jiraIssue.getFields().getResolutiondate());
     }

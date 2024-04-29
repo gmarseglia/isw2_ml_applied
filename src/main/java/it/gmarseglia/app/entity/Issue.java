@@ -7,6 +7,7 @@ public class Issue {
 
     private String key;
     private Version openingVersion;
+    private final boolean isFirstOV;
     private Version fixVersion;
     private Version injectVersion;
     private final boolean hasExplicitIV;
@@ -14,9 +15,10 @@ public class Issue {
     private Date jiraResolutionDate;
 
 
-    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, boolean hasExplicitIV, Date jiraCreationDate, Date jiraResolutionDate) {
+    public Issue(String key, Version openingVersion, boolean isFirstOV, Version fixVersion, Version injectVersion, boolean hasExplicitIV, Date jiraCreationDate, Date jiraResolutionDate) {
         this.key = key;
         this.openingVersion = openingVersion;
+        this.isFirstOV = isFirstOV;
         this.fixVersion = fixVersion;
         this.injectVersion = injectVersion;
         this.hasExplicitIV = hasExplicitIV;
@@ -84,6 +86,7 @@ public class Issue {
         return "Issue{" +
                 "key='" + key + '\'' +
                 ", openingVersion=" + strOV +
+                ", isFirstOV=" + isFirstOV +
                 ", fixVersion=" + strFV +
                 ", injectVersion=" + strIV +
                 ", hasExplicitIV=" + hasExplicitIV +
