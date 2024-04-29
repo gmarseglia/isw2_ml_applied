@@ -55,7 +55,7 @@ public class IssueFactory {
         } else {
             iv = vc.getAllValidVersions()
                     .stream()
-                    .filter(version -> version.getGithubReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
+                    .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
                     .findFirst()
                     .orElse(null);
         }

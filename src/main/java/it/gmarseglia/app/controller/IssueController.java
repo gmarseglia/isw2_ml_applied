@@ -53,7 +53,7 @@ public class IssueController {
         // IV < FV
         Predicate<Issue> nonPostReleaseFilter = issue -> {
             if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
-                return issue.getInjectVersion().getGithubReleaseDate().compareTo(issue.getFixVersion().getGithubReleaseDate()) < 0;
+                return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) < 0;
             } else {
                 return true;
             }
@@ -64,7 +64,7 @@ public class IssueController {
         // IV <= OV
         Predicate<Issue> IVConsistencyFilter = issue -> {
             if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
-                return issue.getInjectVersion().getGithubReleaseDate().compareTo(issue.getOpeningVersion().getGithubReleaseDate()) <= 0;
+                return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
             } else {
                 return true;
             }
@@ -75,7 +75,7 @@ public class IssueController {
         // OV <= FV
         Predicate<Issue> openingConsistencyFilter = issue -> {
             if (issue.getOpeningVersion() != null && issue.getFixVersion() != null) {
-                return issue.getOpeningVersion().getGithubReleaseDate().compareTo(issue.getFixVersion().getGithubReleaseDate()) <= 0;
+                return issue.getOpeningVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) <= 0;
             } else {
                 return true;
             }
