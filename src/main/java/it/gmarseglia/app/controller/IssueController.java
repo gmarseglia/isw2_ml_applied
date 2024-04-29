@@ -18,10 +18,11 @@ public class IssueController {
 
     private final IssueJSONGetter issueJSONGetter;
     private final IssueFactory issueFactory;
-    private Integer lastMaxTotal;
-    private final List<JiraIssue> allJiraIssues = new ArrayList<>();
     private final MyLogger logger;
     private final GitController gc;
+    private List<Issue> totalValidIssues;
+    private Integer lastMaxTotal;
+    private List<Issue> totalIssues;
 
     private IssueController(String projName) {
         this.issueJSONGetter = new IssueJSONGetter(projName);
@@ -36,63 +37,69 @@ public class IssueController {
     }
 
     public List<Issue> getValidIssues(int maxTotal) throws GitAPIException {
-        List<Issue> allIssues = this.getIssues(maxTotal);
+        if (this.totalValidIssues == null || maxTotal != this.lastMaxTotal) {
+            List<Issue> totalIssues = this.getTotalIssues(maxTotal);
 
-        logger.log(() -> System.out.printf("All issues found: %d\n", allIssues.size()));
+            logger.logFine(() -> System.out.printf("Total issues found: %d\n", totalIssues.size()));
 
-        // commits > 0
-        Predicate<Issue> noCommitFilter = issue -> {
-            try {
-                return !gc.getAllCommitsByIssue(issue).isEmpty();
-            } catch (GitAPIException e) {
-                return false;
-            }
-        };
-        logger.logFine(() -> System.out.printf("Issues which fails \"noCommitFilter\": %d\n", allIssues.stream().filter(noCommitFilter.negate()).count()));
+            // commits > 0
+            Predicate<Issue> noCommitFilter = issue -> {
+                try {
+                    return !gc.getAllCommitsByIssue(issue).isEmpty();
+                } catch (GitAPIException e) {
+                    return false;
+                }
+            };
+            logger.logFinest(() ->
+                    System.out.printf("Issues which fails \"noCommitFilter\": %d\n",
+                            totalIssues.stream().filter(noCommitFilter.negate()).count()));
 
-        // IV < FV
-        Predicate<Issue> nonPostReleaseFilter = issue -> {
-            if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
-                return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) < 0;
-            } else {
-                return true;
-            }
-        };
-        logger.logFine(() -> System.out.printf("Issues which fails \"nonPostRelease\": %d\n", allIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+            // IV < FV
+            Predicate<Issue> nonPostReleaseFilter = issue -> {
+                if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
+                    return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) < 0;
+                } else {
+                    return true;
+                }
+            };
+            logger.logFinest(() ->
+                    System.out.printf("Issues which fails \"nonPostRelease\": %d\n",
+                            totalIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
 
+            // IV <= OV
+            Predicate<Issue> IVConsistencyFilter = issue -> {
+                if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
+                    return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
+                } else {
+                    return true;
+                }
+            };
+            logger.logFinest(() ->
+                    System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n",
+                            totalIssues.stream().filter(IVConsistencyFilter.negate()).count()));
 
-        // IV <= OV
-        Predicate<Issue> IVConsistencyFilter = issue -> {
-            if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
-                return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
-            } else {
-                return true;
-            }
-        };
-        logger.logFine(() -> System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n", allIssues.stream().filter(IVConsistencyFilter.negate()).count()));
+            // OV <= FV
+            Predicate<Issue> openingConsistencyFilter = issue -> {
+                if (issue.getOpeningVersion() != null && issue.getFixVersion() != null) {
+                    return issue.getOpeningVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) <= 0;
+                } else {
+                    return true;
+                }
+            };
+            logger.logFinest(() ->
+                    System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n",
+                            totalIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
+            this.totalValidIssues = totalIssues.stream()
+                    .filter(nonPostReleaseFilter)
+                    .filter(IVConsistencyFilter)
+                    .filter(openingConsistencyFilter)
+                    .filter(noCommitFilter)
+                    .toList();
 
-        // OV <= FV
-        Predicate<Issue> openingConsistencyFilter = issue -> {
-            if (issue.getOpeningVersion() != null && issue.getFixVersion() != null) {
-                return issue.getOpeningVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) <= 0;
-            } else {
-                return true;
-            }
-        };
-        logger.logFine(() -> System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n", allIssues.stream().filter(openingConsistencyFilter.negate()).count()));
-
-
-        List<Issue> filteredIssues = allIssues.stream()
-                .filter(nonPostReleaseFilter)
-                .filter(IVConsistencyFilter)
-                .filter(openingConsistencyFilter)
-                .filter(noCommitFilter)
-                .toList();
-
-        logger.log(() -> System.out.printf("All valid issues found: %d\n", filteredIssues.size()));
-
-        return filteredIssues;
+            logger.log(() -> System.out.printf("Total valid issues found: %d\n", this.totalValidIssues.size()));
+        }
+        return this.totalValidIssues;
     }
 
     /**
@@ -103,30 +110,28 @@ public class IssueController {
      * @return A list of all issues.
      * @throws GitAPIException due to {@link GitController}
      */
-    public List<Issue> getIssues(int maxTotal) throws GitAPIException {
-        List<Issue> result = new ArrayList<>();
-
-        if (this.lastMaxTotal == null || maxTotal != this.lastMaxTotal) {
-            // get all Jira issues
+    public List<Issue> getTotalIssues(int maxTotal) throws GitAPIException {
+        if (this.totalIssues == null || maxTotal != this.lastMaxTotal) {
+            this.totalIssues = new ArrayList<>();
             this.lastMaxTotal = maxTotal;
-            this.setJiraIssues(maxTotal);
+
+            List<JiraIssue> totalJiraIssues = this.getJiraIssues(maxTotal);
+
+            logger.logFine(() -> System.out.printf("Total Jira issues found %d.\n", totalJiraIssues.size()));
+
+            for (JiraIssue jiraIssue : totalJiraIssues) {
+                this.totalIssues.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
+            }
         }
-
-        logger.log(() -> System.out.printf("Found %d Jira Issues.\n", this.allJiraIssues.size()));
-
-        for (JiraIssue jiraIssue : this.allJiraIssues) {
-            result.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
-        }
-
-        return result;
+        return this.totalIssues;
     }
 
     /**
      * Call multiple time {@link IssueJSONGetter} to obtain all the Jira issues.
      * {@code allJiraIssues} holds the list.
      */
-    private void setJiraIssues(int maxTotal) {
-        this.allJiraIssues.clear();
+    private List<JiraIssue> getJiraIssues(int maxTotal) {
+        List<JiraIssue> result = new ArrayList<>();
 
         JiraIssueReport jiraIssueReport;
 
@@ -143,8 +148,10 @@ public class IssueController {
 
             total = jiraIssueReport.getTotal();
 
-            this.allJiraIssues.addAll(jiraIssueReport.getIssues());
+            result.addAll(jiraIssueReport.getIssues());
         }
+
+        return result;
     }
 
 
