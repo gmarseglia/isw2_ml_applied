@@ -110,4 +110,25 @@ public class Issue {
     public void setHasBeenProportioned(boolean hasBeenProportioned) {
         this.hasBeenProportioned = hasBeenProportioned;
     }
+
+    public Integer[] getVersionsIndex() {
+        return versionsIndex;
+    }
+
+    public Integer OVIndex() {
+        return this.versionsIndex[0];
+    }
+
+    public Integer FVIndex() {
+        return this.versionsIndex[1];
+    }
+
+    public Integer IVIndex() {
+        return this.versionsIndex[2];
+    }
+
+    public void setIVIndex(Integer newIVIndex) {
+        this.setHasBeenProportioned(true);
+        this.versionsIndex[2] = newIVIndex;
+    }
 }
