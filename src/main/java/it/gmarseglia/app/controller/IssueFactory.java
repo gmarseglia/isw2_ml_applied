@@ -49,7 +49,7 @@ public class IssueFactory {
                 .findFirst()
                 .orElse(null);
 
-        versionsIndex[0] = (ov == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(ov);
+        versionsIndex[0] = (ov == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(ov);
 
         fv = vc.getAllReleasedVersions()
                 .stream()
@@ -57,7 +57,7 @@ public class IssueFactory {
                 .findFirst()
                 .orElse(null);
 
-        versionsIndex[1] = (fv == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(fv);
+        versionsIndex[1] = (fv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(fv);
 
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
             iv = null;
@@ -81,7 +81,7 @@ public class IssueFactory {
                         .orElse(null);
             }
 
-            versionsIndex[2] = (iv == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(iv);
+            versionsIndex[2] = (iv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(iv);
         }
 
         return new Issue(jiraIssue.getKey(),

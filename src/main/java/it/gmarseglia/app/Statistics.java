@@ -6,6 +6,7 @@ import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.app.controller.VersionsController;
 import it.gmarseglia.app.entity.Issue;
 import it.gmarseglia.app.entity.Version;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.ArrayList;
@@ -24,19 +25,26 @@ public class Statistics {
     }
 
     private static void issueStats() throws GitAPIException {
-        String projName = "BOOKKEEPER";
-        String tagsRegex = "(release-)?%v";
-
-        GitController.getInstance(projName).setTagsRegex(tagsRegex);
+        String projName = "OPENJPA";
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
         logger.setVerbose(true);
 
+        GitController gc = GitController.getInstance(projName);
+        gc.setTagsRegex("(release-)?%v(-incubating)?");
+        List<String> allTags = gc.listTags();
+        logger.log(() -> System.out.printf("\n\nAll tags: %d\n", allTags.size()));
+        allTags.forEach(logger::logObject);
+
         VersionsController vc = VersionsController.getInstance(projName);
         List<Version> allVersions = vc.getAllVersions();
         logger.log(() -> System.out.printf("\n\nAll Versions: %d\n", allVersions.size()));
         allVersions.forEach(logger::logObject);
+
+        List<Version> allReleasedVersions = vc.getAllReleasedVersions();
+        logger.log(() -> System.out.printf("\n\nAll Released versions: %d\n", allReleasedVersions.size()));
+        allReleasedVersions.forEach(logger::logObject);
 
         List<Version> allValidVersions = vc.getAllValidVersions();
         logger.log(() -> System.out.printf("\n\nAll Valid versions: %d\n", allValidVersions.size()));
