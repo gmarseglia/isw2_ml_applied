@@ -98,7 +98,7 @@ public class VersionsController {
                     .sorted(Comparator.comparing(Version::getJiraReleaseDate))
                     .toList();
         }
-        return this.allValidVersions;
+        return this.allReleasedVersions;
     }
 
     /**

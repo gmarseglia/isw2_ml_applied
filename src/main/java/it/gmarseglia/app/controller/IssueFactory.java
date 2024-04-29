@@ -37,10 +37,11 @@ public class IssueFactory {
      */
     public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException {
         Version ov;
-        boolean isFirstOV;
         Version fv;
         Version iv;
-        boolean hasExplicitIV;
+        Integer[] versionsIndex = new Integer[]{null, null, null};
+
+        List<Version> allReleasedVersions = vc.getAllReleasedVersions();
 
         ov = vc.getAllReleasedVersions()
                 .stream()
@@ -48,7 +49,7 @@ public class IssueFactory {
                 .findFirst()
                 .orElse(null);
 
-        isFirstOV = vc.getAllReleasedVersions().getFirst().equals(ov);
+        versionsIndex[0] = (ov == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(ov);
 
         fv = vc.getAllReleasedVersions()
                 .stream()
@@ -56,11 +57,11 @@ public class IssueFactory {
                 .findFirst()
                 .orElse(null);
 
+        versionsIndex[1] = (fv == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(fv);
+
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
-            hasExplicitIV = false;
             iv = null;
         } else {
-            hasExplicitIV = true;
 
             List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
             
@@ -79,13 +80,16 @@ public class IssueFactory {
                         .findFirst()
                         .orElse(null);
             }
+
+            versionsIndex[2] = (iv == null) ? allReleasedVersions.size() - 1 : allReleasedVersions.indexOf(iv);
         }
 
         return new Issue(jiraIssue.getKey(),
-                ov, isFirstOV,
+                ov,
                 fv,
-                iv, hasExplicitIV,
+                iv,
                 jiraIssue.getFields().getCreated(),
-                jiraIssue.getFields().getResolutiondate());
+                jiraIssue.getFields().getResolutiondate(),
+                versionsIndex);
     }
 }
