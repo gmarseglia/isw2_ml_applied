@@ -2,10 +2,12 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.entity.Issue;
 import it.gmarseglia.app.entity.JiraIssue;
+import it.gmarseglia.app.entity.JiraVersion;
 import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IssueFactory {
@@ -53,11 +55,23 @@ public class IssueFactory {
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
             iv = null;
         } else {
+            List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
+            
             iv = vc.getAllValidVersions()
                     .stream()
-                    .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
+                    .filter(version ->
+                            idsOfAffectsVersion.contains(version.getId()))
                     .findFirst()
                     .orElse(null);
+
+            if (iv == null) {
+                iv = vc.getAllValidVersions()
+                        .stream()
+                        .filter(version ->
+                                version.getJiraReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))
+                        .findFirst()
+                        .orElse(null);
+            }
         }
 
         return new Issue(jiraIssue.getKey(), ov, fv, iv,
