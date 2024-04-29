@@ -65,7 +65,7 @@ public class Statistics {
 
         TimeUnit.SECONDS.sleep(1);
         logger.logPrefixless(() -> System.out.println("\n\nAll valid issues"));
-        List<Issue> allValidIssues = ic.getValidIssues(Integer.MAX_VALUE);
+        List<Issue> allValidIssues = ic.getTotalValidIssues(Integer.MAX_VALUE);
         logger.logPrefixless(() -> System.out.printf("All valid issues size: %d\n", allValidIssues.size()));
         allValidIssues.forEach(logger::logObjectPrefixless);
 
@@ -81,7 +81,7 @@ public class Statistics {
         TimeUnit.SECONDS.sleep(1);
         logger.logPrefixless(() -> System.out.println("\n\nAll valid proportioned issues"));
         ProportionController pc = ProportionController.getInstance(projName);
-        List<Issue> allValidProportionedIssues = pc.getAllProportionedIssues();
+        List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssues(Integer.MAX_VALUE);
         logger.logPrefixless(() -> System.out.printf("All valid proportioned issues size: %d\n", allValidProportionedIssues.size()));
         allValidProportionedIssues.forEach(logger::logObjectPrefixless);
     }
