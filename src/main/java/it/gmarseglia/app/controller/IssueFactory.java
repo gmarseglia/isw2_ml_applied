@@ -39,7 +39,7 @@ public class IssueFactory {
         Version ov;
         Version fv;
         Version iv;
-        Integer[] versionsIndex = new Integer[]{null, null, null};
+        Integer[] versionsIndex = new Integer[]{null, null, null, null};
 
         List<Version> allReleasedVersions = vc.getAllReleasedVersions();
 

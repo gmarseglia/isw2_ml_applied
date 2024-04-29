@@ -22,6 +22,7 @@ public class Issue {
         this.injectVersion = injectVersion;
         this.jiraCreationDate = jiraCreationDate;
         this.jiraResolutionDate = jiraResolutionDate;
+        if (versionsIndex.length != 4) throw new RuntimeException("4 Integer has to be given");
         this.versionsIndex = versionsIndex;
     }
 
@@ -127,8 +128,12 @@ public class Issue {
         return this.versionsIndex[2];
     }
 
-    public void setIVIndex(Integer newIVIndex) {
+    public Integer PredictedIVIndex() {
+        return this.versionsIndex[3];
+    }
+
+    public void setPredictedIVIndex(Integer newIVIndex) {
         this.setHasBeenProportioned(true);
-        this.versionsIndex[2] = newIVIndex;
+        this.versionsIndex[3] = newIVIndex;
     }
 }
