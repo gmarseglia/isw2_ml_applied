@@ -42,15 +42,15 @@ public class IssueFactory {
         Version iv;
         boolean hasExplicitIV;
 
-        ov = vc.getAllValidVersions()
+        ov = vc.getAllReleasedVersions()
                 .stream()
                 .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
 
-        isFirstOV = vc.getAllValidVersions().getFirst().equals(ov);
+        isFirstOV = vc.getAllReleasedVersions().getFirst().equals(ov);
 
-        fv = vc.getAllValidVersions()
+        fv = vc.getAllReleasedVersions()
                 .stream()
                 .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
                 .findFirst()
@@ -64,7 +64,7 @@ public class IssueFactory {
 
             List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
             
-            iv = vc.getAllValidVersions()
+            iv = vc.getAllReleasedVersions()
                     .stream()
                     .filter(version ->
                             idsOfAffectsVersion.contains(version.getId()))
@@ -72,7 +72,7 @@ public class IssueFactory {
                     .orElse(null);
 
             if (iv == null) {
-                iv = vc.getAllValidVersions()
+                iv = vc.getAllReleasedVersions()
                         .stream()
                         .filter(version ->
                                 version.getJiraReleaseDate().after(jiraIssue.getFields().getOldestAffectedVersion().getReleaseDate()))

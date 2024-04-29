@@ -17,6 +17,7 @@ public class VersionsController {
     private List<Version> allVersions;
     private List<String> allTags;
     private List<Version> allValidVersions;
+    private List<Version> allReleasedVersions;
 
     private VersionsController(String projName) {
         this.projName = projName;
@@ -83,6 +84,17 @@ public class VersionsController {
                     .stream()
                     .filter(Version::isReleased)
                     .filter(version -> version.getGithubReleaseDate() != null)
+                    .sorted(Comparator.comparing(Version::getJiraReleaseDate))
+                    .toList();
+        }
+        return this.allValidVersions;
+    }
+
+    public List<Version> getAllReleasedVersions() throws GitAPIException {
+        if (this.allReleasedVersions == null) {
+            this.allReleasedVersions = this.getAllVersions()
+                    .stream()
+                    .filter(Version::isReleased)
                     .sorted(Comparator.comparing(Version::getJiraReleaseDate))
                     .toList();
         }
