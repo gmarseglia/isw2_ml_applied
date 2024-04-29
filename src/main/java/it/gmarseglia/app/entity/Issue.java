@@ -5,14 +5,15 @@ import java.util.Objects;
 
 public class Issue {
 
+    private final boolean isFirstOV;
+    private final boolean hasExplicitIV;
     private String key;
     private Version openingVersion;
-    private final boolean isFirstOV;
     private Version fixVersion;
     private Version injectVersion;
-    private final boolean hasExplicitIV;
     private Date jiraCreationDate;
     private Date jiraResolutionDate;
+    private boolean hasBeenProportioned = false;
 
 
     public Issue(String key, Version openingVersion, boolean isFirstOV, Version fixVersion, Version injectVersion, boolean hasExplicitIV, Date jiraCreationDate, Date jiraResolutionDate) {
@@ -92,6 +93,7 @@ public class Issue {
                 ", hasExplicitIV=" + hasExplicitIV +
                 ", jiraCreationDate=" + jiraCreationDate +
                 ", jiraResolutionDate=" + jiraResolutionDate +
+                ", hasBeenProportioned=" + hasBeenProportioned +
                 '}';
     }
 
@@ -100,11 +102,23 @@ public class Issue {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Issue issue = (Issue) object;
-        return hasExplicitIV == issue.hasExplicitIV && Objects.equals(key, issue.key) && Objects.equals(openingVersion, issue.openingVersion) && Objects.equals(fixVersion, issue.fixVersion) && Objects.equals(injectVersion, issue.injectVersion) && Objects.equals(jiraCreationDate, issue.jiraCreationDate) && Objects.equals(jiraResolutionDate, issue.jiraResolutionDate);
+        return isFirstOV == issue.isFirstOV && hasExplicitIV == issue.hasExplicitIV && hasBeenProportioned == issue.hasBeenProportioned && Objects.equals(key, issue.key) && Objects.equals(openingVersion, issue.openingVersion) && Objects.equals(fixVersion, issue.fixVersion) && Objects.equals(injectVersion, issue.injectVersion) && Objects.equals(jiraCreationDate, issue.jiraCreationDate) && Objects.equals(jiraResolutionDate, issue.jiraResolutionDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hasExplicitIV, key, openingVersion, fixVersion, injectVersion, jiraCreationDate, jiraResolutionDate);
+        return Objects.hash(isFirstOV, hasExplicitIV, key, openingVersion, fixVersion, injectVersion, jiraCreationDate, jiraResolutionDate, hasBeenProportioned);
+    }
+
+    public boolean isHasBeenProportioned() {
+        return hasBeenProportioned;
+    }
+
+    public void setHasBeenProportioned(boolean hasBeenProportioned) {
+        this.hasBeenProportioned = hasBeenProportioned;
+    }
+
+    public boolean isFirstOV() {
+        return isFirstOV;
     }
 }

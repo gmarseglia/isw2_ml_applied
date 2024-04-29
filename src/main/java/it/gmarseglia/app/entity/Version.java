@@ -7,10 +7,10 @@ public class Version {
 
     private final String id;
     private final boolean released;
-    private final String GithubTag;
     private String name;
     private Date JiraReleaseDate;
     private Date GithubReleaseDate;
+    private final String GithubTag;
 
     public Version(String id, boolean released, String name, Date jiraReleaseDate, Date githubReleaseDate, String githubTag) {
         this.id = id;
