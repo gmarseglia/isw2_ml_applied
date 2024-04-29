@@ -26,7 +26,7 @@ public class BlameControllerTest
         IssueController issueController = IssueController.getInstance(projName);
         BlameController blameController = BlameController.getInstance(projName);
 
-        List<Issue> issues = issueController.getValidIssues(issueNumber + 1);
+        List<Issue> issues = issueController.getTotalValidIssues(issueNumber + 1);
 
         Issue target = issues.get(issueNumber);
         System.out.println(target);
@@ -45,7 +45,7 @@ public class BlameControllerTest
         IssueController issueController = IssueController.getInstance(projName);
         BlameController blameController = BlameController.getInstance(projName);
 
-        List<Issue> issues = issueController.getValidIssues(40);
+        List<Issue> issues = issueController.getTotalValidIssues(40);
 
         Issue target = issues.get(39);
         System.out.println(target);

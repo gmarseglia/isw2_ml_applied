@@ -36,7 +36,7 @@ public class IssueController {
         return IssueController.instances.get(projName);
     }
 
-    public List<Issue> getValidIssues(int maxTotal) throws GitAPIException {
+    public List<Issue> getTotalValidIssues(int maxTotal) throws GitAPIException {
         if (this.totalValidIssues == null || maxTotal != this.lastMaxTotal) {
             List<Issue> totalIssues = this.getTotalIssues(maxTotal);
 
