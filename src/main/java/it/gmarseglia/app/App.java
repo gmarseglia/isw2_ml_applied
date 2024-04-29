@@ -10,7 +10,10 @@ import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        String projName = "OPENJPA";
+        String projName = "BOOKKEEPER";
+        String tagsRegex = "(release-)%v";
+
+        GitController.getInstance(projName).setTagsRegex(tagsRegex);
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);

@@ -32,11 +32,13 @@ public class VersionFactory {
     public Version versionFromJiraVersion(JiraVersion jiraVersion) throws GitAPIException {
         // get date by GitHub
         Date gitDate = gc.getVersionGitDate(jiraVersion);
+        String gitTag = gc.getTagByNameRegex(jiraVersion.getName());
         return new Version(
                 jiraVersion.getId(),
+                jiraVersion.isReleased(),
                 jiraVersion.getName(),
-                gitDate,
                 jiraVersion.getReleaseDate(),
-                jiraVersion.isReleased());
+                gitDate,
+                gitTag);
     }
 }

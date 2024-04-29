@@ -21,15 +21,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class GitController {
 
     private static final Map<String, GitController> instances = new HashMap<>();
     private final MyLogger logger;
-
     private final String repoUrl;
     private final Path localPath;
-
+    private String tagsRegex = "%v";
 
     private GitController(String projName) {
         String repoBase = "https://github.com/apache/%s.git";
@@ -95,16 +95,32 @@ public class GitController {
         return result;
     }
 
+    public void setTagsRegex(String tagsRegex) {
+        this.tagsRegex = tagsRegex;
+    }
+
+    public String getTagByNameRegex(String targetVersionName) throws GitAPIException {
+        Pattern pattern = Pattern.compile(tagsRegex.replace("%v", targetVersionName).replace(".", "\\."));
+        List<String> tags = this.listTags();
+
+        return tags.stream()
+                .filter(string -> pattern.matcher(string).matches())
+                .findFirst()
+                .orElse(null);
+    }
+
     /**
      * @param jiraVersion Version from Jira.
      * @return If a corresponding tag exists: the date of the last commit; else {@code null}
      */
     public Date getVersionGitDate(JiraVersion jiraVersion) throws GitAPIException {
+        String targetTag = this.getTagByNameRegex(jiraVersion.getName());
         try {
-            this.checkoutByTag(jiraVersion.getName());
+            if (targetTag == null) throw new RuntimeException("Tag not found with regex");
+            this.checkoutByTag(targetTag);
             RevCommit lastCommit = this.getLastCommit();
             return new Date(lastCommit.getCommitTime() * 1000L);
-        } catch (RefNotFoundException e) {
+        } catch (RefNotFoundException | RuntimeException e) {
             return null;
         }
     }
