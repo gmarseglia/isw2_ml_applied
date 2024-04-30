@@ -90,12 +90,9 @@ public class VersionsController {
      */
     public List<Version> getAllValidVersions() throws GitAPIException {
         if (this.allValidVersions == null) {
-            this.setAllTags();
-            this.allValidVersions = this.getAllVersions()
+            this.allValidVersions = this.getAllReleasedVersions()
                     .stream()
-                    .filter(Version::isReleased)
                     .filter(version -> version.getGithubReleaseDate() != null)
-                    .sorted(Comparator.comparing(Version::getJiraReleaseDate))
                     .toList();
         }
         return this.allValidVersions;
