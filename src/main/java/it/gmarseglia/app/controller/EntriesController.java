@@ -13,11 +13,10 @@ import java.util.Map;
 public class EntriesController {
 
     private static final Map<String, EntriesController> instances = new HashMap<>();
-
-    private List<Entry> allEntries;
     private final MyLogger logger = MyLogger.getInstance(this.getClass());
     private final GitController gc;
     private final VersionsController vc;
+    private List<Entry> allEntries;
 
     private EntriesController(String projName) {
         this.gc = GitController.getInstance(projName);
@@ -40,8 +39,6 @@ public class EntriesController {
         List<Entry> result = new ArrayList<>();
 
         try {
-            logger.log(() -> System.out.printf("Release %s: ", version.getName()));
-
             // checkout local Git dir at given version
             gc.checkoutByTag(version.getName());
 
@@ -50,10 +47,10 @@ public class EntriesController {
             MyFileUtils.getAllJavaSrcFiles(localPath)
                     .forEach(p -> result.add(new Entry(p, version, p.toString().replace(localPath.toString(), ""))));
 
-            logger.log(() -> System.out.printf("%d .java src files found.\n", result.size()));
+            logger.logFine(() -> System.out.printf("Release %s: %d .java src files found.\n", version.getName(), result.size()));
 
         } catch (GitAPIException e) {
-            logger.log(() -> System.out.print("not found on Git.\n"));
+            logger.logFine(() -> System.out.printf("Release %s: not found on Git.\n", version.getName()));
         }
 
         return result;
@@ -67,9 +64,9 @@ public class EntriesController {
      */
     public List<Entry> getAllEntriesForHalfVersions() throws GitAPIException {
         if (this.allEntries == null) {
-            this.allEntries =  new ArrayList<>();
+            this.allEntries = new ArrayList<>();
 
-            for (Version v : vc.getHalfVersion()){
+            for (Version v : vc.getHalfVersion()) {
                 this.allEntries.addAll(this.findAndAppendEntries(v));
             }
         }
