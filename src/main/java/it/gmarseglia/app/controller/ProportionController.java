@@ -66,7 +66,7 @@ public class ProportionController {
                 float actualP = (updates <= 5) ? 1.8089F : P;
 
                 float predictedIV = (float) i.FVIndex() - step * actualP;
-                int actualPredictedIV = Math.max((int) Math.floor(predictedIV), -1);
+                int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
                 i.setPredictedIVIndex(actualPredictedIV);
 
                 logger.logFinest(() ->
