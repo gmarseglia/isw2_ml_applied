@@ -44,13 +44,11 @@ public class ProportionController {
                 if (i.IVIndex() != null) {
                     // update P
                     // if IV is present, then newP = (FV - IV) / (FV - OV)
-                    // by paper
                     float den = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
                     float newP = (i.FVIndex() - i.IVIndex()) / den;
                     // in place average update
                     updates = updates + 1;
                     P = P + ((float) 1 / updates) * (newP - P);
-                    // P = P + ((float) 1 / 8) * (newP - P);
 
                     float finalP = P;
                     int finalUpdates = updates;
@@ -63,11 +61,9 @@ public class ProportionController {
                 }
 
                 // apply P
-                // if IV is not present, then predictedP = FV - (FV - OV) * P
-                // paper
+                // if IV is not present, then predictedIV = FV - (FV - OV) * P
                 float step = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
                 float actualP = (updates <= 5) ? 1.8089F : P;
-                // float actualP = (P == 0) ? 1 : P;
 
                 float predictedIV = (float) i.FVIndex() - step * actualP;
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), -1);
