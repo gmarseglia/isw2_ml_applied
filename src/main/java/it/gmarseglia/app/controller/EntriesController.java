@@ -14,7 +14,7 @@ public class EntriesController {
 
     private static final Map<String, EntriesController> instances = new HashMap<>();
 
-    private final List<Entry> allEntries = new ArrayList<>();
+    private List<Entry> allEntries;
     private final MyLogger logger = MyLogger.getInstance(this.getClass());
     private final GitController gc;
     private final VersionsController vc;
@@ -66,11 +66,13 @@ public class EntriesController {
      * @return The entries for every version.
      */
     public List<Entry> getAllEntriesForHalfVersions() throws GitAPIException {
-        List<Entry> result = new ArrayList<>();
+        if (this.allEntries == null) {
+            this.allEntries =  new ArrayList<>();
 
-        vc.getHalfVersion()
-                .forEach(version -> result.addAll(this.findAndAppendEntries(version)));
-
-        return result;
+            for (Version v : vc.getHalfVersion()){
+                this.allEntries.addAll(this.findAndAppendEntries(v));
+            }
+        }
+        return this.allEntries;
     }
 }
