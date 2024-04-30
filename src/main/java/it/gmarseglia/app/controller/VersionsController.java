@@ -13,11 +13,11 @@ public class VersionsController {
     private final String projName;
     private final ProjectController pc;
     private final GitController gc;
+    private List<String> allTags;
     private List<JiraVersion> allJiraVersions;
     private List<Version> allVersions;
-    private List<String> allTags;
-    private List<Version> allValidVersions;
     private List<Version> allReleasedVersions;
+    private List<Version> allValidVersions;
 
     private VersionsController(String projName) {
         this.projName = projName;
@@ -70,6 +70,17 @@ public class VersionsController {
         return this.allVersions;
     }
 
+    public List<Version> getAllReleasedVersions() throws GitAPIException {
+        if (this.allReleasedVersions == null) {
+            this.allReleasedVersions = this.getAllVersions()
+                    .stream()
+                    .filter(Version::isReleased)
+                    .sorted(Comparator.comparing(Version::getJiraReleaseDate))
+                    .toList();
+        }
+        return this.allReleasedVersions;
+    }
+
     /**
      * A version is considered valid when a release date with GitHub has been found and
      * has been indicated as released on Jira.
@@ -88,17 +99,6 @@ public class VersionsController {
                     .toList();
         }
         return this.allValidVersions;
-    }
-
-    public List<Version> getAllReleasedVersions() throws GitAPIException {
-        if (this.allReleasedVersions == null) {
-            this.allReleasedVersions = this.getAllVersions()
-                    .stream()
-                    .filter(Version::isReleased)
-                    .sorted(Comparator.comparing(Version::getJiraReleaseDate))
-                    .toList();
-        }
-        return this.allReleasedVersions;
     }
 
     /**

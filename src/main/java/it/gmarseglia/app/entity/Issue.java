@@ -6,7 +6,6 @@ import java.util.Objects;
 
 public class Issue {
 
-    private final Integer[] versionsIndex;
     private String key;
     private Version openingVersion;
     private Version fixVersion;
@@ -14,6 +13,7 @@ public class Issue {
     private Date jiraCreationDate;
     private Date jiraResolutionDate;
     private boolean hasBeenProportioned = false;
+    private final Integer[] versionsIndex;
 
     public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex) {
         this.key = key;
