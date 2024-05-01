@@ -88,4 +88,8 @@ public class MyLogger {
         this.verboseFinest = verboseFinest;
     }
 
+    public boolean getAnyVerboseFinest() {
+        return (verboseFinest == null && staticVerboseFinest) || Boolean.TRUE.equals(verboseFinest);
+    }
+
 }
