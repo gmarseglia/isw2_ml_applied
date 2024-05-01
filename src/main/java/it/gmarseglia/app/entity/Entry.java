@@ -55,4 +55,13 @@ public class Entry {
     public void setBuggy(boolean buggy) {
         this.buggy = buggy;
     }
+
+    @Override
+    public String toString() {
+        return "Entry{" +
+                path +
+                ", " + version +
+                ", " + buggy +
+                '}';
+    }
 }
