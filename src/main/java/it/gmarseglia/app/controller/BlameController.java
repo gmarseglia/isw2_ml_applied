@@ -12,12 +12,11 @@ public class BlameController {
     private static final Map<String, BlameController> instances = new HashMap<>();
     private final String projName;
     private final GitController gc;
-    private final MyLogger myLogger;
+    private final MyLogger myLogger = MyLogger.getInstance(BlameController.class);
 
     private BlameController(String projName) {
         this.projName = projName;
         this.gc = GitController.getInstance(projName);
-        this.myLogger = MyLogger.getInstance(this.getClass());
     }
 
     public static BlameController getInstance(String projName) {
@@ -39,9 +38,9 @@ public class BlameController {
 
         List<RevCommit> commits = gc.getAllCommitsByIssue(issue);
 
-        myLogger.log(() -> System.out.println("Found " + commits.size() + " commits, corresponding to issue " + issue.getKey() + "."));
+        myLogger.logFinest(() -> System.out.println("Found " + commits.size() + " commits, corresponding to issue " + issue.getKey() + "."));
 
-        myLogger.log(() ->
+        myLogger.logFinest(() ->
                 commits.forEach(revCommit -> System.out.printf("ID: %s\n", revCommit.getId())
                 ));
 
