@@ -59,7 +59,12 @@ public class BugginessController {
                 }
 
                 List<Version> affectedVersions = vc.getAllValidVersions().subList(IVi, FVi);
-                List<Version> affectedVersionsInHalfVersions = affectedVersions.stream().filter(vc.getHalfVersion()::contains).toList();
+
+                List<Version> datasetAffectedVersions = vc.getHalfVersion()
+                        .stream()
+                        .filter(affectedVersions::contains)
+                        .filter(vc.getHalfVersion()::contains)
+                        .toList();
 
                 logger.logFinest(() -> System.out.println("*** proportionedIssue: " + proportionedIssue));
                 logger.logFinest(() -> {
@@ -68,20 +73,14 @@ public class BugginessController {
                         }
                 );
                 logger.logFinest(() -> {
-                            List<String> affectedVersionsHalfName = affectedVersionsInHalfVersions.stream().map(Version::getName).toList();
-                            System.out.println("affectedVersionsInHalfVersions.size(): " + affectedVersionsInHalfVersions.size() + ", " + affectedVersionsHalfName);
+                            List<String> datasetAffectedVersionsName = datasetAffectedVersions.stream().map(Version::getName).toList();
+                            System.out.println("datasetAffectedVersions.size(): " + datasetAffectedVersions.size() + ", " + datasetAffectedVersionsName);
                         }
                 );
 
-                List<Version> datasetAffectedVersions = vc.getHalfVersion()
-                        .stream()
-                        .filter(affectedVersionsInHalfVersions::contains)
-                        .toList();
-
-                // Remove duplicates maybe
+                // Remove duplicates
                 List<Path> datasetAffectedPaths = new ArrayList<>(
                         new LinkedHashSet<>(bc.getAllPathsTouchedByIssue(proportionedIssue)));
-
 
                 logger.logFinest(() ->
                         System.out.println("datasetAffectedPaths.size(): " + datasetAffectedPaths.size() + ", " + datasetAffectedPaths));
@@ -94,6 +93,7 @@ public class BugginessController {
                         .stream()
                         .filter(entry -> datasetAffectedVersions.contains(entry.getVersion()))
                         .filter(entry -> datasetAffectedPaths.contains(entry.getPath()))
+                        .filter(Entry::isNotBuggy)
                         .forEach(entry -> {
                             newLabelledEntries.add(entry);
                             entry.setBuggy(true);
@@ -101,18 +101,15 @@ public class BugginessController {
                         });
 
                 logger.logFinest(() ->
-                        System.out.println("Number of entries labelled \"buggy\": " + ref.i));
+                        System.out.println("Number of entries labelled \"buggy\" (without duplicates): " + ref.i));
             }
 
             int finalValid = valid;
             int finalInvalid = invalid;
             int finalOverHalf = overHalf;
 
-            List<Entry> newLabelledEntriesNoDuplicates = new ArrayList<>(
-                    new LinkedHashSet<>(newLabelledEntries));
-
-            logger.logFine(() -> System.out.println("Total number of entries labelled \"buggy\": " + newLabelledEntriesNoDuplicates.size()));
-            logger.logFine(() -> System.out.printf("valid: %d, invalid: %d, overHalf: %d, sum: %d\n",
+            logger.logFine(() -> System.out.println("Total number of entries labelled  \"buggy\": " + newLabelledEntries.size()));
+            logger.logFine(() -> System.out.printf("Issues of type: {Valid: %d, Invalid: %d, Over half: %d}, Total issues: %d\n",
                     finalValid, finalInvalid, finalOverHalf, finalValid + finalInvalid + finalOverHalf));
 
         }
