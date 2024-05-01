@@ -52,6 +52,10 @@ public class Entry {
         return buggy;
     }
 
+    public boolean isNotBuggy() {
+        return !buggy;
+    }
+
     public void setBuggy(boolean buggy) {
         this.buggy = buggy;
     }
