@@ -40,7 +40,7 @@ public class EntriesController {
 
         try {
             // checkout local Git dir at given version
-            gc.checkoutByTag(version.getName());
+            gc.checkoutByTag(version.getGithubTag());
 
             // get all the .java src files in given version
             Path localPath = this.gc.getLocalPath();
