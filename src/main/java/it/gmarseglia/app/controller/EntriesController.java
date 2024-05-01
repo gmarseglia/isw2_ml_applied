@@ -67,8 +67,12 @@ public class EntriesController {
             this.allEntries = new ArrayList<>();
 
             for (Version v : vc.getHalfVersion()) {
+                logger.logFinest(() -> System.out.printf("Getting entries for version %s.\n", v.getName()));
                 this.allEntries.addAll(this.findAndAppendEntries(v));
+                logger.logFinest(() -> System.out.printf("allEntries size: %d.\n", this.allEntries.size()));
             }
+
+            logger.logFine(() -> System.out.println("allEntries.size(): " + this.allEntries.size()));
         }
         return this.allEntries;
     }
