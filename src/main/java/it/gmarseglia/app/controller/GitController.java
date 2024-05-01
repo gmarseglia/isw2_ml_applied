@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class GitController {
 
     private static final Map<String, GitController> instances = new HashMap<>();
-    private final MyLogger logger;
+    private final MyLogger logger = MyLogger.getInstance(GitController.class);
     private final String repoUrl;
     private final Path localPath;
     private String tagsRegex = "%v";
@@ -35,7 +35,6 @@ public class GitController {
         String repoBase = "https://github.com/apache/%s.git";
         this.repoUrl = String.format(repoBase, projName);
         this.localPath = Paths.get(System.getProperty("java.io.tmpdir"), projName);
-        this.logger = MyLogger.getInstance(this.getClass());
     }
 
     public static GitController getInstance(String projName) {
@@ -193,11 +192,11 @@ public class GitController {
         // delete dir
         MyFileUtils.deleteDirectory(localPath);
 
-        logger.log(() -> System.out.print("Cloning..."));
+        logger.log(() -> System.out.println("Cloning..."));
 
         // clone the repository
         Git.cloneRepository().setURI(repoUrl).setDirectory(localPath.toFile()).call();
 
-        logger.log(() -> System.out.print("Done.\n"));
+        logger.log(() -> System.out.println("Done.\n"));
     }
 }
