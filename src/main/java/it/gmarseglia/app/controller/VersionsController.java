@@ -104,8 +104,8 @@ public class VersionsController {
      */
     public List<Version> getHalfVersion() throws GitAPIException {
         // half the size
-        List<Version> tmp = this.getAllValidVersions();
-        return this.getAllValidVersions().subList(0, tmp.size() / 2);
+        int tmpSize = this.getAllValidVersions().size();
+        return this.getAllValidVersions().subList(0, tmpSize / 2);
     }
 
 
