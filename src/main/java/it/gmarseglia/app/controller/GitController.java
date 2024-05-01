@@ -58,12 +58,13 @@ public class GitController {
             df.setDetectRenames(true);
             List<DiffEntry> diffs = df.scan(parent.getTree(), revCommit.getTree());
             for (DiffEntry diff : diffs) {
-                result.add(Paths.get(diff.getNewPath()));
-                logger.log(() ->
-                        System.out.println(MessageFormat.format("({0} {1} {2}",
+                Path fullPath = getLocalPath().resolve(diff.getNewPath());
+                result.add(fullPath);
+                logger.logFinest(() ->
+                        System.out.println(MessageFormat.format("diff: {0}, {1}, {2}",
                                 diff.getChangeType().name(),
                                 diff.getNewMode().getBits(),
-                                diff.getNewPath())));
+                                fullPath)));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
