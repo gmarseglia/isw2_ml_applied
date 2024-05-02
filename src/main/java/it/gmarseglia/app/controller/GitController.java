@@ -30,6 +30,7 @@ public class GitController {
     private final String repoUrl;
     private final Path localPath;
     private String tagsRegex = "%v";
+    private String lastTag = "";
 
     private GitController(String projName) {
         String repoBase = "https://github.com/apache/%s.git";
@@ -131,8 +132,11 @@ public class GitController {
      * @param tag Tag to check out to, can be {@code Version.getName()}
      */
     public void checkoutByTag(String tag) throws GitAPIException {
-        Git git = this.getLocalGit();
-        git.checkout().setName("refs/tags/" + tag).call();
+        if (!Objects.equals(tag, this.lastTag)){
+            this.lastTag = tag;
+            Git git = this.getLocalGit();
+            git.checkout().setName("refs/tags/" + tag).call();
+        }
     }
 
     /**
