@@ -3,10 +3,12 @@ package it.gmarseglia.app.controller;
 import it.gmarseglia.app.entity.Entry;
 import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class MetricsController {
     private Version previousVersion;
     private List<RevCommit> entryCommits;
     private List<RevCommit> entryLastVersionCommits;
+    private List<DiffEntry> diffEntriesAll;
+    private Map<RevCommit, List<DiffEntry>> commitsAndDiffsAll;
 
     private MetricsController(String projName) {
         this.projName = projName;
@@ -63,9 +67,48 @@ public class MetricsController {
                     })
                     .toList();
 
+            diffEntriesAll = new ArrayList<>();
+
+            this.commitsAndDiffsAll = new HashMap<>();
+            Map<RevCommit, List<DiffEntry>> commitAndDiffs = new HashMap<>();
+
+            for (RevCommit commit : entryLastVersionCommits) {
+                List<DiffEntry> tmpDiffEntries = new ArrayList<>();
+                List<DiffEntry> commitDiffEntries = GitController.getInstance(projName).getDiffListByRevCommit(commit);
+                tmpDiffEntries.addAll(commitDiffEntries);
+                commitAndDiffs.put(commit, tmpDiffEntries);
+            }
+            
+
+            for (RevCommit commit : commitAndDiffs.keySet()) {
+                // Follow path through commits
+                String mostRecentPath = entry.getLongName().substring(1);
+
+                List<DiffEntry> tmpDiffs = new ArrayList<>();
+
+                for (DiffEntry diffEntry : commitAndDiffs.get(commit)) {
+
+                    if (mostRecentPath.equals(diffEntry.getNewPath())) {
+                        mostRecentPath = diffEntry.getOldPath();
+                    }
+
+                    if (mostRecentPath.equals(diffEntry.getOldPath())) {
+                        tmpDiffs.add(diffEntry);
+                        if (diffEntry.getChangeType() == DiffEntry.ChangeType.ADD)
+                            break;
+                    }
+
+                }
+
+                this.commitsAndDiffsAll.put(commit, tmpDiffs);
+            }
+
+            logger.logFinest(() -> System.out.println("diffEntriesAll for " + entry.getVersion().getName() + ": " + diffEntriesAll));
+
             this.LOC();
             this.NR();
             this.NAuth();
+            this.LOCAdded();
         }
 
     }
@@ -84,6 +127,7 @@ public class MetricsController {
     }
 
     // computes the number of commits between versions
+
     private void NR() {
         long NR = entryLastVersionCommits.size();
 
@@ -99,5 +143,33 @@ public class MetricsController {
                 .count();
 
         targetEntry.getMetrics().setNAuth(NAuth);
+    }
+
+    private void LOCAdded() throws GitAPIException {
+        long LOCAdded = 0;
+
+//        for (DiffEntry diffEntry : diffEntriesAll) {
+//
+//            long locAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
+//
+//            logger.logFinest(() -> System.out.println("diffEntry: " + diffEntry + ", added: " + locAdded));
+//
+//            LOCAdded += locAdded;
+//
+//        }
+
+        for (RevCommit commit : this.commitsAndDiffsAll.keySet()) {
+            for (DiffEntry diffEntry : this.commitsAndDiffsAll.get(commit)) {
+
+                long locAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
+
+                logger.logFinest(() -> System.out.println("commit: " + commit.getName() + ", added: " + locAdded));
+
+                LOCAdded += locAdded;
+            }
+
+        }
+
+        targetEntry.getMetrics().setLOCAdded(LOCAdded);
     }
 }
