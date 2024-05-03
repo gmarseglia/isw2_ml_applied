@@ -8,7 +8,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +26,7 @@ public class MetricsController {
     private Version previousVersion;
     private List<RevCommit> entryCommits;
     private List<RevCommit> entryLastVersionCommits;
-    private List<DiffEntry> diffEntriesAll;
-    private Map<RevCommit, List<DiffEntry>> commitsAndDiffsAll;
+    private Map<RevCommit, DiffEntry> commitAndDiffAll;
 
     private MetricsController(String projName) {
         this.projName = projName;
@@ -48,13 +46,19 @@ public class MetricsController {
             // check out to the tag of the version of the entry
             GitController.getInstance(projName).checkoutByTag(entry.getVersion().getGithubTag());
 
+            // assign targetEntry
             targetEntry = entry;
 
+            // compute index
             currentVersionIndex = halfVersions.indexOf(targetEntry.getVersion());
+
+            // compute previous version
             previousVersion = currentVersionIndex == 0 ? null : halfVersions.get(currentVersionIndex - 1);
 
+            // get all commits for the path corresponding to the entry
             entryCommits = GitController.getInstance(projName).getRevCommitsFromPath(entry.getPath());
 
+            // get all commits for the path and the version
             entryLastVersionCommits = entryCommits
                     .stream()
                     .filter(revCommit -> revCommit.getAuthorIdent().getWhen().compareTo(targetEntry.getVersion().getGithubReleaseDate()) <= 0)
@@ -67,43 +71,36 @@ public class MetricsController {
                     })
                     .toList();
 
-            diffEntriesAll = new ArrayList<>();
-
-            this.commitsAndDiffsAll = new HashMap<>();
-            Map<RevCommit, List<DiffEntry>> commitAndDiffs = new HashMap<>();
-
+            // for each commit get all the diffs
+            Map<RevCommit, List<DiffEntry>> tmpCommitAndDiffs = new HashMap<>();
             for (RevCommit commit : entryLastVersionCommits) {
-                List<DiffEntry> tmpDiffEntries = new ArrayList<>();
                 List<DiffEntry> commitDiffEntries = GitController.getInstance(projName).getDiffListByRevCommit(commit);
-                tmpDiffEntries.addAll(commitDiffEntries);
-                commitAndDiffs.put(commit, tmpDiffEntries);
+                tmpCommitAndDiffs.put(commit, commitDiffEntries);
             }
-            
 
-            for (RevCommit commit : commitAndDiffs.keySet()) {
-                // Follow path through commits
-                String mostRecentPath = entry.getLongName().substring(1);
+            // follow filename through commits and assign correct diff to each commit
+            this.commitAndDiffAll = new HashMap<>();
+            String mostRecentPath = entry.getLongName().substring(1);
+            boolean addFound = false;
 
-                List<DiffEntry> tmpDiffs = new ArrayList<>();
+            for (RevCommit commit : tmpCommitAndDiffs.keySet()) {
+                if (addFound) break;
 
-                for (DiffEntry diffEntry : commitAndDiffs.get(commit)) {
-
+                for (DiffEntry diffEntry : tmpCommitAndDiffs.get(commit)) {
                     if (mostRecentPath.equals(diffEntry.getNewPath())) {
                         mostRecentPath = diffEntry.getOldPath();
                     }
-
                     if (mostRecentPath.equals(diffEntry.getOldPath())) {
-                        tmpDiffs.add(diffEntry);
+                        this.commitAndDiffAll.put(commit, diffEntry);
+
                         if (diffEntry.getChangeType() == DiffEntry.ChangeType.ADD)
-                            break;
+                            addFound = true;
+                        break;
                     }
-
                 }
-
-                this.commitsAndDiffsAll.put(commit, tmpDiffs);
             }
 
-            logger.logFinest(() -> System.out.println("diffEntriesAll for " + entry.getVersion().getName() + ": " + diffEntriesAll));
+            logger.logFinest(() -> System.out.println("commitAndDiffAll for " + entry.getVersion().getName() + ": " + this.commitAndDiffAll));
 
             this.LOC();
             this.NR();
@@ -127,7 +124,6 @@ public class MetricsController {
     }
 
     // computes the number of commits between versions
-
     private void NR() {
         long NR = entryLastVersionCommits.size();
 
@@ -148,26 +144,9 @@ public class MetricsController {
     private void LOCAdded() throws GitAPIException {
         long LOCAdded = 0;
 
-//        for (DiffEntry diffEntry : diffEntriesAll) {
-//
-//            long locAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
-//
-//            logger.logFinest(() -> System.out.println("diffEntry: " + diffEntry + ", added: " + locAdded));
-//
-//            LOCAdded += locAdded;
-//
-//        }
-
-        for (RevCommit commit : this.commitsAndDiffsAll.keySet()) {
-            for (DiffEntry diffEntry : this.commitsAndDiffsAll.get(commit)) {
-
-                long locAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
-
-                logger.logFinest(() -> System.out.println("commit: " + commit.getName() + ", added: " + locAdded));
-
-                LOCAdded += locAdded;
-            }
-
+        for (RevCommit commit : this.commitAndDiffAll.keySet()) {
+            DiffEntry diffEntry = this.commitAndDiffAll.get(commit);
+            LOCAdded += GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
         }
 
         targetEntry.getMetrics().setLOCAdded(LOCAdded);

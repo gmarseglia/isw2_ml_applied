@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class GitControllerTest {
 
         logger.logPrefixless(() -> System.out.println("commits.size(): " + commits.size() + ", " + commits));
 
-
+        for (RevCommit commit : commits) {
+            List<Path> allPathByCommit = GitController.getInstance(projName).getAllPathByCommit(commit);
+            logger.logPrefixless(() -> System.out.println("allPathByCommit.size(): " + allPathByCommit.size()));
+        }
     }
 }

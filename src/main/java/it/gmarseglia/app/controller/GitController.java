@@ -7,6 +7,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -68,7 +69,7 @@ public class GitController {
                 Path fullPath = getLocalPath().resolve(diff.getNewPath());
                 result.add(fullPath);
                 logger.logFinest(() ->
-                        System.out.println(MessageFormat.format("diff: {0}, {1}, {2}",
+                        System.out.println(MessageFormat.format("diff: {0}|{1}|{2}",
                                 diff.getChangeType().name(),
                                 diff.getNewMode().getBits(),
                                 fullPath)));
@@ -79,6 +80,31 @@ public class GitController {
 
         return result;
     }
+
+    public List<DiffEntry> getDiffListByRevCommit(RevCommit revCommit) throws GitAPIException {
+        List<DiffEntry> diffs;
+
+        logger.logFinest(() -> System.out.printf("Getting all DiffEntries for commit: %s\n", revCommit.getId()));
+
+        /* https://www.eclipse.org/forums/index.php/t/213979/ */
+        RevWalk rw = new RevWalk(this.getLocalGit().getRepository());
+        try {
+            RevCommit parent = rw.parseCommit(revCommit.getParent(0).getId());
+
+            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+            df.setRepository(this.getLocalGit().getRepository());
+            df.setDiffComparator(RawTextComparator.DEFAULT);
+            df.setDetectRenames(true);
+
+            diffs = df.scan(parent.getTree(), revCommit.getTree());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return diffs;
+    }
+
 
     /**
      * Looks for all commits which contains {@code issue.getKey()} in their full message.
@@ -211,7 +237,7 @@ public class GitController {
     }
 
     /**
-     * As suggested in https://stackoverflow.com/a/75916692/10494676.
+     * As suggested in <a href="https://stackoverflow.com/a/75916692/10494676">...</a>.
      */
     public List<RevCommit> getRevCommitsFromPath(Path path) throws GitAPIException {
         List<RevCommit> result = new ArrayList<>();
@@ -222,7 +248,7 @@ public class GitController {
         Path fullPath;
 
         // prefix only if necessary
-        if (!path.toString().contains(this.localPath.toString())){
+        if (!path.toString().contains(this.localPath.toString())) {
             fullPath = Paths.get(this.localPath.toString(), path.toString());
         } else {
             fullPath = path;
@@ -270,6 +296,34 @@ public class GitController {
         }
 
         logger.logFinest(() -> System.out.println("Found commits by \"git log ...\": " + commitsID.size() + ", found by \"jgit\": " + result.size()));
+
+        return result;
+    }
+
+    public long[] getLOCModifiedByDiff(DiffEntry diff) throws GitAPIException {
+        long[] result = {0, 0};
+
+        DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+        df.setRepository(this.getLocalGit().getRepository());
+        df.setDiffComparator(RawTextComparator.DEFAULT);
+        df.setDetectRenames(true);
+
+        // https://stackoverflow.com/a/38947015/10494676
+
+        int linesAdded = 0;
+        int linesDeleted = 0;
+
+        try {
+            for (Edit edit : df.toFileHeader(diff).toEditList()) {
+                linesAdded += edit.getEndB() - edit.getBeginB();
+                linesDeleted += edit.getEndA() - edit.getBeginA();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        result[0] = linesAdded;
+        result[1] = linesDeleted;
 
         return result;
     }

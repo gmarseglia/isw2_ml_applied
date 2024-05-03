@@ -18,14 +18,13 @@ public class MetricsControllerTest {
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
+        MyLogger.getInstance(MetricsController.class).setVerboseFinest(true);
 
         String pathStr = "bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/EntryLogger.java";
 
-        List<Entry> labelledEntries = BugginessController.getInstance(projName).getAllLabelledEntries();
+        List<Entry> listEntries = EntriesController.getInstance(projName).getAllEntriesForHalfVersions();
 
-        // "bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/EntryLogger.java"
-        // 4.2.2
-        List<Entry> testEntries = labelledEntries.stream().filter(entry -> entry.getLongName().contains(pathStr)).toList();
+        List<Entry> testEntries = listEntries.stream().filter(entry -> entry.getLongName().contains(pathStr)).toList();
 
         logger.logPrefixless(() -> System.out.println("testEntries.size(): " + testEntries.size() + ", testEntries: " + testEntries));
 

@@ -5,6 +5,7 @@ public class Metrics {
     private long LOC;
     private long NR;
     private long NAuth;
+    private long LOCAdded;
 
     public long getLOC() {
         return LOC;
@@ -30,12 +31,21 @@ public class Metrics {
         this.NAuth = NAuth;
     }
 
+    public long getLOCAdded() {
+        return LOCAdded;
+    }
+
+    public void setLOCAdded(long LOCAdded) {
+        this.LOCAdded = LOCAdded;
+    }
+
     @Override
     public String toString() {
         return "Metrics{" +
                 "LOC=" + LOC +
                 ", NR=" + NR +
                 ", NAuth=" + NAuth +
+                ", LOCAdded=" + LOCAdded +
                 '}';
     }
 }
