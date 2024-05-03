@@ -219,7 +219,15 @@ public class GitController {
 
         Repository repository = this.getLocalGit().getRepository();
 
-        Path fullPath = Paths.get(this.localPath.toString(), path.toString());
+        Path fullPath;
+
+        // prefix only if necessary
+        if (!path.toString().contains(this.localPath.toString())){
+            fullPath = Paths.get(this.localPath.toString(), path.toString());
+        } else {
+            fullPath = path;
+        }
+
 
         // https://stackoverflow.com/a/34666649/10494676
         String[] commands = {"git", "log", "--all", "--first-parent", "--remotes", "--reflog", "--author-date-order", "--pretty=format:\"%H\"", "--follow", "--", fullPath.toString()};
