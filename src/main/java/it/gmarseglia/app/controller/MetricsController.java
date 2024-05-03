@@ -1,7 +1,9 @@
 package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.entity.Entry;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,12 +16,18 @@ public class MetricsController {
     private static final Map<String, MetricsController> instances = new HashMap<>();
 
     private final MyLogger logger = MyLogger.getInstance(MetricsController.class);
-    private final GitController gc;
     private final String projName;
+
+    private List<Version> halfVersions;
+
+    private Entry targetEntry;
+    private int currentVersionIndex;
+    private Version previousVersion;
+    private List<RevCommit> entryCommits;
+    private List<RevCommit> entryLastVersionCommits;
 
     private MetricsController(String projName) {
         this.projName = projName;
-        this.gc = GitController.getInstance(projName);
     }
 
     public static MetricsController getInstance(String projName) {
@@ -29,27 +37,57 @@ public class MetricsController {
 
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
 
-        for (Entry target : cleanAllEntries) {
+        this.halfVersions = VersionsController.getInstance(projName).getHalfVersion();
 
-            target.getMetrics().setLOC(this.computeLOC(target));
+        for (Entry entry : cleanAllEntries) {
 
+            // check out to the tag of the version of the entry
+            GitController.getInstance(projName).checkoutByTag(entry.getVersion().getGithubTag());
 
+            targetEntry = entry;
+
+            currentVersionIndex = halfVersions.indexOf(targetEntry.getVersion());
+            previousVersion = currentVersionIndex == 0 ? null : halfVersions.get(currentVersionIndex - 1);
+
+            entryCommits = GitController.getInstance(projName).getRevCommitsFromPath(entry.getPath());
+
+            entryLastVersionCommits = entryCommits
+                    .stream()
+                    .filter(revCommit -> revCommit.getAuthorIdent().getWhen().compareTo(targetEntry.getVersion().getGithubReleaseDate()) <= 0)
+                    .filter(revCommit -> {
+                        if (previousVersion != null) {
+                            return revCommit.getAuthorIdent().getWhen().compareTo(previousVersion.getGithubReleaseDate()) > 0;
+                        } else {
+                            return true;
+                        }
+                    })
+                    .toList();
+
+            this.LOC();
+            this.NR();
         }
 
     }
 
-    private long computeLOC(Entry entry) throws GitAPIException {
-        long LOC = 0;
-
-        gc.checkoutByTag(entry.getVersion().getGithubTag());
+    private void LOC() {
+        long LOC;
 
         // https://stackoverflow.com/questions/51639536/java-nio-files-count-method-for-counting-the-number-of-lines
-        try (Stream<String> stream = Files.lines(entry.getPath())) {
+        try (Stream<String> stream = Files.lines(targetEntry.getPath())) {
             LOC = stream.count();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return LOC;
+        targetEntry.getMetrics().setLOC(LOC);
+    }
+
+    // computes the number of commits between versions
+    private void NR() {
+        long NR;
+
+        NR = entryLastVersionCommits.size();
+
+        targetEntry.getMetrics().setNR(NR);
     }
 }
