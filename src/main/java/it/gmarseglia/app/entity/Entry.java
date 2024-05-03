@@ -74,7 +74,7 @@ public class Entry {
     public String toString() {
         return "Entry{" +
                 path +
-                ", " + version +
+                ", " + version.getName() +
                 ", " + buggy +
                 '}';
     }
