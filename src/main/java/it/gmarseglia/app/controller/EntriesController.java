@@ -47,10 +47,10 @@ public class EntriesController {
             MyFileUtils.getAllJavaSrcFiles(localPath)
                     .forEach(p -> result.add(new Entry(p, version, p.toString().replace(localPath.toString(), ""))));
 
-            logger.logFine(() -> System.out.printf("Release %s: %d .java src files found.\n", version.getName(), result.size()));
+            logger.logFinest(() -> System.out.printf("Release %s: %d .java src files found.\n", version.getName(), result.size()));
 
         } catch (GitAPIException e) {
-            logger.logFine(() -> System.out.printf("Release %s: not found on Git.\n", version.getName()));
+            logger.logFinest(() -> System.out.printf("Release %s: not found on Git.\n", version.getName()));
         }
 
         return result;
