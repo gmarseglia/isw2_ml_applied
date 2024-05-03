@@ -4,10 +4,11 @@ import java.nio.file.Path;
 
 public class Entry {
 
+    private final String longName;
+    private final Metrics metrics;
     private Path path;
     private Version version;
     private String name;
-    private final String longName;
     private boolean buggy;
 
     public Entry(Path path, Version version, String longName) {
@@ -16,6 +17,7 @@ public class Entry {
         this.name = path.getFileName().toString();
         this.buggy = false;
         this.longName = longName;
+        this.metrics = new Metrics();
     }
 
     public String toCsvLine() {
@@ -52,12 +54,20 @@ public class Entry {
         return buggy;
     }
 
+    public void setBuggy(boolean buggy) {
+        this.buggy = buggy;
+    }
+
     public boolean isNotBuggy() {
         return !buggy;
     }
 
-    public void setBuggy(boolean buggy) {
-        this.buggy = buggy;
+    public String getLongName() {
+        return longName;
+    }
+
+    public Metrics getMetrics() {
+        return metrics;
     }
 
     @Override
