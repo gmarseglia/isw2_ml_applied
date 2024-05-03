@@ -65,6 +65,7 @@ public class MetricsController {
 
             this.LOC();
             this.NR();
+            this.NAuth();
         }
 
     }
@@ -84,10 +85,19 @@ public class MetricsController {
 
     // computes the number of commits between versions
     private void NR() {
-        long NR;
-
-        NR = entryLastVersionCommits.size();
+        long NR = entryLastVersionCommits.size();
 
         targetEntry.getMetrics().setNR(NR);
+    }
+
+    private void NAuth() {
+        long NAuth = entryLastVersionCommits.stream()
+                .map(revCommit -> revCommit.getAuthorIdent().getName())
+                .toList()
+                .stream()
+                .distinct()
+                .count();
+
+        targetEntry.getMetrics().setNAuth(NAuth);
     }
 }
