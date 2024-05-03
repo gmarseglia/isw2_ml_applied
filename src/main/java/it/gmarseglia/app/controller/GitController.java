@@ -15,7 +15,9 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,13 +28,17 @@ import java.util.regex.Pattern;
 public class GitController {
 
     private static final Map<String, GitController> instances = new HashMap<>();
+
+    private final String projName;
     private final MyLogger logger = MyLogger.getInstance(GitController.class);
     private final String repoUrl;
     private final Path localPath;
     private String tagsRegex = "%v";
     private String lastTag = "";
 
+
     private GitController(String projName) {
+        this.projName = projName;
         String repoBase = "https://github.com/apache/%s.git";
         this.repoUrl = String.format(repoBase, projName);
         this.localPath = Paths.get(System.getProperty("java.io.tmpdir"), projName);
@@ -132,7 +138,7 @@ public class GitController {
      * @param tag Tag to check out to, can be {@code Version.getName()}
      */
     public void checkoutByTag(String tag) throws GitAPIException {
-        if (!Objects.equals(tag, this.lastTag)){
+        if (!Objects.equals(tag, this.lastTag)) {
             this.lastTag = tag;
             Git git = this.getLocalGit();
             git.checkout().setName("refs/tags/" + tag).call();
@@ -175,9 +181,8 @@ public class GitController {
      * @return {@code Git} object of the local repo.
      */
     private Git getLocalGit() throws GitAPIException {
-        Path localGitPath = localPath.resolve(".git");
-
         // if .git in the expected dir is not present, then clone the repo
+        Path localGitPath = localPath.resolve(".git");
         if (!Files.exists(localGitPath)) this.cloneRepo();
 
         try {
@@ -203,5 +208,61 @@ public class GitController {
         Git.cloneRepository().setURI(repoUrl).setDirectory(localPath.toFile()).call();
 
         logger.log(() -> System.out.println("Done.\n"));
+    }
+
+    /**
+     * As suggested in https://stackoverflow.com/a/75916692/10494676.
+     */
+    public List<RevCommit> getRevCommitsFromPath(Path path) throws GitAPIException {
+        List<RevCommit> result = new ArrayList<>();
+        List<String> commitsID = new ArrayList<>();
+
+        Repository repository = this.getLocalGit().getRepository();
+
+        Path fullPath = Paths.get(this.localPath.toString(), path.toString());
+
+        // https://stackoverflow.com/a/34666649/10494676
+        String[] commands = {"git", "log", "--all", "--first-parent", "--remotes", "--reflog", "--author-date-order", "--pretty=format:\"%H\"", "--follow", "--", fullPath.toString()};
+
+        logger.logFinest(() -> System.out.println(String.join(" ", commands)));
+
+        Runtime rt = Runtime.getRuntime();
+
+        try {
+            Process proc = rt.exec(commands, null, this.localPath.toFile());
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            String cmdResult;
+
+            while ((cmdResult = stdInput.readLine()) != null) {
+                commitsID.add(cmdResult.replace("\"", ""));
+            }
+
+            // logger.logFinest(() -> System.out.println("commitsID.size(): " + commitsID.size() + ", commitsID: " + commitsID));
+
+            // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/WalkAllCommits.java
+            // a RevWalk allows to walk over commits based on some filtering that is defined
+            Collection<Ref> allRefs = repository.getRefDatabase().getRefs();
+            try (RevWalk revWalk = new RevWalk(repository)) {
+
+                for (Ref ref : allRefs) {
+                    revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
+                }
+
+                for (RevCommit commit : revWalk) {
+                    if (commitsID.contains(commit.getName())) {
+                        result.add(commit);
+                    }
+                }
+            }
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        logger.logFinest(() -> System.out.println("Found commits by \"git log ...\": " + commitsID.size() + ", found by \"jgit\": " + result.size()));
+
+        return result;
     }
 }
