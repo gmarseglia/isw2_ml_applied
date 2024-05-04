@@ -42,9 +42,18 @@ public class MetricsController {
 
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
 
+        logger.log(() -> System.out.println("Ready to compute " + (Entry.getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries."));
+
         this.halfVersions = VersionsController.getInstance(projName).getHalfVersion();
 
+        int i = 0;
+
         for (Entry entry : cleanAllEntries) {
+
+            if (logger.getAnyVerboseFine()){
+                String logMsg = "Ready to compute metrics for entry (" + (++i) + "/" + cleanAllEntries.size() + "): " + entry.toShortString();
+                logger.logFine(() -> System.out.println(logMsg));
+            }
 
             // check out to the tag of the version of the entry
             GitController.getInstance(projName).checkoutByTag(entry.getVersion().getGithubTag());
@@ -102,8 +111,6 @@ public class MetricsController {
                     }
                 }
             }
-
-            logger.logFinest(() -> System.out.println("commitAndDiffAll for " + entry.getVersion().getName() + ": " + this.commitAndDiffAll));
 
             this.LOC();
             this.Age();
