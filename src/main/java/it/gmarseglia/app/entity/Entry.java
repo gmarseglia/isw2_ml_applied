@@ -1,6 +1,9 @@
 package it.gmarseglia.app.entity;
 
+import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 public class Entry {
 
@@ -20,10 +23,15 @@ public class Entry {
         this.metrics = new Metrics();
     }
 
-    public String toCsvLine() {
-        return this.version.getName() + "," +
-                this.longName + "," +
-                buggy;
+    public static List<String> getFieldsNames() {
+        return Arrays.asList("Version", "Name",
+                "LOC",
+                "Age", "StepAge",
+                "NR", "NAuth",
+                "LOCAdded", "maxLOCAdded", "avgLOCAdded",
+                "Churn", "maxChurn", "avgChurn",
+                "ChangeSetSize", "maxChangeSetSize", "avgChangeSetSize",
+                "Buggy");
     }
 
     public Path getPath() {
@@ -72,10 +80,25 @@ public class Entry {
 
     @Override
     public String toString() {
-        return "Entry{" +
+        return "{" +
                 path +
                 ", " + version.getName() +
                 ", " + buggy +
                 '}';
+    }
+
+    public String toShortString() {
+        return "Entry{" + version.getName() + ", " + path + "}";
+    }
+
+    public List<Serializable> getFieldsValues() {
+        return Arrays.asList(this.version.getName(), this.longName,
+                this.metrics.getLOC(),
+                this.metrics.getAge(), this.metrics.getStepAge(),
+                this.metrics.getNR(), this.metrics.getNAuth(),
+                this.metrics.getLOCAdded(), this.metrics.getMaxLOCAdded(), this.metrics.getAvgLOCAdded(),
+                this.metrics.getChurn(), this.metrics.getMaxChurn(), this.metrics.getAvgChurn(),
+                this.metrics.getChangeSetSize(), this.metrics.getMaxChangeSetSize(), this.metrics.getAvgChangeSetSize(),
+                this.buggy);
     }
 }

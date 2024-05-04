@@ -9,7 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class CsvEntryBoundary {
 
@@ -26,13 +27,15 @@ public class CsvEntryBoundary {
         MyFileUtils.deleteFile(outFile);
 
         try {
-            Files.writeString(outFile,
-                    "version,name,isBuggy" + System.lineSeparator(),
-                    CREATE, APPEND);
+            String firstRow = String.join(",", Entry.getFieldsNames()).concat(System.lineSeparator());
+            Files.writeString(outFile, firstRow, CREATE, APPEND);
 
             for (Entry entry : entries) {
+                List<String> entryValues = entry.getFieldsValues().stream().map(Object::toString).toList();
+                String entryRow = String.join(",", entryValues).concat(System.lineSeparator());
+
                 Files.writeString(outFile,
-                        entry.toCsvLine() + System.lineSeparator(),
+                        entryRow,
                         APPEND);
             }
         } catch (IOException e) {
