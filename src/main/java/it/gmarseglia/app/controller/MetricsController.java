@@ -43,7 +43,7 @@ public class MetricsController {
 
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
 
-        logger.log(() -> System.out.println("Ready to compute " + (Entry.getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries."));
+        logger.log("Ready to compute " + (Entry.getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries.");
 
         this.halfVersions = VersionsController.getInstance(projName).getHalfVersion();
 
@@ -65,7 +65,7 @@ public class MetricsController {
                         logMsg = "Computed metrics for " + percentage + "% of all entries in " + minutes + " minutes.";
                     }
                     percentage += 5;
-                    logger.logFine(() -> System.out.println(logMsg));
+                    logger.logFine(logMsg);
                 }
             }
 
@@ -135,7 +135,7 @@ public class MetricsController {
             this.ChangeSetSize();
         }
 
-        logger.log2("Computed all metrics for " + cleanAllEntries.size() + " entries.");
+        logger.log("Computed all metrics for " + cleanAllEntries.size() + " entries.");
     }
 
     private void LOC() {

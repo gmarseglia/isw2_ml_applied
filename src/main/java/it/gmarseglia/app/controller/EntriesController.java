@@ -47,10 +47,10 @@ public class EntriesController {
             MyFileUtils.getAllJavaSrcFiles(localPath)
                     .forEach(p -> result.add(new Entry(p, version, p.toString().replace(localPath.toString(), ""))));
 
-            logger.logFinest(() -> System.out.printf("Release %s: %d .java src files found.\n", version.getName(), result.size()));
+            logger.logFinest(String.format("Release %s: %d .java src files found.", version.getName(), result.size()));
 
         } catch (GitAPIException e) {
-            logger.logFinest(() -> System.out.printf("Release %s: not found on Git.\n", version.getName()));
+            logger.logFinest(String.format("Release %s: not found on Git.", version.getName()));
         }
 
         return result;
@@ -69,16 +69,16 @@ public class EntriesController {
             List<Version> halfVersion = vc.getHalfVersion();
             List<String> halfVersionNames = halfVersion.stream().map(Version::getName).toList();
 
-            logger.log2(String.format("Ready to find .java src files for for the least recent half valid versions: %s" , halfVersionNames));
+            logger.log(String.format("Ready to find .java src files for for the least recent half valid versions: %s" , halfVersionNames));
 
             for (Version v : halfVersion) {
-                logger.logFinest(() -> System.out.printf("Getting entries for version %s.\n", v.getName()));
+                logger.logFinest(String.format("Getting entries for version %s.", v.getName()));
                 List<Entry> perVersionEntries = this.findAndAppendEntries(v);
                 this.allEntries.addAll(perVersionEntries);
-                logger.logFine(() -> System.out.printf("Found %d .java src entries for version %s.\n", perVersionEntries.size(), v.getName()));
+                logger.logFine(String.format("Found %d .java src entries for version %s.", perVersionEntries.size(), v.getName()));
             }
 
-            logger.log(() -> System.out.printf("Found %d .java src entries for the least recent half valid versions.\n", this.allEntries.size()));
+            logger.log(String.format("Found %d .java src entries for the least recent half valid versions.", this.allEntries.size()));
         }
         return this.allEntries;
     }

@@ -29,60 +29,59 @@ public class Statistics {
         logger.setVerbose(true);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll tags"));
+        logger.logNoPrefix("All tags");
         GitController gc = GitController.getInstance(projName);
         gc.setTagsRegex("(release-)?%v(-incubating)?");
         List<String> allTags = gc.listTags();
-        logger.logPrefixless(() -> System.out.printf("All tags size: %d\n", allTags.size()));
-        allTags.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All tags size: %d", allTags.size()));
+        allTags.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll versions"));
+        logger.logNoPrefix("All versions");
         VersionsController vc = VersionsController.getInstance(projName);
         List<Version> allVersions = vc.getAllVersions();
-        logger.logPrefixless(() -> System.out.printf("All versions size: %d\n", allVersions.size()));
-        allVersions.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All versions size: %d", allVersions.size()));
+        allVersions.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll released versions"));
+        logger.logNoPrefix("All released versions");
         List<Version> allReleasedVersions = vc.getAllReleasedVersions();
-        logger.logPrefixless(() -> System.out.printf("All released versions size: %d\n", allReleasedVersions.size()));
-        allReleasedVersions.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All released versions size: %d", allReleasedVersions.size()));
+        allReleasedVersions.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll valid versions"));
+        logger.logNoPrefix("All valid versions");
         List<Version> allValidVersions = vc.getAllValidVersions();
-        logger.logPrefixless(() -> System.out.printf("All Valid versions: %d\n", allValidVersions.size()));
-        allValidVersions.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All Valid versions: %d", allValidVersions.size()));
+        allValidVersions.forEach(logger::logObjectNoPrefix);
 
         IssueController ic = IssueController.getInstance(projName);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll issues"));
+        logger.logNoPrefix("All issues");
         List<Issue> allIssues = ic.getTotalIssues(Integer.MAX_VALUE);
-        logger.logPrefixless(() -> System.out.printf("All issues size: %d\n", allIssues.size()));
-        // allIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All issues size: %d", allIssues.size()));
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll valid issues"));
+        logger.logNoPrefix("All valid issues");
         List<Issue> allValidIssues = ic.getTotalValidIssues(Integer.MAX_VALUE);
-        logger.logPrefixless(() -> System.out.printf("All valid issues size: %d\n", allValidIssues.size()));
-        allValidIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All valid issues size: %d", allValidIssues.size()));
+        allValidIssues.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll non valid issues"));
+        logger.logNoPrefix("All non valid issues");
         List<Issue> allNonValidIssues = new ArrayList<>(allIssues);
         allNonValidIssues.removeAll(allValidIssues);
-        logger.logPrefixless(() -> System.out.printf("All Non valid issues size: %d\n", allNonValidIssues.size()));
-        allNonValidIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All Non valid issues size: %d", allNonValidIssues.size()));
+        allNonValidIssues.forEach(logger::logObjectNoPrefix);
 
         MyLogger.getInstance(ProportionController.class).setVerboseFinest(true);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll valid proportioned issues"));
+        logger.logNoPrefix("All valid proportioned issues");
         ProportionController pc = ProportionController.getInstance(projName);
         List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssues(Integer.MAX_VALUE);
-        logger.logPrefixless(() -> System.out.printf("All valid proportioned issues size: %d\n", allValidProportionedIssues.size()));
-        allValidProportionedIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All valid proportioned issues size: %d", allValidProportionedIssues.size()));
+        allValidProportionedIssues.forEach(logger::logObjectNoPrefix);
     }
 }

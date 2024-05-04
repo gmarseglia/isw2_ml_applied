@@ -29,7 +29,7 @@ public class ProportionController {
             this.lastMaxTotal = maxTotal;
             this.totalProportionedIssues = new ArrayList<>(ic.getTotalValidIssues(maxTotal));
 
-            logger.logFine(() -> System.out.printf("Ready to apply Increment Proportion on %d issues.\n", this.totalProportionedIssues.size()));
+            logger.logFine(String.format("Ready to apply Increment Proportion on %d issues.", this.totalProportionedIssues.size()));
 
             Iterator<Issue> issueIterator = this.totalProportionedIssues
                     .stream()
@@ -54,8 +54,7 @@ public class ProportionController {
 
                     float finalP = P;
                     int finalUpdates = updates;
-                    logger.logFinest(() ->
-                            System.out.printf("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f\n",
+                    logger.logFinest(String.format("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f",
                                     i.getKey(),
                                     i.OVIndex(), i.FVIndex(), i.IVIndex(),
                                     newP, finalUpdates, finalP));
@@ -71,8 +70,7 @@ public class ProportionController {
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
                 i.setPredictedIVIndex(actualPredictedIV);
 
-                logger.logFinest(() ->
-                        System.out.printf("P apply on %s -> OV: %d, FV: %d, IV: %d, P: %.3f, predictedIV: %.3f->%d\n",
+                logger.logFinest(String.format("P apply on %s -> OV: %d, FV: %d, IV: %d, P: %.3f, predictedIV: %.3f->%d",
                                 i.getKey(),
                                 i.OVIndex(), i.FVIndex(), i.IVIndex(),
                                 actualP,
@@ -81,7 +79,7 @@ public class ProportionController {
             }
 
             int proportionedIssues = this.totalProportionedIssues.size() - updates;
-            logger.log(() -> System.out.printf("Actually proportioned %d issues which didn't have explicit IV.\n", proportionedIssues));
+            logger.log(String.format("Actually proportioned %d issues which didn't have explicit IV.", proportionedIssues));
         }
         return this.totalProportionedIssues;
     }

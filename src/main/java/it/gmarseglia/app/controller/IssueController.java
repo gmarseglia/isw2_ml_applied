@@ -38,9 +38,9 @@ public class IssueController {
 
     public List<Issue> getTotalValidIssues(int maxTotal) throws GitAPIException {
         if (this.totalValidIssues == null || maxTotal != this.lastMaxTotal) {
-            List<Issue> totalIssues = this.getTotalIssues(maxTotal);
+            List<Issue> tmpIssues = this.getTotalIssues(maxTotal);
 
-            logger.log(() -> System.out.printf("Ready to validate %d issues.\n", totalIssues.size()));
+            logger.log(String.format("Ready to validate %d issues.", tmpIssues.size()));
 
             // commits > 0
             Predicate<Issue> noCommitFilter = issue -> {
@@ -50,9 +50,8 @@ public class IssueController {
                     return false;
                 }
             };
-            logger.logFine(() ->
-                    System.out.printf("%d issues fails \"noCommitFilter\" (commits > 0)\n",
-                            totalIssues.stream().filter(noCommitFilter.negate()).count()));
+            logger.logFine(String.format("%d issues fails \"noCommitFilter\" (commits > 0)",
+                            tmpIssues.stream().filter(noCommitFilter.negate()).count()));
 
             // IV < FV
             Predicate<Issue> nonPostReleaseFilter = issue -> {
@@ -62,21 +61,19 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFine(() ->
-                    System.out.printf("%d issues fails \"nonPostRelease\" (IV < FV)\n",
-                            totalIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+            logger.logFine(String.format("%d issues fails \"nonPostRelease\" (IV < FV)",
+                            tmpIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
 
             // IV <= OV
-            Predicate<Issue> IVConsistencyFilter = issue -> {
+            Predicate<Issue> consistentIVFilter = issue -> {
                 if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
                     return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
                 } else {
                     return true;
                 }
             };
-            logger.logFine(() ->
-                    System.out.printf("%d issues fails \"IVConsistencyFilter\" (IV <= OV)\n",
-                            totalIssues.stream().filter(IVConsistencyFilter.negate()).count()));
+            logger.logFine(String.format("%d issues fails \"consistentIVFilter\" (IV <= OV)",
+                            tmpIssues.stream().filter(consistentIVFilter.negate()).count()));
 
             // OV <= FV
             Predicate<Issue> openingConsistencyFilter = issue -> {
@@ -86,18 +83,17 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFine(() ->
-                    System.out.printf("%d issues fails \"openingConsistencyFilter\" (OV <= FV)\n",
-                            totalIssues.stream().filter(openingConsistencyFilter.negate()).count()));
+            logger.logFine(String.format("%d issues fails \"openingConsistencyFilter\" (OV <= FV)",
+                            tmpIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
-            this.totalValidIssues = totalIssues.stream()
+            this.totalValidIssues = tmpIssues.stream()
                     .filter(nonPostReleaseFilter)
-                    .filter(IVConsistencyFilter)
+                    .filter(consistentIVFilter)
                     .filter(openingConsistencyFilter)
                     .filter(noCommitFilter)
                     .toList();
 
-            logger.log(() -> System.out.printf("Validated %d issues.\n", this.totalValidIssues.size()));
+            logger.log(String.format("Validated %d issues.", this.totalValidIssues.size()));
         }
         return this.totalValidIssues;
     }
@@ -116,17 +112,17 @@ public class IssueController {
             this.lastMaxTotal = maxTotal;
 
             String logMsg = maxTotal == Integer.MAX_VALUE ? "Ready to get all issues." : String.format("Ready to get at most %d issues.", maxTotal);
-            logger.log(() -> System.out.println(logMsg));
+            logger.log(logMsg);
 
             List<JiraIssue> totalJiraIssues = this.getJiraIssues(maxTotal);
 
-            logger.logFine(() -> System.out.printf("Got %d Jira issues.\n", totalJiraIssues.size()));
+            logger.logFine(String.format("Got %d Jira issues.", totalJiraIssues.size()));
 
             for (JiraIssue jiraIssue : totalJiraIssues) {
                 this.totalIssues.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
             }
 
-            logger.logFine(() -> System.out.printf("Got %d issues.\n", this.totalIssues.size()));
+            logger.logFine(String.format("Got %d issues.", this.totalIssues.size()));
         }
         return this.totalIssues;
     }
@@ -147,7 +143,7 @@ public class IssueController {
 
             int finalI = i;
             int finalTotal = Math.min(total, maxTotal);
-            logger.logFinest(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, finalTotal));
+            logger.logFinest(String.format("Getting Jira issues from %d to %d.", finalI, finalTotal));
 
             jiraIssueReport = issueJSONGetter.getIssueReport(i, Math.min(maxTotal - i, maxResult));
 

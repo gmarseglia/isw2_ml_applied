@@ -11,7 +11,7 @@ public class JsonCacheUtils {
     public static String getStringFromResourcesThenURL(String targetFile, String targetUrl) {
         MyLogger logger = MyLogger.getInstance(JsonCacheUtils.class);
 
-        logger.logFinest(() -> System.out.println(targetUrl));
+        logger.logFinest(targetUrl);
         InputStream isJson;
         String textJson;
 
@@ -39,12 +39,10 @@ public class JsonCacheUtils {
         MyLogger.getInstance(JsonCacheUtils.class).setVerboseFine(false);
 
         if (result == null) {
-            MyLogger.getInstance(JsonCacheUtils.class).logFine(() ->
-                    System.out.printf("URL used: %s\n", Url));
+            MyLogger.getInstance(JsonCacheUtils.class).logFine(String.format("URL used: %s", Url));
             result = new URL(Url).openStream();
         } else {
-            MyLogger.getInstance(JsonCacheUtils.class).logFine(() ->
-                    System.out.printf("file used: %s\n", filename));
+            MyLogger.getInstance(JsonCacheUtils.class).logFine(String.format("file used: %s", filename));
         }
 
         return result;

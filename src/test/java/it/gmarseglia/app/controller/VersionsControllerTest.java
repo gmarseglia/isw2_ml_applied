@@ -1,10 +1,7 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.entity.JiraVersion;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class VersionsControllerTest {
 
@@ -19,16 +16,16 @@ public class VersionsControllerTest {
         VersionsController vc = VersionsController.getInstance(projName);
         GitController gc = GitController.getInstance(projName);
 
-        logger.log(() -> System.out.println("\n\nAll Jira Versions:\n"));
+        logger.log("All Jira Versions:");
         vc.getAllJiraVersions().forEach(logger::logObject);
 
-        logger.log(() -> System.out.println("\n\nAll GitHub Tags:\n"));
+        logger.log("All GitHub Tags:");
         gc.listTags().forEach(logger::logObject);
 
-        logger.log(() -> System.out.print("\n\nAll Versions:"));
+        logger.log("All Versions:");
         vc.getAllVersions().forEach(logger::logObject);
 
-        logger.log(() -> System.out.println("\n\nAll Valid Versions:"));
+        logger.log("All Valid Versions:");
         vc.getAllValidVersions().forEach(logger::logObject);
 
     }

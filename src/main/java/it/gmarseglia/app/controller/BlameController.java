@@ -38,11 +38,9 @@ public class BlameController {
 
         List<RevCommit> commits = gc.getAllCommitsByIssue(issue);
 
-        myLogger.logFinest(() -> System.out.println("Found " + commits.size() + " commits, corresponding to issue " + issue.getKey() + "."));
+        myLogger.logFinest("Found " + commits.size() + " commits, corresponding to issue " + issue.getKey() + ".");
 
-        myLogger.logFinest(() ->
-                commits.forEach(revCommit -> System.out.printf("ID: %s\n", revCommit.getId())
-                ));
+        commits.forEach(revCommit -> myLogger.logFinest(String.format("ID: %s", revCommit.getId())));
 
         /* Filter commits after FV GitHub release date */
         Iterator<RevCommit> iterator = commits

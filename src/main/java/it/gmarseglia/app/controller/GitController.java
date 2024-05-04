@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -54,7 +53,7 @@ public class GitController {
     public List<Path> getAllPathByCommit(RevCommit revCommit) throws GitAPIException {
         List<Path> result = new ArrayList<>();
 
-        logger.logFinest(() -> System.out.printf("Getting all paths for commit: %s\n", revCommit.getId()));
+        logger.logFinest(String.format("Getting all paths for commit: %s", revCommit.getId()));
 
         /* https://www.eclipse.org/forums/index.php/t/213979/ */
         RevWalk rw = new RevWalk(this.getLocalGit().getRepository());
@@ -69,11 +68,10 @@ public class GitController {
             for (DiffEntry diff : diffs) {
                 Path fullPath = getLocalPath().resolve(diff.getNewPath());
                 result.add(fullPath);
-                logger.logFinest(() ->
-                        System.out.println(MessageFormat.format("diff: {0}|{1}|{2}",
-                                diff.getChangeType().name(),
-                                diff.getNewMode().getBits(),
-                                fullPath)));
+                logger.logFinest(String.format("diff: %s|%s|%s",
+                        diff.getChangeType().name(),
+                        diff.getNewMode().getBits(),
+                        fullPath));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -85,7 +83,7 @@ public class GitController {
     public List<DiffEntry> getDiffListByRevCommit(RevCommit revCommit) throws GitAPIException {
         List<DiffEntry> diffs;
 
-        logger.logFinest(() -> System.out.printf("Getting all DiffEntries for commit: %s\n", revCommit.getId()));
+        logger.logFinest(String.format("Getting all DiffEntries for commit: %s", revCommit.getId()));
 
         /* https://www.eclipse.org/forums/index.php/t/213979/ */
         RevWalk rw = new RevWalk(this.getLocalGit().getRepository());
@@ -113,7 +111,7 @@ public class GitController {
     public List<RevCommit> getAllCommitsByIssue(Issue issue) throws GitAPIException {
         String issueID = issue.getKey();
 
-        logger.logFinest(() -> System.out.printf("Getting all commits for issue: %s\n", issueID));
+        logger.logFinest(String.format("Getting all commits for issue: %s", issueID));
 
         List<RevCommit> result = new ArrayList<>();
 
@@ -229,12 +227,12 @@ public class GitController {
         // delete dir
         MyFileUtils.deleteDirectory(localPath);
 
-        logger.log(() -> System.out.println("Cloning..."));
+        logger.log("Cloning repository...");
 
         // clone the repository
         Git.cloneRepository().setURI(repoUrl).setDirectory(localPath.toFile()).call();
 
-        logger.log(() -> System.out.println("Done.\n"));
+        logger.log("Done.");
     }
 
     /**
@@ -259,7 +257,7 @@ public class GitController {
         // https://stackoverflow.com/a/34666649/10494676
         String[] commands = {"git", "log", "--all", "--first-parent", "--remotes", "--reflog", "--author-date-order", "--pretty=format:\"%H\"", "--follow", "--", fullPath.toString()};
 
-        logger.logFinest(() -> System.out.println(String.join(" ", commands)));
+        logger.logFinest(String.join(" ", commands));
 
         Runtime rt = Runtime.getRuntime();
 
@@ -273,8 +271,6 @@ public class GitController {
             while ((cmdResult = stdInput.readLine()) != null) {
                 commitsID.add(cmdResult.replace("\"", ""));
             }
-
-            // logger.logFinest(() -> System.out.println("commitsID.size(): " + commitsID.size() + ", commitsID: " + commitsID));
 
             // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/WalkAllCommits.java
             // a RevWalk allows to walk over commits based on some filtering that is defined
@@ -296,7 +292,7 @@ public class GitController {
             throw new RuntimeException(ex);
         }
 
-        logger.logFinest(() -> System.out.println("Found commits by \"git log ...\": " + commitsID.size() + ", found by \"jgit\": " + result.size()));
+        logger.logFinest(String.format("Found commits by \"git log ...\": %s, found by \"jgit\": %s", commitsID.size(), result.size() ));
 
         return result;
     }

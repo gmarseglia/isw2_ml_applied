@@ -9,29 +9,27 @@ import java.util.Map;
 
 public class MyLogger {
 
+    private static final String FORMAT = "%-11s %s";
     private static final Map<String, MyLogger> instances = new HashMap<>();
-
     private static Boolean staticVerbose = false;
     private static Boolean staticVerboseFine = false;
     private static Boolean staticVerboseFinest = false;
+    private final Logger internalLogger;
     private Boolean verbose;
     private Boolean verboseFine;
     private Boolean verboseFinest;
 
-    private final String className;
-
     private MyLogger(String className) {
-        this.className = className;
+        String cappedClassName = String.format("%-24s", className);
+        this.internalLogger = LoggerFactory.getLogger(cappedClassName);
     }
 
     public static MyLogger getInstance(String className) {
-        MyLogger.instances.computeIfAbsent(className, string -> new MyLogger(className));
+        MyLogger.instances.computeIfAbsent(className, MyLogger::new);
         return MyLogger.instances.get(className);
     }
 
     public static MyLogger getInstance(Class<?> actualClass) {
-        // String simplePackageName = Arrays.stream(actualClass.getPackageName().split("\\.")).toList().getLast();
-        //return MyLogger.getInstance(simplePackageName + "." + actualClass.getSimpleName());
         return MyLogger.getInstance(actualClass.getSimpleName());
     }
 
@@ -47,52 +45,45 @@ public class MyLogger {
         MyLogger.staticVerboseFine = staticVerboseFine;
     }
 
-    public void logPrefixless(Runnable runnable) {
+    public void logNoPrefix(String msg) {
         if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
-            runnable.run();
+            internalLogger.info(msg);
         }
     }
 
-    public void log(Runnable runnable) {
-        if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
-            System.out.printf("%s logs:\t", this.className);
-            runnable.run();
-        }
+    public void log(String msg) {
+        String logMsg = String.format(FORMAT, "logs:", msg);
+        this.logNoPrefix(logMsg);
     }
 
-    public void log2(String msg) {
-        if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
-            String logMsg = String.format("%-18s %-11s %s", this.className, "logs2:", msg);
-
-            Logger logger = LoggerFactory.getLogger(this.className);
-
-            System.out.println("KKKK");
-
-            logger.info(msg);
-//            logger.info(msg);
-        }
-    }
-
-    public void logFine(Runnable runnable) {
+    public void logFineNoPrefix(String msg) {
         if ((verboseFine == null && staticVerboseFine) || Boolean.TRUE.equals(verboseFine)) {
-            System.out.printf("%s logsFine:\t", this.className);
-            runnable.run();
+            internalLogger.info(msg);
         }
     }
 
-    public void logFinest(Runnable runnable) {
+    public void logFine(String msg) {
+        String logMsg = String.format(FORMAT, "logs fine:", msg);
+        this.logFineNoPrefix(logMsg);
+    }
+
+    public void logFinestNoPrefix(String msg) {
         if ((verboseFinest == null && staticVerboseFinest) || Boolean.TRUE.equals(verboseFinest)) {
-            System.out.printf("%s logsFinest:\t", this.className);
-            runnable.run();
+            internalLogger.info(msg);
         }
+    }
+
+    public void logFinest(String msg) {
+        String logMsg = String.format(FORMAT, "logs finest:", msg);
+        this.logFinestNoPrefix(logMsg);
     }
 
     public void logObject(Object object) {
-        this.log(() -> System.out.println(object));
+        this.log(object.toString());
     }
 
-    public void logObjectPrefixless(Object object) {
-        this.logPrefixless(() -> System.out.println(object));
+    public void logObjectNoPrefix(Object object) {
+        this.logNoPrefix(object.toString());
     }
 
     public void setVerbose(Boolean verbose) {

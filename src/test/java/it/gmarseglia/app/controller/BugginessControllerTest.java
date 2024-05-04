@@ -24,35 +24,35 @@ public class BugginessControllerTest {
         MyLogger.getInstance(BugginessController.class).setVerboseFinest(null);
 
         // Print all valid versions
-        logger.logPrefixless(() -> System.out.println("\n\ngetAllValidVersions"));
+        logger.logNoPrefix("%n%n getAllValidVersions");
         List<Version> allValidVersions = VersionsController.getInstance(projName).getAllValidVersions();
-        logger.logPrefixless(() -> System.out.println("getAllValidVersions.size(): " + allValidVersions.size()));
+        logger.logNoPrefix("getAllValidVersions.size(): " + allValidVersions.size());
         for (Version v : allValidVersions) {
-            logger.logPrefixless(() -> System.out.println(v));
+            logger.logNoPrefix(v.toString());
         }
 
         // Print half valid versions
-        logger.logPrefixless(() -> System.out.println("\n\ngetHalfVersion"));
+        logger.logNoPrefix("%n%n getHalfVersion");
         List<Version> halfVersions = VersionsController.getInstance(projName).getHalfVersion();
-        logger.logPrefixless(() -> System.out.println("getHalfVersion.size(): " + halfVersions.size()));
+        logger.logNoPrefix("getHalfVersion.size(): " + halfVersions.size());
         for (Version v : halfVersions) {
-            logger.logPrefixless(() -> System.out.println(v));
+            logger.logNoPrefix(v.toString());
         }
 
         // Print all entries for half versions
-        logger.logPrefixless(() -> System.out.println("\n\ngetAllEntriesForHalfVersions"));
+        logger.logNoPrefix("%n%n getAllEntriesForHalfVersions");
         List<Entry> halfEntries = ec.getAllEntriesForHalfVersions();
-        logger.logPrefixless(() -> System.out.println("getAllEntriesForHalfVersions: " + halfEntries.size()));
+        logger.logNoPrefix("getAllEntriesForHalfVersions: " + halfEntries.size());
 
         // Print all valid issues
-        logger.logPrefixless(() -> System.out.println("\n\ngetTotalValidIssues"));
+        logger.logNoPrefix("%n%n getTotalValidIssues");
         List<Issue> allValidIssues = IssueController.getInstance(projName).getTotalValidIssues(Integer.MAX_VALUE);
-        logger.logPrefixless(() -> System.out.println("getTotalValidIssues: " + allValidIssues.size()));
+        logger.logNoPrefix("getTotalValidIssues: " + allValidIssues.size());
 
         // Print all entries for half versions after being labelled
-        logger.logPrefixless(() -> System.out.println("\n\ngetAllLabelledEntries"));
+        logger.logNoPrefix("%n%n getAllLabelledEntries");
         List<Entry> allLabelledEntries = bc.getAllLabelledEntries();
-        logger.logPrefixless(() -> System.out.println("getAllLabelledEntries: " + allLabelledEntries.size()));
+        logger.logNoPrefix("getAllLabelledEntries: " + allLabelledEntries.size());
 
     }
 }

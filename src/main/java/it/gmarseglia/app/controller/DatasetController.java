@@ -33,7 +33,7 @@ public class DatasetController {
     public void populateDataset() throws GitAPIException {
         List<Entry> allDatasetEntries = BugginessController.getInstance(projName).getAllLabelledEntries();
 
-        logger.log(() -> System.out.printf("Total entries size: %d\n", allDatasetEntries.size()));
+        logger.log(String.format("Total entries size: %d", allDatasetEntries.size()));
 
         MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
 

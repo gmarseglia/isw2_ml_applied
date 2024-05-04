@@ -26,12 +26,12 @@ public class MetricsControllerTest {
 
         List<Entry> testEntries = listEntries.stream().filter(entry -> entry.getLongName().contains(pathStr)).toList();
 
-        logger.logPrefixless(() -> System.out.println("testEntries.size(): " + testEntries.size() + ", testEntries: " + testEntries));
+        logger.logNoPrefix("testEntries.size(): " + testEntries.size() + ", testEntries: " + testEntries);
 
         mc.setMetricsForAllEntries(testEntries);
 
         for (Entry entry : testEntries) {
-            logger.logPrefixless(() -> System.out.println("entry: " + entry + ", metrics: " + entry.getMetrics()));
+            logger.logNoPrefix("entry: " + entry + ", metrics: " + entry.getMetrics());
         }
     }
 }

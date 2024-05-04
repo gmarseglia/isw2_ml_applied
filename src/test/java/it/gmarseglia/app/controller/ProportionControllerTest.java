@@ -27,24 +27,24 @@ public class ProportionControllerTest {
         MyLogger.getInstance(IssueController.class).setVerboseFinest(false);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll valid issues"));
+        logger.logNoPrefix("%n%n All valid issues");
         List<Issue> allValidIssues = ic.getTotalValidIssues(maxTotal);
-        logger.logPrefixless(() -> System.out.printf("All valid issues size: %d\n", allValidIssues.size()));
-        allValidIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All valid issues size: %d\n", allValidIssues.size()));
+        allValidIssues.forEach(logger::logObjectNoPrefix);
 
         MyLogger.getInstance(IssueController.class).setVerboseFinest(false);
 
         MyLogger.getInstance(ProportionController.class).setVerboseFinest(true);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nAll valid proportioned issues"));
+        logger.logNoPrefix("%n%n All valid proportioned issues");
         ProportionController pc = ProportionController.getInstance(projName);
         List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssues(maxTotal);
-        logger.logPrefixless(() -> System.out.printf("All valid proportioned issues size: %d\n", allValidProportionedIssues.size()));
-        allValidProportionedIssues.forEach(logger::logObjectPrefixless);
+        logger.logNoPrefix(String.format("All valid proportioned issues size: %d\n", allValidProportionedIssues.size()));
+        allValidProportionedIssues.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
-        logger.logPrefixless(() -> System.out.println("\n\nCorrectly assigned IV check"));
+        logger.logNoPrefix("%n%n Correctly assigned IV check");
         long IVNotNullIssues = pc.getTotalProportionedIssues(maxTotal)
                 .stream()
                 .filter(issue -> issue.IVIndex() != null)
@@ -54,7 +54,7 @@ public class ProportionControllerTest {
                 .filter(issue -> issue.IVIndex() != null)
                 .filter(issue -> Objects.equals(issue.IVIndex(), issue.PredictedIVIndex()))
                 .count();
-        logger.logPrefixless(() -> System.out.printf("Correctly assigned IV percentage: %d/%d = %.1f%%\n",
+        logger.logNoPrefix(String.format("Correctly assigned IV percentage: %d/%d = %.1f%%\n",
                 IVCorrectIssues, IVNotNullIssues,
                 (float) IVCorrectIssues * 100 / IVNotNullIssues
         ));
@@ -70,7 +70,7 @@ public class ProportionControllerTest {
             averageError = averageError + ((float) 1 / updates) * (Math.abs(issue.PredictedIVIndex() - issue.IVIndex()) - averageError);
         }
         float finalAverageError = averageError;
-        logger.logPrefixless(() -> System.out.printf("Average error: %.2f\n",
+        logger.logNoPrefix(String.format("Average error: %.2f\n",
                 finalAverageError
         ));
 
@@ -84,7 +84,7 @@ public class ProportionControllerTest {
             averageDifference = averageDifference + ((float) 1 / updates) * (Math.abs(issue.PredictedIVIndex() - issue.IVIndex()) - averageDifference);
         }
         float finalAverageDifference = averageDifference;
-        logger.logPrefixless(() -> System.out.printf("Average difference: %.2f\n",
+        logger.logNoPrefix(String.format("Average difference: %.2f\n",
                 finalAverageDifference
         ));
 

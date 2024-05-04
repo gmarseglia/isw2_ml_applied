@@ -40,8 +40,8 @@ public class IssueJSONGetter {
         String targetUrl = this.buildURL(startAt, maxResult);
         String targetFile = String.format("%s_issues-%d-%d.json", this.projName, startAt, maxResult);
 
-        logger.logFine(() -> System.out.printf("IssueQuery: '%s'\n", this.buildQuery()));
-        logger.logFinest(() -> System.out.println("Issue query URL: " + targetUrl));
+        logger.logFine(String.format("IssueQuery: '%s'", this.buildQuery()));
+        logger.logFinest("Issue query URL: " + targetUrl);
 
         return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl);
     }

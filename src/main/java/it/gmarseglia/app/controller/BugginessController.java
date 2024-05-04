@@ -104,32 +104,29 @@ public class BugginessController {
                             ref.i++;
                         });
 
-                logger.logFinest(() -> System.out.println("*** proportionedIssue: " + proportionedIssue));
-                logger.logFinest(() -> {
-                            List<String> affectedVersionsName = affectedVersions.stream().map(Version::getName).toList();
-                            System.out.println("affectedVersions.size(): " + affectedVersions.size() + ", " + affectedVersionsName);
-                        }
-                );
-                logger.logFinest(() -> {
-                            List<String> datasetAffectedVersionsName = datasetAffectedVersions.stream().map(Version::getName).toList();
-                            System.out.println("datasetAffectedVersions.size(): " + datasetAffectedVersions.size() + ", " + datasetAffectedVersionsName);
-                        }
-                );
+                if (logger.getAnyVerboseFinest()) {
+                    logger.logFinest("*** proportionedIssue: " + proportionedIssue);
 
-                logger.logFinest(() ->
-                        System.out.println("datasetAffectedPaths.size(): " + datasetAffectedPaths.size() + ", " + datasetAffectedPaths));
+                    List<String> affectedVersionsName = affectedVersions.stream().map(Version::getName).toList();
+                    logger.logFinest("affectedVersions.size(): " + affectedVersions.size() + ", " + affectedVersionsName);
 
-                logger.logFinest(() ->
-                        System.out.println("Number of entries labelled \"buggy\" (without duplicates): " + ref.i));
+                    List<String> datasetAffectedVersionsName = datasetAffectedVersions.stream().map(Version::getName).toList();
+                    logger.logFinest("datasetAffectedVersions.size(): " + datasetAffectedVersions.size() + ", " + datasetAffectedVersionsName);
+
+                    logger.logFinest("datasetAffectedPaths.size(): " + datasetAffectedPaths.size() + ", " + datasetAffectedPaths);
+
+                    logger.logFinest("Number of entries labelled \"buggy\" (without duplicates): " + ref.i);
+                }
+
             }
 
             int finalValid = usable;
             int finalInvalid = unusable;
             int finalOverHalf = overHalf;
 
-            logger.logFine(() -> System.out.printf("Proportioned issues by type: {Usable: %d, Unusable: %d, Over half: %d}\n",
+            logger.logFine(String.format("Proportioned issues by type: {Usable: %d, Unusable: %d, Over half: %d}",
                     finalValid, finalInvalid, finalOverHalf));
-            logger.logFine(() -> System.out.println("Total number of entries labelled \"buggy\": " + newLabelledEntries.size()));
+            logger.logFine(String.format("Total number of entries labelled \"buggy\": %s", newLabelledEntries.size()));
 
         }
         return this.allLabelledEntries;

@@ -38,11 +38,11 @@ public class GitControllerTest {
         String pathStr = "bookkeeper-server/src/main/java/org/apache/bookkeeper/proto/WriteEntryProcessor.java";
         List<RevCommit> commits = GitController.getInstance(projName).getRevCommitsFromPath(Paths.get(pathStr));
 
-        logger.logPrefixless(() -> System.out.println("commits.size(): " + commits.size() + ", " + commits));
+        logger.logNoPrefix("commits.size(): " + commits.size() + ", " + commits);
 
         for (RevCommit commit : commits) {
             List<Path> allPathByCommit = GitController.getInstance(projName).getAllPathByCommit(commit);
-            logger.logPrefixless(() -> System.out.println("allPathByCommit.size(): " + allPathByCommit.size()));
+            logger.logNoPrefix("allPathByCommit.size(): " + allPathByCommit.size());
         }
     }
 
@@ -50,7 +50,7 @@ public class GitControllerTest {
     public void getFirstCommitTest() throws GitAPIException {
         RevCommit firstCommit = GitController.getInstance(projName).getFirstCommit();
 
-        logger.logPrefixless(() -> System.out.println("firstCommit: " + firstCommit));
+        logger.logNoPrefix("firstCommit: " + firstCommit);
 
         Assert.assertEquals("9ea37773fa07e8e1c16e654020ae34c3d6564963", firstCommit.getName());
     }
