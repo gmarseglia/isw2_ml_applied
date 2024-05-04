@@ -8,6 +8,12 @@ public class Metrics {
     private long LOCAdded;
     private long maxLOCAdded;
     private long avgLOCAdded;
+    private long Churn;
+    private long maxChurn;
+    private long avgChurn;
+    private long ChangeSetSize;
+    private long maxChangeSetSize;
+    private long avgChangeSetSize;
 
     public long getLOC() {
         return LOC;
@@ -57,6 +63,54 @@ public class Metrics {
         this.avgLOCAdded = avgLOCAdded;
     }
 
+    public long getChurn() {
+        return Churn;
+    }
+
+    public void setChurn(long churn) {
+        Churn = churn;
+    }
+
+    public long getMaxChurn() {
+        return maxChurn;
+    }
+
+    public void setMaxChurn(long maxChurn) {
+        this.maxChurn = maxChurn;
+    }
+
+    public long getAvgChurn() {
+        return avgChurn;
+    }
+
+    public void setAvgChurn(long avgChurn) {
+        this.avgChurn = avgChurn;
+    }
+
+    public long getChangeSetSize() {
+        return ChangeSetSize;
+    }
+
+    public void setChangeSetSize(long changeSetSize) {
+        ChangeSetSize = changeSetSize;
+    }
+
+    public long getMaxChangeSetSize() {
+        return maxChangeSetSize;
+    }
+
+    public void setMaxChangeSetSize(long maxChangeSetSize) {
+        this.maxChangeSetSize = maxChangeSetSize;
+    }
+
+    public long getAvgChangeSetSize() {
+        return avgChangeSetSize;
+    }
+
+    public void setAvgChangeSetSize(long avgChangeSetSize) {
+        this.avgChangeSetSize = avgChangeSetSize;
+    }
+
     @Override
     public String toString() {
         return "Metrics{" +
@@ -66,6 +120,12 @@ public class Metrics {
                 ", LOCAdded=" + LOCAdded +
                 ", maxLOCAdded=" + maxLOCAdded +
                 ", avgLOCAdded=" + avgLOCAdded +
+                ", Churn=" + Churn +
+                ", maxChurn=" + maxChurn +
+                ", avgChurn=" + avgChurn +
+                ", ChangeSetSize=" + ChangeSetSize +
+                ", maxChangeSetSize=" + maxChangeSetSize +
+                ", avgChangeSetSize=" + avgChangeSetSize +
                 '}';
     }
 }

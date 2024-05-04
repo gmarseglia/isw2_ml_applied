@@ -27,6 +27,7 @@ public class MetricsController {
     private List<RevCommit> entryCommits;
     private List<RevCommit> entryLastVersionCommits;
     private Map<RevCommit, DiffEntry> commitAndDiffAll;
+    private Map<RevCommit, List<DiffEntry>> commitAndDiffListAll;
 
     private MetricsController(String projName) {
         this.projName = projName;
@@ -72,10 +73,10 @@ public class MetricsController {
                     .toList();
 
             // for each commit get all the diffs
-            Map<RevCommit, List<DiffEntry>> tmpCommitAndDiffs = new HashMap<>();
+            this.commitAndDiffListAll = new HashMap<>();
             for (RevCommit commit : entryLastVersionCommits) {
                 List<DiffEntry> commitDiffEntries = GitController.getInstance(projName).getDiffListByRevCommit(commit);
-                tmpCommitAndDiffs.put(commit, commitDiffEntries);
+                this.commitAndDiffListAll.put(commit, commitDiffEntries);
             }
 
             // follow filename through commits and assign correct diff to each commit
@@ -83,10 +84,10 @@ public class MetricsController {
             String mostRecentPath = entry.getLongName().substring(1);
             boolean addFound = false;
 
-            for (RevCommit commit : tmpCommitAndDiffs.keySet()) {
+            for (RevCommit commit : this.commitAndDiffListAll.keySet()) {
                 if (addFound) break;
 
-                for (DiffEntry diffEntry : tmpCommitAndDiffs.get(commit)) {
+                for (DiffEntry diffEntry : this.commitAndDiffListAll.get(commit)) {
                     if (mostRecentPath.equals(diffEntry.getNewPath())) {
                         mostRecentPath = diffEntry.getOldPath();
                     }
@@ -106,6 +107,8 @@ public class MetricsController {
             this.NR();
             this.NAuth();
             this.LOCAdded();
+            this.Churn();
+            this.ChangeSetSize();
         }
 
     }
@@ -124,6 +127,7 @@ public class MetricsController {
     }
 
     // computes the number of commits between versions
+
     private void NR() {
         long NR = entryLastVersionCommits.size();
 
@@ -158,5 +162,45 @@ public class MetricsController {
         targetEntry.getMetrics().setLOCAdded(LOCAdded);
         targetEntry.getMetrics().setAvgLOCAdded(avgLOCAdded);
         targetEntry.getMetrics().setMaxLOCAdded(maxLOCAdded);
+    }
+
+    private void Churn() throws GitAPIException {
+        long Churn = 0;
+        long maxChurn = 0;
+        long avgChurn = 0;
+        long entries = 0;
+
+        for (RevCommit commit : this.commitAndDiffAll.keySet()) {
+            DiffEntry diffEntry = this.commitAndDiffAll.get(commit);
+            long perCommitLOCAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
+            long perCommitLOCDeleted = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[1];
+            long perCommitChurn = perCommitLOCAdded + perCommitLOCDeleted;
+            Churn += perCommitChurn;
+            avgChurn = avgChurn + (long) ((1.0F / ++entries) * (perCommitChurn - avgChurn));
+            if (perCommitChurn > maxChurn) maxChurn = perCommitChurn;
+        }
+
+        targetEntry.getMetrics().setChurn(Churn);
+        targetEntry.getMetrics().setAvgChurn(avgChurn);
+        targetEntry.getMetrics().setMaxChurn(maxChurn);
+    }
+
+    private void ChangeSetSize() {
+        long ChangeSetSize = 0;
+        long maxChangeSetSize = 0;
+        long avgChangeSetSize = 0;
+        long entries = 0;
+
+        for (RevCommit commit : this.commitAndDiffListAll.keySet()) {
+            long perCommitChangeSetSize = this.commitAndDiffListAll.get(commit).size();
+            ChangeSetSize += perCommitChangeSetSize;
+            avgChangeSetSize = avgChangeSetSize + (long) ((1.0F / ++entries) * (perCommitChangeSetSize - avgChangeSetSize));
+            if (perCommitChangeSetSize > maxChangeSetSize) maxChangeSetSize = perCommitChangeSetSize;
+        }
+
+        targetEntry.getMetrics().setChangeSetSize(ChangeSetSize);
+        targetEntry.getMetrics().setAvgChangeSetSize(avgChangeSetSize);
+        targetEntry.getMetrics().setMaxChangeSetSize(maxChangeSetSize);
+
     }
 }
