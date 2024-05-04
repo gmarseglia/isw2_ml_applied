@@ -143,12 +143,20 @@ public class MetricsController {
 
     private void LOCAdded() throws GitAPIException {
         long LOCAdded = 0;
+        long maxLOCAdded = 0;
+        long avgLOCAdded = 0;
+        long entries = 0;
 
         for (RevCommit commit : this.commitAndDiffAll.keySet()) {
             DiffEntry diffEntry = this.commitAndDiffAll.get(commit);
-            LOCAdded += GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
+            long perCommitLOCAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
+            LOCAdded += perCommitLOCAdded;
+            avgLOCAdded = avgLOCAdded + (long) ((1.0F / ++entries) * (perCommitLOCAdded - avgLOCAdded));
+            if (perCommitLOCAdded > maxLOCAdded) maxLOCAdded = perCommitLOCAdded;
         }
 
         targetEntry.getMetrics().setLOCAdded(LOCAdded);
+        targetEntry.getMetrics().setAvgLOCAdded(avgLOCAdded);
+        targetEntry.getMetrics().setMaxLOCAdded(maxLOCAdded);
     }
 }

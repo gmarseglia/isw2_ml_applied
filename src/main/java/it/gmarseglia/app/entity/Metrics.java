@@ -6,6 +6,8 @@ public class Metrics {
     private long NR;
     private long NAuth;
     private long LOCAdded;
+    private long maxLOCAdded;
+    private long avgLOCAdded;
 
     public long getLOC() {
         return LOC;
@@ -39,6 +41,22 @@ public class Metrics {
         this.LOCAdded = LOCAdded;
     }
 
+    public long getMaxLOCAdded() {
+        return maxLOCAdded;
+    }
+
+    public void setMaxLOCAdded(long maxLOCAdded) {
+        this.maxLOCAdded = maxLOCAdded;
+    }
+
+    public long getAvgLOCAdded() {
+        return avgLOCAdded;
+    }
+
+    public void setAvgLOCAdded(long avgLOCAdded) {
+        this.avgLOCAdded = avgLOCAdded;
+    }
+
     @Override
     public String toString() {
         return "Metrics{" +
@@ -46,6 +64,8 @@ public class Metrics {
                 ", NR=" + NR +
                 ", NAuth=" + NAuth +
                 ", LOCAdded=" + LOCAdded +
+                ", maxLOCAdded=" + maxLOCAdded +
+                ", avgLOCAdded=" + avgLOCAdded +
                 '}';
     }
 }
