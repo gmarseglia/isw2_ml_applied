@@ -10,6 +10,7 @@ public class JiraIssue {
         private Date resolutiondate;
         private Date created;
         private List<JiraVersion> versions;
+        private List<JiraVersion> fixVersions;
 
         public Date getResolutiondate() {
             return resolutiondate;
@@ -35,8 +36,18 @@ public class JiraIssue {
             this.versions = versions;
         }
 
+        public List<JiraVersion> getFixVersions() {
+            return fixVersions;
+        }
+
         public JiraVersion getOldestAffectedVersion () {
             return  this.getVersions().stream()
+                    .filter(version -> version.getReleaseDate() != null)
+                    .min(Comparator.comparing(JiraVersion::getReleaseDate))
+                    .orElse(null);
+        }
+        public JiraVersion getOldestAFixVersion () {
+            return  this.getFixVersions().stream()
                     .filter(version -> version.getReleaseDate() != null)
                     .min(Comparator.comparing(JiraVersion::getReleaseDate))
                     .orElse(null);

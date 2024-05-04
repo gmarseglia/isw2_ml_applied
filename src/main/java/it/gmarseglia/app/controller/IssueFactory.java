@@ -1,9 +1,6 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.entity.Issue;
-import it.gmarseglia.app.entity.JiraIssue;
-import it.gmarseglia.app.entity.JiraVersion;
-import it.gmarseglia.app.entity.Version;
+import it.gmarseglia.app.entity.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.util.HashMap;
@@ -13,6 +10,9 @@ import java.util.Map;
 public class IssueFactory {
 
     private static final Map<String, IssueFactory> instances = new HashMap<>();
+    private static final boolean USE_JIRA_FV = true;
+
+    private final MyLogger logger = MyLogger.getInstance(IssueFactory.class);
     private final VersionsController vc;
 
     private IssueFactory(String projName) {
@@ -41,6 +41,8 @@ public class IssueFactory {
         Version iv;
         Integer[] versionsIndex = new Integer[]{null, null, null, null};
 
+        IssueFVType fvType = null;
+
         List<Version> allReleasedVersions = vc.getAllReleasedVersions();
 
         ov = vc.getAllReleasedVersions()
@@ -51,11 +53,34 @@ public class IssueFactory {
 
         versionsIndex[0] = (ov == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(ov);
 
-        fv = vc.getAllReleasedVersions()
-                .stream()
-                .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
-                .findFirst()
-                .orElse(null);
+        if (USE_JIRA_FV && jiraIssue.getFields().getOldestAFixVersion() != null) {
+            List<String> idsOfFixedVersions = jiraIssue.getFields().getFixVersions().stream().map(JiraVersion::getId).toList();
+
+            fv = vc.getAllReleasedVersions()
+                    .stream()
+                    .filter(version ->
+                            idsOfFixedVersions.contains(version.getId()))
+                    .findFirst()
+                    .orElse(null);
+            String fvStr = (fv == null) ? "null" : fv.getName();
+            if (fv != null) {
+                fvType = IssueFVType.BY_EXPLICIT_JIRA;
+            }
+            logger.logFinestNoPrefix(String.format("FV: %s got from Jira.", fvStr));
+        } else {
+            fv = vc.getAllReleasedVersions()
+                    .stream()
+                    .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getResolutiondate()))
+                    .findFirst()
+                    .orElse(null);
+            String fvStr = (fv == null) ? "null" : fv.getName();
+            if (fv != null) {
+                fvType = IssueFVType.BY_RESOLUTION_DATE_JIRA;
+            }
+            logger.logFinestNoPrefix(String.format("FV: %s got from Resolution Date.", fvStr));
+        }
+
+        if (fv == null) fvType = IssueFVType.GOT_NULL;
 
         versionsIndex[1] = (fv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(fv);
 
@@ -64,7 +89,7 @@ public class IssueFactory {
         } else {
 
             List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
-            
+
             iv = vc.getAllReleasedVersions()
                     .stream()
                     .filter(version ->
@@ -90,6 +115,7 @@ public class IssueFactory {
                 iv,
                 jiraIssue.getFields().getCreated(),
                 jiraIssue.getFields().getResolutiondate(),
-                versionsIndex);
+                versionsIndex,
+                fvType);
     }
 }

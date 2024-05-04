@@ -9,13 +9,14 @@ public class Issue {
     private String key;
     private Version openingVersion;
     private Version fixVersion;
+    private IssueFVType fvType;
     private Version injectVersion;
     private Date jiraCreationDate;
     private Date jiraResolutionDate;
     private boolean hasBeenProportioned = false;
     private final Integer[] versionsIndex;
 
-    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex) {
+    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex, IssueFVType fvType) {
         this.key = key;
         this.openingVersion = openingVersion;
         this.fixVersion = fixVersion;
@@ -24,6 +25,7 @@ public class Issue {
         this.jiraResolutionDate = jiraResolutionDate;
         if (versionsIndex.length != 4) throw new RuntimeException("4 Integer has to be given");
         this.versionsIndex = versionsIndex;
+        this.fvType = fvType;
     }
 
     public String getKey() {
@@ -135,5 +137,9 @@ public class Issue {
     public void setPredictedIVIndex(Integer newIVIndex) {
         this.setHasBeenProportioned(true);
         this.versionsIndex[3] = newIVIndex;
+    }
+
+    public IssueFVType getFvType() {
+        return fvType;
     }
 }

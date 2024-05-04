@@ -2,6 +2,7 @@ package it.gmarseglia.app;
 
 import it.gmarseglia.app.controller.DatasetController;
 import it.gmarseglia.app.controller.GitController;
+import it.gmarseglia.app.controller.IssueFactory;
 import it.gmarseglia.app.controller.MyLogger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 

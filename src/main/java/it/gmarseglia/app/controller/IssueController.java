@@ -2,6 +2,7 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.boundary.IssueJSONGetter;
 import it.gmarseglia.app.entity.Issue;
+import it.gmarseglia.app.entity.IssueFVType;
 import it.gmarseglia.app.entity.JiraIssue;
 import it.gmarseglia.app.entity.JiraIssueReport;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -123,6 +124,15 @@ public class IssueController {
             }
 
             logger.logFine(String.format("Got %d issues.", this.totalIssues.size()));
+
+            if (logger.getAnyVerboseFine()){
+                long byExplicitJira = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.BY_EXPLICIT_JIRA).count();
+                long byResolutionDate = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.BY_RESOLUTION_DATE_JIRA).count();
+                long gotNull = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.GOT_NULL).count();
+
+                logger.logFine(String.format("FV by source: {Explicit FV: %d, Resolution Date: %d, Later than last released version: %d}",
+                        byExplicitJira, byResolutionDate, gotNull));
+            }
         }
         return this.totalIssues;
     }
