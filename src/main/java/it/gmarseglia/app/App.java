@@ -11,15 +11,13 @@ import java.util.List;
 public class App {
     public static void main(String[] args) {
         String projName = "BOOKKEEPER";
-        String tagsRegex = "(release-)%v";
-
-        GitController.getInstance(projName).setTagsRegex(tagsRegex);
+        GitController.getInstance(projName).setTagsRegex("(release-)?%v(-incubating)?");
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
         MyLogger.setStaticVerboseFinest(false);
 
-        test(projName);
+        run(projName);
     }
 
     private static void test(String projName) {
