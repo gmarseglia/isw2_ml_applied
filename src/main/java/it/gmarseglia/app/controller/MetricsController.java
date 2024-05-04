@@ -8,6 +8,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,13 +47,26 @@ public class MetricsController {
 
         this.halfVersions = VersionsController.getInstance(projName).getHalfVersion();
 
-        int i = 0;
+        long i = 0;
+        long percentage = 5;
+        long expectedSize = cleanAllEntries.size();
+        Instant begin = Instant.now();
 
         for (Entry entry : cleanAllEntries) {
 
-            if (logger.getAnyVerboseFine()){
-                String logMsg = "Ready to compute metrics for entry (" + (++i) + "/" + cleanAllEntries.size() + "): " + entry.toShortString();
-                logger.logFine(() -> System.out.println(logMsg));
+            if (logger.getAnyVerboseFine()) {
+                String logMsg;
+                if ((++i * 100 / expectedSize) > percentage) {
+                    long minutes = ChronoUnit.MINUTES.between(begin, Instant.now());
+                    if (minutes == 0) {
+                        long seconds = ChronoUnit.SECONDS.between(begin, Instant.now());
+                        logMsg = "Computed metrics for " + percentage + "% of all entries in " + seconds + " seconds.";
+                    } else {
+                        logMsg = "Computed metrics for " + percentage + "% of all entries in " + minutes + " minutes.";
+                    }
+                    percentage += 5;
+                    logger.logFine(() -> System.out.println(logMsg));
+                }
             }
 
             // check out to the tag of the version of the entry
@@ -121,6 +135,7 @@ public class MetricsController {
             this.ChangeSetSize();
         }
 
+        logger.log2("Computed all metrics for " + cleanAllEntries.size() + " entries.");
     }
 
     private void LOC() {

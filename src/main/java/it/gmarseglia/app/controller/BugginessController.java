@@ -127,9 +127,9 @@ public class BugginessController {
             int finalInvalid = unusable;
             int finalOverHalf = overHalf;
 
-            logger.logFine(() -> System.out.println("Total number of entries labelled  \"buggy\": " + newLabelledEntries.size()));
-            logger.logFine(() -> System.out.printf("Issues of type: {Valid: %d, Invalid: %d, Over half: %d}, Total issues: %d\n",
-                    finalValid, finalInvalid, finalOverHalf, finalValid + finalInvalid + finalOverHalf));
+            logger.logFine(() -> System.out.printf("Proportioned issues by type: {Usable: %d, Unusable: %d, Over half: %d}\n",
+                    finalValid, finalInvalid, finalOverHalf));
+            logger.logFine(() -> System.out.println("Total number of entries labelled \"buggy\": " + newLabelledEntries.size()));
 
         }
         return this.allLabelledEntries;

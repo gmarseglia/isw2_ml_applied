@@ -66,13 +66,19 @@ public class EntriesController {
         if (this.allEntries == null) {
             this.allEntries = new ArrayList<>();
 
-            for (Version v : vc.getHalfVersion()) {
+            List<Version> halfVersion = vc.getHalfVersion();
+            List<String> halfVersionNames = halfVersion.stream().map(Version::getName).toList();
+
+            logger.log2(String.format("Ready to find .java src files for for the least recent half valid versions: %s" , halfVersionNames));
+
+            for (Version v : halfVersion) {
                 logger.logFinest(() -> System.out.printf("Getting entries for version %s.\n", v.getName()));
-                this.allEntries.addAll(this.findAndAppendEntries(v));
-                logger.logFinest(() -> System.out.printf("allEntries size: %d.\n", this.allEntries.size()));
+                List<Entry> perVersionEntries = this.findAndAppendEntries(v);
+                this.allEntries.addAll(perVersionEntries);
+                logger.logFine(() -> System.out.printf("Found %d .java src entries for version %s.\n", perVersionEntries.size(), v.getName()));
             }
 
-            logger.logFine(() -> System.out.println("allEntries.size(): " + this.allEntries.size()));
+            logger.log(() -> System.out.printf("Found %d .java src entries for the least recent half valid versions.\n", this.allEntries.size()));
         }
         return this.allEntries;
     }

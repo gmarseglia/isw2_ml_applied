@@ -7,7 +7,10 @@ import java.nio.charset.Charset;
 
 public class JsonCacheUtils {
 
-    public static String getStringFromResourcesThenURL(String targetFile, String targetUrl, MyLogger logger) {
+
+    public static String getStringFromResourcesThenURL(String targetFile, String targetUrl) {
+        MyLogger logger = MyLogger.getInstance(JsonCacheUtils.class);
+
         logger.logFinest(() -> System.out.println(targetUrl));
         InputStream isJson;
         String textJson;

@@ -1,19 +1,24 @@
 package it.gmarseglia.app.controller;
 
-import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class MyLogger {
 
     private static final Map<String, MyLogger> instances = new HashMap<>();
+
     private static Boolean staticVerbose = false;
     private static Boolean staticVerboseFine = false;
     private static Boolean staticVerboseFinest = false;
-    private final String className;
     private Boolean verbose;
     private Boolean verboseFine;
     private Boolean verboseFinest;
+
+    private final String className;
 
     private MyLogger(String className) {
         this.className = className;
@@ -25,8 +30,9 @@ public class MyLogger {
     }
 
     public static MyLogger getInstance(Class<?> actualClass) {
-        String simplePackageName = Arrays.stream(actualClass.getPackageName().split("\\.")).toList().getLast();
-        return MyLogger.getInstance(simplePackageName + "." + actualClass.getSimpleName());
+        // String simplePackageName = Arrays.stream(actualClass.getPackageName().split("\\.")).toList().getLast();
+        //return MyLogger.getInstance(simplePackageName + "." + actualClass.getSimpleName());
+        return MyLogger.getInstance(actualClass.getSimpleName());
     }
 
     public static void setStaticVerboseFinest(Boolean staticVerboseFinest) {
@@ -54,16 +60,29 @@ public class MyLogger {
         }
     }
 
+    public void log2(String msg) {
+        if ((verbose == null && staticVerbose) || Boolean.TRUE.equals(verbose)) {
+            String logMsg = String.format("%-18s %-11s %s", this.className, "logs2:", msg);
+
+            Logger logger = LoggerFactory.getLogger(this.className);
+
+            System.out.println("KKKK");
+
+            logger.info(msg);
+//            logger.info(msg);
+        }
+    }
+
     public void logFine(Runnable runnable) {
         if ((verboseFine == null && staticVerboseFine) || Boolean.TRUE.equals(verboseFine)) {
-            System.out.printf("%s logs:\t", this.className);
+            System.out.printf("%s logsFine:\t", this.className);
             runnable.run();
         }
     }
 
     public void logFinest(Runnable runnable) {
         if ((verboseFinest == null && staticVerboseFinest) || Boolean.TRUE.equals(verboseFinest)) {
-            System.out.printf("%s logs:\t", this.className);
+            System.out.printf("%s logsFinest:\t", this.className);
             runnable.run();
         }
     }

@@ -11,10 +11,10 @@ public class IssueJSONGetter {
             "jql=QUERY" +
             "&startAt=START_AT" +
             "&maxResults=MAX_RESULT";
-    private final String query = "project = PROJ_NAME" +
-            " AND issueType = Bug" +
-            " AND ( status = closed OR status = resolved)" +
-            " AND resolution = fixed";
+    private final String query = "project=PROJ_NAME" +
+            " AND issueType=Bug" +
+            " AND (status=closed OR status=resolved)" +
+            " AND resolution=fixed";
 
     private final String projName;
     private final MyLogger logger = MyLogger.getInstance(IssueJSONGetter.class);
@@ -40,7 +40,10 @@ public class IssueJSONGetter {
         String targetUrl = this.buildURL(startAt, maxResult);
         String targetFile = String.format("%s_issues-%d-%d.json", this.projName, startAt, maxResult);
 
-        return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl, logger);
+        logger.logFine(() -> System.out.printf("IssueQuery: '%s'\n", this.buildQuery()));
+        logger.logFinest(() -> System.out.println("Issue query URL: " + targetUrl));
+
+        return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl);
     }
 
     public JiraIssueReport getIssueReport(int startAt, int maxResult) {

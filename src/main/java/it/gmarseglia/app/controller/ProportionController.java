@@ -29,6 +29,8 @@ public class ProportionController {
             this.lastMaxTotal = maxTotal;
             this.totalProportionedIssues = new ArrayList<>(ic.getTotalValidIssues(maxTotal));
 
+            logger.logFine(() -> System.out.printf("Ready to apply Increment Proportion on %d issues.\n", this.totalProportionedIssues.size()));
+
             Iterator<Issue> issueIterator = this.totalProportionedIssues
                     .stream()
                     .sorted(Comparator.comparing(Issue::getJiraResolutionDate))
@@ -77,6 +79,9 @@ public class ProportionController {
                                 predictedIV, actualPredictedIV));
 
             }
+
+            int proportionedIssues = this.totalProportionedIssues.size() - updates;
+            logger.log(() -> System.out.printf("Actually proportioned %d issues which didn't have explicit IV.\n", proportionedIssues));
         }
         return this.totalProportionedIssues;
     }

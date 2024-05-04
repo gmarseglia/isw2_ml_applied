@@ -40,7 +40,7 @@ public class IssueController {
         if (this.totalValidIssues == null || maxTotal != this.lastMaxTotal) {
             List<Issue> totalIssues = this.getTotalIssues(maxTotal);
 
-            logger.logFine(() -> System.out.printf("Total issues found: %d\n", totalIssues.size()));
+            logger.log(() -> System.out.printf("Ready to validate %d issues.\n", totalIssues.size()));
 
             // commits > 0
             Predicate<Issue> noCommitFilter = issue -> {
@@ -50,8 +50,8 @@ public class IssueController {
                     return false;
                 }
             };
-            logger.logFinest(() ->
-                    System.out.printf("Issues which fails \"noCommitFilter\": %d\n",
+            logger.logFine(() ->
+                    System.out.printf("%d issues fails \"noCommitFilter\" (commits > 0)\n",
                             totalIssues.stream().filter(noCommitFilter.negate()).count()));
 
             // IV < FV
@@ -62,8 +62,8 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFinest(() ->
-                    System.out.printf("Issues which fails \"nonPostRelease\": %d\n",
+            logger.logFine(() ->
+                    System.out.printf("%d issues fails \"nonPostRelease\" (IV < FV)\n",
                             totalIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
 
             // IV <= OV
@@ -74,8 +74,8 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFinest(() ->
-                    System.out.printf("Issues which fails \"IVConsistencyFilter\": %d\n",
+            logger.logFine(() ->
+                    System.out.printf("%d issues fails \"IVConsistencyFilter\" (IV <= OV)\n",
                             totalIssues.stream().filter(IVConsistencyFilter.negate()).count()));
 
             // OV <= FV
@@ -86,8 +86,8 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFinest(() ->
-                    System.out.printf("Issues which fails \"openingConsistencyFilter\": %d\n",
+            logger.logFine(() ->
+                    System.out.printf("%d issues fails \"openingConsistencyFilter\" (OV <= FV)\n",
                             totalIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
             this.totalValidIssues = totalIssues.stream()
@@ -97,7 +97,7 @@ public class IssueController {
                     .filter(noCommitFilter)
                     .toList();
 
-            logger.log(() -> System.out.printf("Total valid issues found: %d\n", this.totalValidIssues.size()));
+            logger.log(() -> System.out.printf("Validated %d issues.\n", this.totalValidIssues.size()));
         }
         return this.totalValidIssues;
     }
@@ -115,13 +115,18 @@ public class IssueController {
             this.totalIssues = new ArrayList<>();
             this.lastMaxTotal = maxTotal;
 
+            String logMsg = maxTotal == Integer.MAX_VALUE ? "Ready to get all issues." : String.format("Ready to get at most %d issues.", maxTotal);
+            logger.log(() -> System.out.println(logMsg));
+
             List<JiraIssue> totalJiraIssues = this.getJiraIssues(maxTotal);
 
-            logger.logFine(() -> System.out.printf("Total Jira issues found %d.\n", totalJiraIssues.size()));
+            logger.logFine(() -> System.out.printf("Got %d Jira issues.\n", totalJiraIssues.size()));
 
             for (JiraIssue jiraIssue : totalJiraIssues) {
                 this.totalIssues.add(this.issueFactory.issueFromJiraIssue(jiraIssue));
             }
+
+            logger.logFine(() -> System.out.printf("Got %d issues.\n", this.totalIssues.size()));
         }
         return this.totalIssues;
     }
@@ -142,7 +147,7 @@ public class IssueController {
 
             int finalI = i;
             int finalTotal = Math.min(total, maxTotal);
-            logger.log(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, finalTotal));
+            logger.logFinest(() -> System.out.printf("Getting Jira issues from %d to %d.\n", finalI, finalTotal));
 
             jiraIssueReport = issueJSONGetter.getIssueReport(i, Math.min(maxTotal - i, maxResult));
 

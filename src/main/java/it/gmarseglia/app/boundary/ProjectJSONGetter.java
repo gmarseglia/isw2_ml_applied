@@ -26,7 +26,7 @@ public class ProjectJSONGetter {
         String targetUrl = this.getUrl();
         String targetFile = String.format("%s_project.json", this.projName);
 
-        return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl, logger);
+        return JsonCacheUtils.getStringFromResourcesThenURL(targetFile, targetUrl);
     }
 
 }
