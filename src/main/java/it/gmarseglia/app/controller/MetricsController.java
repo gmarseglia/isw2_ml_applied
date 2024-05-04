@@ -8,6 +8,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +106,7 @@ public class MetricsController {
             logger.logFinest(() -> System.out.println("commitAndDiffAll for " + entry.getVersion().getName() + ": " + this.commitAndDiffAll));
 
             this.LOC();
+            this.Age();
             this.NR();
             this.NAuth();
             this.LOCAdded();
@@ -124,6 +127,21 @@ public class MetricsController {
         }
 
         targetEntry.getMetrics().setLOC(LOC);
+    }
+
+    private void Age() throws GitAPIException {
+        long Age;
+        long stepAge;
+
+        Date firstCommitDate = GitController.getInstance(projName).getFirstCommit().getAuthorIdent().getWhen();
+        Date versionGithubReleaseDate = targetEntry.getVersion().getGithubReleaseDate();
+        Date previousVersionGithubReleaseDate = previousVersion == null ? firstCommitDate : previousVersion.getGithubReleaseDate();
+
+        Age = ChronoUnit.DAYS.between(firstCommitDate.toInstant(), versionGithubReleaseDate.toInstant());
+        stepAge = ChronoUnit.DAYS.between(previousVersionGithubReleaseDate.toInstant(), versionGithubReleaseDate.toInstant());
+
+        targetEntry.getMetrics().setAge(Age);
+        targetEntry.getMetrics().setStepAge(stepAge);
     }
 
     // computes the number of commits between versions

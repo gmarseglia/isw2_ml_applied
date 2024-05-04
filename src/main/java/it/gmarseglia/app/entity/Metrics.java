@@ -3,6 +3,8 @@ package it.gmarseglia.app.entity;
 public class Metrics {
 
     private long LOC;
+    private long age;
+    private long stepAge;
     private long NR;
     private long NAuth;
     private long LOCAdded;
@@ -21,6 +23,22 @@ public class Metrics {
 
     public void setLOC(long LOC) {
         this.LOC = LOC;
+    }
+
+    public long getAge() {
+        return age;
+    }
+
+    public void setAge(long age) {
+        this.age = age;
+    }
+
+    public long getStepAge() {
+        return stepAge;
+    }
+
+    public void setStepAge(long stepAge) {
+        this.stepAge = stepAge;
     }
 
     public long getNR() {
@@ -115,6 +133,8 @@ public class Metrics {
     public String toString() {
         return "Metrics{" +
                 "LOC=" + LOC +
+                ", age=" + age +
+                ", stepAge=" + stepAge +
                 ", NR=" + NR +
                 ", NAuth=" + NAuth +
                 ", LOCAdded=" + LOCAdded +
