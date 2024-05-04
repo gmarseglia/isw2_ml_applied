@@ -12,6 +12,7 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -326,5 +327,29 @@ public class GitController {
         result[1] = linesDeleted;
 
         return result;
+    }
+
+    public RevCommit getFirstCommit() throws GitAPIException {
+        RevCommit firstCommit;
+
+        try (Repository repository = this.getLocalGit().getRepository()) {
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                // Start from the HEAD commit
+                RevCommit headCommit = revWalk.parseCommit(repository.resolve("HEAD"));
+
+                // Sort commits in reverse chronological order (i.e., newest first)
+                revWalk.sort(RevSort.REVERSE);
+
+                // Start walking backward through the commit history
+                revWalk.markStart(headCommit);
+
+                // Get the first commit
+                firstCommit = revWalk.next();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return firstCommit;
     }
 }
