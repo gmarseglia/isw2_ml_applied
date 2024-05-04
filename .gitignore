@@ -41,3 +41,4 @@ build/
 *.csv
 *.json
 /out/*.txt
+/.idea/sonarlint/
