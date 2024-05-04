@@ -10,35 +10,23 @@ public class VersionsController {
 
     private static final Map<String, VersionsController> instances = new HashMap<>();
 
+    private final MyLogger logger = MyLogger.getInstance(VersionsController.class);
     private final String projName;
     private final ProjectController pc;
-    private final GitController gc;
-    private List<String> allTags;
     private List<JiraVersion> allJiraVersions;
     private List<Version> allVersions;
     private List<Version> allReleasedVersions;
     private List<Version> allValidVersions;
+    private List<Version> halfValidVersions;
 
     private VersionsController(String projName) {
         this.projName = projName;
         this.pc = ProjectController.getInstance(projName);
-        this.gc = GitController.getInstance(projName);
     }
 
     public static VersionsController getInstance(String projName) {
         VersionsController.instances.computeIfAbsent(projName, string -> new VersionsController(projName));
         return VersionsController.instances.get(projName);
-    }
-
-    /**
-     * Get all tags from GitHub.
-     *
-     * @throws GitAPIException due to {@link GitController}
-     */
-    public void setAllTags() throws GitAPIException {
-        if (this.allTags == null) {
-            this.allTags = gc.listTags();
-        }
     }
 
     /**
@@ -66,7 +54,12 @@ public class VersionsController {
             for (JiraVersion jiraVersion : this.getAllJiraVersions()) {
                 allVersions.add(versionFactory.versionFromJiraVersion(jiraVersion));
             }
+
+            logger.logFine(String.format("Found %d versions: %s",
+                    this.allVersions.size(),
+                    this.allVersions.stream().map(Version::getName).toList()));
         }
+
         return this.allVersions;
     }
 
@@ -77,6 +70,9 @@ public class VersionsController {
                     .filter(Version::isReleased)
                     .sorted(Comparator.comparing(Version::getJiraReleaseDate))
                     .toList();
+            logger.logFine(String.format("Found %d released versions: %s",
+                    this.allReleasedVersions.size(),
+                    this.allReleasedVersions.stream().map(Version::getName).toList()));
         }
         return this.allReleasedVersions;
     }
@@ -94,6 +90,9 @@ public class VersionsController {
                     .stream()
                     .filter(version -> version.getGithubReleaseDate() != null)
                     .toList();
+            logger.logFine(String.format("Found %d valid versions: %s",
+                    this.allValidVersions.size(),
+                    this.allValidVersions.stream().map(Version::getName).toList()));
         }
         return this.allValidVersions;
     }
@@ -103,9 +102,15 @@ public class VersionsController {
      * @throws GitAPIException due to <code>GitController</code>
      */
     public List<Version> getHalfVersion() throws GitAPIException {
-        // half the size
-        int tmpSize = this.getAllValidVersions().size();
-        return this.getAllValidVersions().subList(0, tmpSize / 2);
+        if (this.halfValidVersions == null) {
+            int tmpSize = this.getAllValidVersions().size();
+            this.halfValidVersions = this.getAllValidVersions().subList(0, tmpSize / 2);
+
+            logger.logFine(String.format("Found %d half valid versions: %s",
+                    this.halfValidVersions.size(),
+                    this.halfValidVersions.stream().map(Version::getName).toList()));
+        }
+        return this.halfValidVersions;
     }
 
 
