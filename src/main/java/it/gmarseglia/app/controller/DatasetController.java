@@ -10,17 +10,12 @@ import java.util.*;
 public class DatasetController {
 
     private static final Map<String, DatasetController> instances = new HashMap<>();
-
-    private final EntriesController ec;
-    private final CsvEntryBoundary cb;
-    private final BugginessController bc;
+    private final String projName;
     private final MyLogger logger = MyLogger.getInstance(this.getClass());
 
 
     private DatasetController(String projName) {
-        this.ec = EntriesController.getInstance(projName);
-        this.cb = new CsvEntryBoundary(projName);
-        this.bc = BugginessController.getInstance(projName);
+        this.projName = projName;
     }
 
     public static DatasetController getInstance(String projName) {
@@ -33,17 +28,17 @@ public class DatasetController {
      * 1. Gets the entries for half the versions.
      * 2. Writes those entries to the .csv file.
      *
-     * @param verbose option
      * @throws GitAPIException uses <code>GitController</code>
      */
-    public void populateDataset(boolean verbose) throws GitAPIException {
-        MyLogger.setStaticVerbose(verbose);
-
-        List<Entry> allDatasetEntries = bc.getAllLabelledEntries();
+    public void populateDataset() throws GitAPIException {
+        List<Entry> allDatasetEntries = BugginessController.getInstance(projName).getAllLabelledEntries();
 
         logger.log(() -> System.out.printf("Total entries size: %d\n", allDatasetEntries.size()));
 
+        MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
+
         // write all the found entries on the .csv files
-        cb.writeEntries(allDatasetEntries);
+        CsvEntryBoundary toCsv = new CsvEntryBoundary(projName);
+        toCsv.writeEntries(allDatasetEntries);
     }
 }
