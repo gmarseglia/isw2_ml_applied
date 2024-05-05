@@ -1,6 +1,6 @@
 package it.gmarseglia.app.controller;
 
-import it.gmarseglia.app.boundary.CsvBoundary;
+import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.entity.JiraVersion;
 import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -60,7 +60,7 @@ public class VersionsController {
                     this.allVersions.size(),
                     this.allVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeListProj(this.allVersions, projName, "allVersions.csv");
+            ToFileBoundary.writeListProj(this.allVersions, projName, "allVersions.csv");
         }
 
         return this.allVersions;
@@ -78,7 +78,7 @@ public class VersionsController {
                     this.allReleasedVersions.size(),
                     this.allReleasedVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeListProj(this.allReleasedVersions, projName, "allReleasedVersions.csv");
+            ToFileBoundary.writeListProj(this.allReleasedVersions, projName, "allReleasedVersions.csv");
         }
         return this.allReleasedVersions;
     }
@@ -100,7 +100,7 @@ public class VersionsController {
                     this.allValidVersions.size(),
                     this.allValidVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeListProj(this.allValidVersions, projName, "allValidVersions.csv");
+            ToFileBoundary.writeListProj(this.allValidVersions, projName, "allValidVersions.csv");
         }
         return this.allValidVersions;
     }
@@ -118,7 +118,7 @@ public class VersionsController {
                     this.halfValidVersions.size(),
                     this.halfValidVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeListProj(this.halfValidVersions, projName, "halfValidVersions.csv");
+            ToFileBoundary.writeListProj(this.halfValidVersions, projName, "halfValidVersions.csv");
         }
         return this.halfValidVersions;
     }

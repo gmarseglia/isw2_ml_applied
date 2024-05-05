@@ -1,5 +1,6 @@
 package it.gmarseglia.app.controller;
 
+import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.boundary.IssueJSONGetter;
 import it.gmarseglia.app.entity.Issue;
 import it.gmarseglia.app.entity.IssueFVType;
@@ -21,11 +22,13 @@ public class IssueController {
     private final IssueFactory issueFactory;
     private final MyLogger logger;
     private final GitController gc;
+    private final String projName;
     private List<Issue> totalValidIssues;
     private Integer lastMaxTotal;
     private List<Issue> totalIssues;
 
     private IssueController(String projName) {
+        this.projName = projName;
         this.issueJSONGetter = new IssueJSONGetter(projName);
         this.issueFactory = IssueFactory.getInstance(projName);
         this.logger = MyLogger.getInstance(this.getClass());
@@ -52,7 +55,7 @@ public class IssueController {
                 }
             };
             logger.logFine(String.format("%d issues fails \"noCommitFilter\" (commits > 0)",
-                            tmpIssues.stream().filter(noCommitFilter.negate()).count()));
+                    tmpIssues.stream().filter(noCommitFilter.negate()).count()));
 
             // IV < FV
             Predicate<Issue> nonPostReleaseFilter = issue -> {
@@ -62,8 +65,8 @@ public class IssueController {
                     return true;
                 }
             };
-            logger.logFine(String.format("%d issues fails \"nonPostRelease\" (IV < FV)",
-                            tmpIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+            logger.logFine(String.format("%d issues fails \"nonPostReleaseFilter\" (IV < FV)",
+                    tmpIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
 
             // IV <= OV
             Predicate<Issue> consistentIVFilter = issue -> {
@@ -74,7 +77,7 @@ public class IssueController {
                 }
             };
             logger.logFine(String.format("%d issues fails \"consistentIVFilter\" (IV <= OV)",
-                            tmpIssues.stream().filter(consistentIVFilter.negate()).count()));
+                    tmpIssues.stream().filter(consistentIVFilter.negate()).count()));
 
             // OV <= FV
             Predicate<Issue> openingConsistencyFilter = issue -> {
@@ -85,7 +88,7 @@ public class IssueController {
                 }
             };
             logger.logFine(String.format("%d issues fails \"openingConsistencyFilter\" (OV <= FV)",
-                            tmpIssues.stream().filter(openingConsistencyFilter.negate()).count()));
+                    tmpIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
             this.totalValidIssues = tmpIssues.stream()
                     .filter(nonPostReleaseFilter)
@@ -125,7 +128,7 @@ public class IssueController {
 
             logger.logFine(String.format("Got %d issues.", this.totalIssues.size()));
 
-            if (logger.getAnyVerboseFine()){
+            if (logger.getAnyVerboseFine()) {
                 long byExplicitJira = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.BY_EXPLICIT_JIRA).count();
                 long byResolutionDate = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.BY_RESOLUTION_DATE_JIRA).count();
                 long gotNull = this.totalIssues.stream().filter(issue -> issue.getFvType() == IssueFVType.GOT_NULL).count();
@@ -133,6 +136,8 @@ public class IssueController {
                 logger.logFine(String.format("FV by source: {Explicit FV: %d, Resolution Date: %d, Later than last released version: %d}",
                         byExplicitJira, byResolutionDate, gotNull));
             }
+
+            ToFileBoundary.writeListProj(this.totalIssues, projName, "totalIssues.csv");
         }
         return this.totalIssues;
     }

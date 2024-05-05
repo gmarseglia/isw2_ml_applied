@@ -120,7 +120,7 @@ public class BugginessController {
 
             }
 
-            logger.logFine(String.format("Proportioned issues by type: {Usable: %d, Invalid after proportion (IV >= FV): %d, Affects only version over half: %d}",
+            logger.logFine(String.format("Proportioned issues: {Usable: %d, Invalid (IV >= FV): %d, Affects only later versions: %d}",
                     usable, invalidAfterProportion, overHalf));
             logger.logFine(String.format("Total number of entries labelled \"buggy\": %s", newLabelledEntries.size()));
 
