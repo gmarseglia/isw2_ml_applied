@@ -3,6 +3,7 @@ package it.gmarseglia.app.controller;
 import it.gmarseglia.app.entity.Issue;
 import it.gmarseglia.app.entity.JiraVersion;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -166,7 +167,16 @@ public class GitController {
         if (!Objects.equals(tag, this.lastTag)) {
             this.lastTag = tag;
             Git git = this.getLocalGit();
-            git.checkout().setName("refs/tags/" + tag).call();
+            int tries = 0;
+            while (tries < 2) {
+                try {
+                    git.checkout().setName("refs/tags/" + tag).call();
+                    return;
+                } catch (CheckoutConflictException e) {
+                    this.cloneRepo();
+                    tries++;
+                }
+            }
         }
     }
 
@@ -292,7 +302,7 @@ public class GitController {
             throw new RuntimeException(ex);
         }
 
-        logger.logFinest(String.format("Found commits by \"git log ...\": %s, found by \"jgit\": %s", commitsID.size(), result.size() ));
+        logger.logFinest(String.format("Found commits by \"git log ...\": %s, found by \"jgit\": %s", commitsID.size(), result.size()));
 
         return result;
     }
