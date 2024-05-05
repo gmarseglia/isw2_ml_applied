@@ -29,7 +29,7 @@ public class ToFileBoundary {
 
             if (!alreadyUsedFilenames.contains(outFile.toString())) {
                 MyFileUtils.createDirectory(outDir);
-                alreadyUsedFilenames.add(fileName);
+                alreadyUsedFilenames.add(outFile.toString());
                 Files.writeString(outFile, text, CREATE, TRUNCATE_EXISTING);
             } else {
                 Files.writeString(outFile, text, APPEND);
