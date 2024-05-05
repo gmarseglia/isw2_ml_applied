@@ -40,5 +40,5 @@ build/
 ### Custom
 *.csv
 *.json
-/out/*.txt
+/out/*
 /.idea/sonarlint/
