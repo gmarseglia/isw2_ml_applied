@@ -41,7 +41,7 @@ public class BugginessController {
             int HALF_LASTi = vc.getAllReleasedVersions().indexOf(vc.getHalfVersion().getLast());
 
             int usable = 0;
-            int unusable = 0;
+            int invalidAfterProportion = 0;
             int overHalf = 0;
 
             // For print purpose
@@ -55,9 +55,9 @@ public class BugginessController {
                 // Actual FV = "Jira FV" if in valid versions, otherwise "Practically last possible FV"
                 int FVi = proportionedIssue.FVIndex() != null ? proportionedIssue.FVIndex() : HALF_LASTi + 1;
 
-                // skip nonPostRelease && invalid issues -> "unusable" issues
+                // skip nonPostRelease && invalid issues -> "invalidAfterProportion" issues
                 if (IVi >= FVi) {
-                    unusable++;
+                    invalidAfterProportion++;
                     continue;
                 }
                 // skip "over half" issues
@@ -120,12 +120,8 @@ public class BugginessController {
 
             }
 
-            int finalValid = usable;
-            int finalInvalid = unusable;
-            int finalOverHalf = overHalf;
-
-            logger.logFine(String.format("Proportioned issues by type: {Usable: %d, Unusable: %d, Over half: %d}",
-                    finalValid, finalInvalid, finalOverHalf));
+            logger.logFine(String.format("Proportioned issues by type: {Usable: %d, Invalid after proportion (IV >= FV): %d, Affects only version over half: %d}",
+                    usable, invalidAfterProportion, overHalf));
             logger.logFine(String.format("Total number of entries labelled \"buggy\": %s", newLabelledEntries.size()));
 
         }
