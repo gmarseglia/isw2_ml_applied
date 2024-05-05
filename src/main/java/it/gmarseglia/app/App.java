@@ -4,6 +4,7 @@ import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.controller.DatasetController;
 import it.gmarseglia.app.controller.GitController;
 import it.gmarseglia.app.controller.MyLogger;
+import it.gmarseglia.app.controller.ProportionController;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.time.Instant;
@@ -21,10 +22,13 @@ public class App {
         MyLogger.setStaticVerboseFinest(false);
 
         Map<String, Boolean> configurations = new LinkedHashMap<>();
-        configurations.put("BOOKKEEPER", true);
-        configurations.put("OPENJPA", true);
-        configurations.put("SYNCOPE", false);
+        configurations.put("BOOKKEEPER", false);
         configurations.put("AVRO", false);
+        configurations.put("OPENJPA", false);
+        configurations.put("STORM", false);
+        configurations.put("ZOOKEEPER", false);
+        configurations.put("SYNCOPE", false);
+        configurations.put("TAJO", false);
 
         for (Map.Entry<String, Boolean> configuration : configurations.entrySet()) {
             String projName = configuration.getKey();
@@ -32,15 +36,22 @@ public class App {
 
             MyLogger.getInstance(App.class).logNoPrefix("Project: " + projName);
 
-            GitController.getInstance(projName).setTagsRegex("(release-)?(syncope-)?%v(-incubating)?");
+            GitController.getInstance(projName).setTagsRegex("(release-)?(syncope-)?(v)?%v(-incubating)?");
             DatasetController.getInstance(projName).setComputeMetrics(computeMetrics);
 
             ToFileBoundary.writeStringProj(String.format("Begin: \t%s", Instant.now().toString()), projName, "performance.csv");
-            run(projName);
+            testP(projName);
             ToFileBoundary.writeStringProj(String.format("End  : \t%s", Instant.now().toString()), projName, "performance.csv");
-
         }
 
+    }
+
+    private static void testP(String projName) {
+        try {
+            ProportionController.getInstance(projName).getTotalProportionedIssues(Integer.MAX_VALUE);
+        } catch (GitAPIException e) {
+            logger.log(String.format("jgit throw an exception: %s", e));
+        }
     }
 
     private static void run(String projName) {
