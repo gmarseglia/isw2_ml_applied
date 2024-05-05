@@ -83,6 +83,8 @@ public class ProportionController {
 
             logger.log(String.format("Actually proportioned %d issues which didn't have explicit IV.", proportionedIssues));
 
+            logger.log(String.format("Finally computed P=%.3f on %d updated.", P, updates));
+
             ToFileBoundary.writeListProj(this.totalProportionedIssues, projName, "totalProportionedIssue.csv");
         }
         return this.totalProportionedIssues;
