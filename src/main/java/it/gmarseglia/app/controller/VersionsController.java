@@ -71,6 +71,7 @@ public class VersionsController {
             this.allReleasedVersions = this.getAllVersions()
                     .stream()
                     .filter(Version::isReleased)
+                    .filter(version -> version.getJiraReleaseDate() != null)
                     .sorted(Comparator.comparing(Version::getJiraReleaseDate))
                     .toList();
             logger.logFine(String.format("Found %d released versions: %s",
