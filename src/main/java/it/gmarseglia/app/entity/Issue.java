@@ -150,7 +150,10 @@ public class Issue implements Exportable {
     public List<String> getFieldsNames() {
         return Arrays.asList(
                 "Key",
-                "Indexes of (OV|FV|IV explicit|IV proportion)",
+                "indexOf(OV)",
+                "indexOf(FV)",
+                "indexOf(IV explicit)",
+                "indexOf(IV proportion)",
                 "OV",
                 "FV",
                 "IV explicit",
@@ -162,16 +165,12 @@ public class Issue implements Exportable {
 
     @Override
     public List<Serializable> getFieldsValues() {
-
-        String indexes = String.format("(%-4s|%-4s|%-4s|%-4s)",
-                OVIndex(),
-                FVIndex(),
-                IVIndex(),
-                PredictedIVIndex());
-
         Stream<Serializable> tmp = Stream.of(
                 key,
-                indexes,
+                (OVIndex() == null ? "null" : OVIndex()),
+                (FVIndex() == null ? "null" : FVIndex()),
+                (IVIndex() == null ? "null" : IVIndex()),
+                (PredictedIVIndex() == null ? "null" : PredictedIVIndex()),
                 (openingVersion == null ? "last" : openingVersion.getName()),
                 (fixVersion == null ? "last" : fixVersion.getName()),
                 (injectVersion == null ? "NA" : injectVersion.getName()),
