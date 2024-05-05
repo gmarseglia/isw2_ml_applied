@@ -65,6 +65,9 @@ public class ProportionController {
                 // apply P
                 // if IV is not present, then predictedIV = FV - (FV - OV) * P
                 float step = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
+                // Paper: 1.8089F
+                // Weighted avg: (1.386 * 66 + 1.674 * 597 + 2.154 * 631 + 2.553 * 315 + 2.432 * 630 + 1.438 * 494 + 1.420 * 104) / (66 + 597 + 631 + 315 + 630 + 494 + 104) = 1.98957878F
+                // Avg: (1.386 + 1.674 + 2.154 + 2.553 + 2.432 + 1.438 + 1.420) / 7 = 1.865285714F
                 float actualP = (updates <= 5) ? 1.8089F : P;
 
                 float predictedIV = (float) i.FVIndex() - step * actualP;
