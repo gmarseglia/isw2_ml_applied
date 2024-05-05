@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 
 public class MyFileUtils {
 
+    private static final MyLogger logger = MyLogger.getInstance(MyFileUtils.class);
+
     public static void deleteDirectory(Path path) {
         try {
             Files.walk(path)
@@ -17,7 +19,7 @@ public class MyFileUtils {
                     .map(Path::toFile)
                     .forEach(File::delete);
         } catch (IOException e) {
-            System.out.printf("%s does not exists.\n", path);
+            logger.logFine(String.format("%s does not exists.", path));
         }
     }
 
@@ -28,8 +30,6 @@ public class MyFileUtils {
 
     public static List<Path> getAllJavaSrcFiles(Path localPath) {
         List<Path> result;
-
-        String srcString = "src" + File.separator + "main";
 
         try (Stream<Path> pathStream = Files.find(localPath,
                 Integer.MAX_VALUE,
