@@ -1,28 +1,39 @@
 package it.gmarseglia.app;
 
 import it.gmarseglia.app.boundary.ToFileBoundary;
-import it.gmarseglia.app.controller.*;
+import it.gmarseglia.app.controller.DatasetController;
+import it.gmarseglia.app.controller.GitController;
+import it.gmarseglia.app.controller.MyLogger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
-
-import static java.nio.file.StandardOpenOption.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class App {
+
+    private static final MyLogger logger = MyLogger.getInstance(App.class);
+
     public static void main(String[] args) {
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
         MyLogger.setStaticVerboseFinest(false);
 
-        for (String projName : List.of("BOOKKEEPER", "OPENJPA", "SYNCOPE", "AVRO")) {
+        Map<String, Boolean> configurations = new LinkedHashMap<>();
+        configurations.put("BOOKKEEPER", true);
+        configurations.put("OPENJPA", true);
+        configurations.put("SYNCOPE", false);
+        configurations.put("AVRO", false);
+
+        for (Map.Entry<String, Boolean> configuration : configurations.entrySet()) {
+            String projName = configuration.getKey();
+            Boolean computeMetrics = configuration.getValue();
+
             MyLogger.getInstance(App.class).logNoPrefix("Project: " + projName);
 
             GitController.getInstance(projName).setTagsRegex("(release-)?(syncope-)?%v(-incubating)?");
+            DatasetController.getInstance(projName).setComputeMetrics(computeMetrics);
 
             ToFileBoundary.writeStringProj(String.format("Begin: \t%s", Instant.now().toString()), projName, "performance.csv");
             run(projName);
@@ -36,11 +47,9 @@ public class App {
         DatasetController dc = DatasetController.getInstance(projName);
 
         try {
-            dc.setComputeMetrics(false);
             dc.populateDataset();
         } catch (GitAPIException e) {
-            throw new RuntimeException(e);
+            logger.log(String.format("jgit throw an exception: %s", e));
         }
-
     }
 }
