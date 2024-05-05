@@ -1,7 +1,7 @@
 package it.gmarseglia.app.controller;
 
 
-import it.gmarseglia.app.boundary.CsvBoundary;
+import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.entity.Entry;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -14,6 +14,7 @@ public class DatasetController {
     private static final Map<String, DatasetController> instances = new HashMap<>();
     private final String projName;
     private final MyLogger logger = MyLogger.getInstance(this.getClass());
+    private boolean computeMetrics = true;
 
 
     private DatasetController(String projName) {
@@ -23,6 +24,10 @@ public class DatasetController {
     public static DatasetController getInstance(String projName) {
         DatasetController.instances.computeIfAbsent(projName, string -> new DatasetController(projName));
         return DatasetController.instances.get(projName);
+    }
+
+    public void setComputeMetrics(boolean computeMetrics) {
+        this.computeMetrics = computeMetrics;
     }
 
     /**
@@ -37,9 +42,9 @@ public class DatasetController {
 
         logger.log(String.format("Total entries size: %d", allDatasetEntries.size()));
 
-        MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
+        if (computeMetrics) MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
 
         // write all the found entries on the .csv files
-        CsvBoundary.writeListProj(allDatasetEntries, projName , "dataset.csv");
+        ToFileBoundary.writeListProj(allDatasetEntries, projName, "dataset.csv");
     }
 }
