@@ -150,7 +150,7 @@ public class Issue implements Exportable {
     public List<String> getFieldsNames() {
         return Arrays.asList(
                 "Key",
-                "Indexes of (OV;FV;IV explicit;IV proportion)",
+                "Indexes of (OV|FV|IV explicit|IV proportion)",
                 "OV",
                 "FV",
                 "IV explicit",
@@ -163,7 +163,7 @@ public class Issue implements Exportable {
     @Override
     public List<Serializable> getFieldsValues() {
 
-        String indexes = String.format("(%-4s;%-4s;%-4s;%-4s)",
+        String indexes = String.format("(%-4s|%-4s|%-4s|%-4s)",
                 OVIndex(),
                 FVIndex(),
                 IVIndex(),
