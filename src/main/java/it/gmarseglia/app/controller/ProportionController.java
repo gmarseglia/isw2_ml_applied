@@ -1,5 +1,6 @@
 package it.gmarseglia.app.controller;
 
+import it.gmarseglia.app.boundary.CsvBoundary;
 import it.gmarseglia.app.entity.Issue;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -79,7 +80,10 @@ public class ProportionController {
             }
 
             int proportionedIssues = this.totalProportionedIssues.size() - updates;
+
             logger.log(String.format("Actually proportioned %d issues which didn't have explicit IV.", proportionedIssues));
+
+            CsvBoundary.writeListProj(this.totalProportionedIssues, projName, "totalProportionedIssue.csv");
         }
         return this.totalProportionedIssues;
     }

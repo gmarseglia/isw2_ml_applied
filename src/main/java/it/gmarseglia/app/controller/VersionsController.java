@@ -60,7 +60,7 @@ public class VersionsController {
                     this.allVersions.size(),
                     this.allVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeList(this.allVersions,projName + "_allVersions.csv");
+            CsvBoundary.writeListProj(this.allVersions, projName, "allVersions.csv");
         }
 
         return this.allVersions;
@@ -78,7 +78,7 @@ public class VersionsController {
                     this.allReleasedVersions.size(),
                     this.allReleasedVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeList(this.allReleasedVersions,projName + "_allReleasedVersions.csv");
+            CsvBoundary.writeListProj(this.allReleasedVersions, projName, "allReleasedVersions.csv");
         }
         return this.allReleasedVersions;
     }
@@ -100,7 +100,7 @@ public class VersionsController {
                     this.allValidVersions.size(),
                     this.allValidVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeList(this.allValidVersions,projName + "_allValidVersions.csv");
+            CsvBoundary.writeListProj(this.allValidVersions, projName, "allValidVersions.csv");
         }
         return this.allValidVersions;
     }
@@ -118,7 +118,7 @@ public class VersionsController {
                     this.halfValidVersions.size(),
                     this.halfValidVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeList(this.halfValidVersions,projName + "_halfValidVersions.csv");
+            CsvBoundary.writeListProj(this.halfValidVersions, projName, "halfValidVersions.csv");
         }
         return this.halfValidVersions;
     }

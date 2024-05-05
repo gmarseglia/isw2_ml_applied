@@ -4,7 +4,6 @@ import it.gmarseglia.app.controller.MyFileUtils;
 import it.gmarseglia.app.entity.Exportable;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,9 +13,14 @@ import static java.nio.file.StandardOpenOption.*;
 
 public class CsvBoundary {
 
-    public final static Path DEFAULT_OUT_DIR = Paths.get(".", "out");
+    public static final Path DEFAULT_OUT_DIR = Paths.get(".", "out");
 
-    public static void writeList(List<? extends Exportable> elements, String fileName){
+    public static void writeListProj(List<? extends Exportable> elements, String projName, String fileName) {
+        Path outDir = DEFAULT_OUT_DIR.resolve(projName);
+        writeList(elements, outDir, fileName);
+    }
+
+    public static void writeList(List<? extends Exportable> elements, String fileName) {
         writeList(elements, DEFAULT_OUT_DIR, fileName);
     }
 
@@ -30,7 +34,10 @@ public class CsvBoundary {
             Files.writeString(outFile, firstRow, CREATE, WRITE);
 
             for (Exportable element : elements) {
-                List<String> entryValues = element.getFieldsValues().stream().map(Object::toString).toList();
+                List<String> entryValues = element.getFieldsValues()
+                        .stream()
+                        .map(serializable -> (serializable == null ? "null" : serializable.toString()))
+                        .toList();
                 String entryRow = String.join(",", entryValues).concat(System.lineSeparator());
 
                 Files.writeString(outFile,

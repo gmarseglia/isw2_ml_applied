@@ -1,20 +1,23 @@
 package it.gmarseglia.app.entity;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-public class Issue {
+public class Issue implements Exportable {
 
+    private final Integer[] versionsIndex;
+    private final IssueFVType fvType;
     private String key;
     private Version openingVersion;
     private Version fixVersion;
-    private IssueFVType fvType;
     private Version injectVersion;
     private Date jiraCreationDate;
     private Date jiraResolutionDate;
     private boolean hasBeenProportioned = false;
-    private final Integer[] versionsIndex;
 
     public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex, IssueFVType fvType) {
         this.key = key;
@@ -141,5 +144,43 @@ public class Issue {
 
     public IssueFVType getFvType() {
         return fvType;
+    }
+
+    @Override
+    public List<String> getFieldsNames() {
+        return Arrays.asList(
+                "Key",
+                "Indexes of (OV;FV;IV explicit;IV proportion)",
+                "OV",
+                "FV",
+                "IV explicit",
+                "Jira Creation Date",
+                "Jira Resolution Date",
+                "FV Source",
+                "Has been proportioned");
+    }
+
+    @Override
+    public List<Serializable> getFieldsValues() {
+
+        String indexes = String.format("(%-4s;%-4s;%-4s;%-4s)",
+                OVIndex(),
+                FVIndex(),
+                IVIndex(),
+                PredictedIVIndex());
+
+        Stream<Serializable> tmp = Stream.of(
+                key,
+                indexes,
+                (openingVersion == null ? "last" : openingVersion.getName()),
+                (fixVersion == null ? "last" : fixVersion.getName()),
+                (injectVersion == null ? "NA" : injectVersion.getName()),
+                jiraCreationDate,
+                jiraResolutionDate,
+                fvType.toString(),
+                hasBeenProportioned
+        );
+
+        return tmp.toList();
     }
 }

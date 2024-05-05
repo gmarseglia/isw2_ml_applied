@@ -1,9 +1,7 @@
 package it.gmarseglia.app;
 
-import it.gmarseglia.app.controller.DatasetController;
-import it.gmarseglia.app.controller.GitController;
-import it.gmarseglia.app.controller.IssueFactory;
-import it.gmarseglia.app.controller.MyLogger;
+import it.gmarseglia.app.controller.*;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -11,10 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.List;
 
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.*;
 
 
 public class App {
@@ -23,16 +20,18 @@ public class App {
         MyLogger.setStaticVerboseFine(true);
         MyLogger.setStaticVerboseFinest(false);
 
-        for (String projName : Arrays.asList("BOOKKEEPER", "OPENJPA")) {
-            MyLogger.getInstance(App.class).logNoPrefix("Producing dataset for " + projName);
+        for (String projName : List.of("AVRO")) {
+            MyLogger.getInstance(App.class).logNoPrefix("Project: " + projName);
 
-            GitController.getInstance(projName).setTagsRegex("(release-)?%v(-incubating)?");
+            GitController.getInstance(projName).setTagsRegex("(release-)?(syncope-)?%v(-incubating)?");
 
-            Path performanceFile = Paths.get(".", "out", projName + "_performance.txt");
+            MyFileUtils.createDirectory(Paths.get(".", "out", projName));
+            Path performanceFile = Paths.get(".", "out", projName, "performance.txt");
             try {
-                Files.writeString(performanceFile, "Begin: " + Instant.now().toString().concat(System.lineSeparator()), CREATE, APPEND);
-                run(projName);
-                Files.writeString(performanceFile, "End: " + Instant.now().toString().concat(System.lineSeparator()), APPEND);
+                Files.writeString(performanceFile, "Begin: \t" + Instant.now().toString().concat(System.lineSeparator()), CREATE, WRITE);
+                test(projName);
+                // run(projName);
+                Files.writeString(performanceFile, "End  : \t" + Instant.now().toString().concat(System.lineSeparator()), APPEND);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -40,8 +39,20 @@ public class App {
 
     }
 
+    private static void test(String projName) {
+        try {
+//            MyLogger.getInstance(IssueController.class).setVerboseFine(false);
+            VersionsController.getInstance(projName).getHalfVersion();
+            ProportionController.getInstance(projName).getTotalProportionedIssues(Integer.MAX_VALUE);
+        } catch (GitAPIException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static void run(String projName) {
         DatasetController dc = DatasetController.getInstance(projName);
+
+        MyLogger.getInstance(Version.class).setVerboseFinest(true);
 
         try {
             dc.populateDataset();

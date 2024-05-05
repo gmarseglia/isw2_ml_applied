@@ -100,8 +100,8 @@ public class Version implements Exportable {
                 name,
                 id,
                 released,
-                (JiraReleaseDate == null ? "null" : JiraReleaseDate),
-                (GithubTag == null ? "null" : GithubTag),
-                (GithubReleaseDate == null ? "null" : GithubReleaseDate));
+                JiraReleaseDate,
+                GithubTag,
+                GithubReleaseDate);
     }
 }

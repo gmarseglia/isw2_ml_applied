@@ -40,6 +40,6 @@ public class DatasetController {
         MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
 
         // write all the found entries on the .csv files
-        CsvBoundary.writeList(allDatasetEntries, projName + "_dataset.csv");
+        CsvBoundary.writeListProj(allDatasetEntries, projName , "dataset.csv");
     }
 }
