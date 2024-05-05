@@ -57,6 +57,11 @@ public class IssueController {
             logger.logFine(String.format("%d issues fails \"noCommitFilter\" (commits > 0)",
                     tmpIssues.stream().filter(noCommitFilter.negate()).count()));
 
+            // indexOf(FV) > 0
+            Predicate<Issue> nonFirstFVFilter = issue -> !(issue.FVIndex() == null || issue.FVIndex() <= 0);
+            logger.logFine(String.format("%d issues fails \"nonFirstFVFilter\" (indexOf(FV) > 0)",
+                    tmpIssues.stream().filter(nonFirstFVFilter.negate()).count()));
+
             // IV < FV
             Predicate<Issue> nonPostReleaseFilter = issue -> {
                 if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
@@ -91,6 +96,7 @@ public class IssueController {
                     tmpIssues.stream().filter(openingConsistencyFilter.negate()).count()));
 
             this.totalValidIssues = tmpIssues.stream()
+                    .filter(nonFirstFVFilter)
                     .filter(nonPostReleaseFilter)
                     .filter(consistentIVFilter)
                     .filter(openingConsistencyFilter)
