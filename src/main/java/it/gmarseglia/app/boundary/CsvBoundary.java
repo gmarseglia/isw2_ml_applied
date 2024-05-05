@@ -4,6 +4,7 @@ import it.gmarseglia.app.controller.MyFileUtils;
 import it.gmarseglia.app.entity.Exportable;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,12 +16,16 @@ public class CsvBoundary {
 
     public final static Path DEFAULT_OUT_DIR = Paths.get(".", "out");
 
+    public static void writeList(List<? extends Exportable> elements, String fileName){
+        writeList(elements, DEFAULT_OUT_DIR, fileName);
+    }
+
     public static void writeList(List<? extends Exportable> elements, Path outDirPath, String fileName) {
         MyFileUtils.createDirectory(outDirPath);
-        Path outFile = outDirPath.resolve(fileName);
-        MyFileUtils.deleteFile(outFile);
 
         try {
+            Path outFile = outDirPath.resolve(fileName);
+
             String firstRow = String.join(",", elements.getFirst().getFieldsNames()).concat(System.lineSeparator());
             Files.writeString(outFile, firstRow, CREATE, WRITE);
 

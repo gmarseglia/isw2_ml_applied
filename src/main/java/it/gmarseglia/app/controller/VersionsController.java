@@ -60,9 +60,7 @@ public class VersionsController {
                     this.allVersions.size(),
                     this.allVersions.stream().map(Version::getName).toList()));
 
-            CsvBoundary.writeList(this.allVersions,
-                    CsvBoundary.DEFAULT_OUT_DIR,
-                    projName + "_allVersions.csv");
+            CsvBoundary.writeList(this.allVersions,projName + "_allVersions.csv");
         }
 
         return this.allVersions;
@@ -78,6 +76,8 @@ public class VersionsController {
             logger.logFine(String.format("Found %d released versions: %s",
                     this.allReleasedVersions.size(),
                     this.allReleasedVersions.stream().map(Version::getName).toList()));
+
+            CsvBoundary.writeList(this.allReleasedVersions,projName + "_allReleasedVersions.csv");
         }
         return this.allReleasedVersions;
     }
@@ -98,6 +98,8 @@ public class VersionsController {
             logger.logFine(String.format("Found %d valid versions: %s",
                     this.allValidVersions.size(),
                     this.allValidVersions.stream().map(Version::getName).toList()));
+
+            CsvBoundary.writeList(this.allValidVersions,projName + "_allValidVersions.csv");
         }
         return this.allValidVersions;
     }
@@ -114,6 +116,8 @@ public class VersionsController {
             logger.logFine(String.format("Found %d half valid versions: %s",
                     this.halfValidVersions.size(),
                     this.halfValidVersions.stream().map(Version::getName).toList()));
+
+            CsvBoundary.writeList(this.halfValidVersions,projName + "_halfValidVersions.csv");
         }
         return this.halfValidVersions;
     }

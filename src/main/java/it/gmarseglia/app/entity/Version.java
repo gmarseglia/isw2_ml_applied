@@ -1,7 +1,5 @@
 package it.gmarseglia.app.entity;
 
-import it.gmarseglia.app.controller.MyLogger;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
@@ -103,7 +101,7 @@ public class Version implements Exportable {
                 id,
                 released,
                 (JiraReleaseDate == null ? "null" : JiraReleaseDate),
-                (GithubReleaseDate == null ? "null" : GithubReleaseDate),
-                (GithubTag == null ? "null" : GithubTag));
+                (GithubTag == null ? "null" : GithubTag),
+                (GithubReleaseDate == null ? "null" : GithubReleaseDate));
     }
 }
