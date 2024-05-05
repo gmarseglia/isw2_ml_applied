@@ -26,13 +26,14 @@ public class ToFileBoundary {
         try {
             Path outDir = DEFAULT_OUT_DIR.resolve(projName);
             Path outFile = outDir.resolve(fileName);
+            String outText = text.concat(System.lineSeparator());
 
             if (!alreadyUsedFilenames.contains(outFile.toString())) {
                 MyFileUtils.createDirectory(outDir);
                 alreadyUsedFilenames.add(outFile.toString());
-                Files.writeString(outFile, text, CREATE, TRUNCATE_EXISTING);
+                Files.writeString(outFile, outText, CREATE, TRUNCATE_EXISTING);
             } else {
-                Files.writeString(outFile, text, APPEND);
+                Files.writeString(outFile, outText, APPEND);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -48,7 +49,13 @@ public class ToFileBoundary {
             MyFileUtils.createDirectory(outDirPath);
             Path outFile = outDirPath.resolve(fileName);
 
-            String firstRow = String.join(",", elements.getFirst().getFieldsNames()).concat(System.lineSeparator());
+            String firstRow;
+
+            if (elements.isEmpty()) {
+                firstRow = "Got empty list of " + elements.getClass().getSimpleName() + ".";
+            } else {
+                firstRow = String.join(",", elements.getFirst().getFieldsNames()).concat(System.lineSeparator());
+            }
             Files.writeString(outFile, firstRow, CREATE, TRUNCATE_EXISTING);
 
             for (Exportable element : elements) {
