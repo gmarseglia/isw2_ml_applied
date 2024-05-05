@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class MetricsController {
@@ -98,14 +95,14 @@ public class MetricsController {
                     .toList();
 
             // for each commit get all the diffs
-            this.commitAndDiffListAll = new HashMap<>();
+            this.commitAndDiffListAll = new LinkedHashMap<>();
             for (RevCommit commit : entryLastVersionCommits) {
                 List<DiffEntry> commitDiffEntries = GitController.getInstance(projName).getDiffListByRevCommit(commit);
                 this.commitAndDiffListAll.put(commit, commitDiffEntries);
             }
 
             // follow filename through commits and assign correct diff to each commit
-            this.commitAndDiffAll = new HashMap<>();
+            this.commitAndDiffAll = new LinkedHashMap<>();
             String mostRecentPath = entry.getLongName().substring(1);
             boolean addFound = false;
 
