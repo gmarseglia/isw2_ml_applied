@@ -27,7 +27,7 @@ public class ToFileBoundary {
             Path outDir = DEFAULT_OUT_DIR.resolve(projName);
             Path outFile = outDir.resolve(fileName);
 
-            if (!alreadyUsedFilenames.contains(fileName)) {
+            if (!alreadyUsedFilenames.contains(outFile.toString())) {
                 MyFileUtils.createDirectory(outDir);
                 alreadyUsedFilenames.add(fileName);
                 Files.writeString(outFile, text, CREATE, TRUNCATE_EXISTING);
