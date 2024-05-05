@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-public class Entry {
+public class Entry implements Exportable {
 
     private final String longName;
     private final Metrics metrics;
@@ -21,17 +21,6 @@ public class Entry {
         this.buggy = false;
         this.longName = longName;
         this.metrics = new Metrics();
-    }
-
-    public static List<String> getFieldsNames() {
-        return Arrays.asList("Version", "Name",
-                "LOC",
-                "Age", "StepAge",
-                "NR", "NAuth",
-                "LOCAdded", "maxLOCAdded", "avgLOCAdded",
-                "Churn", "maxChurn", "avgChurn",
-                "ChangeSetSize", "maxChangeSetSize", "avgChangeSetSize",
-                "Buggy");
     }
 
     public Path getPath() {
@@ -91,6 +80,19 @@ public class Entry {
         return "Entry{" + version.getName() + ", " + path + "}";
     }
 
+    @Override
+    public List<String> getFieldsNames() {
+        return Arrays.asList("Version", "Name",
+                "LOC",
+                "Age", "StepAge",
+                "NR", "NAuth",
+                "LOCAdded", "maxLOCAdded", "avgLOCAdded",
+                "Churn", "maxChurn", "avgChurn",
+                "ChangeSetSize", "maxChangeSetSize", "avgChangeSetSize",
+                "Buggy");
+    }
+
+    @Override
     public List<Serializable> getFieldsValues() {
         return Arrays.asList(this.version.getName(), this.longName,
                 this.metrics.getLOC(),

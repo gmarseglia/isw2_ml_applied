@@ -43,7 +43,7 @@ public class MetricsController {
 
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
 
-        logger.log("Ready to compute " + (Entry.getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries.");
+        logger.log("Ready to compute " + (cleanAllEntries.getFirst().getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries.");
 
         this.halfVersions = VersionsController.getInstance(projName).getHalfVersion();
 

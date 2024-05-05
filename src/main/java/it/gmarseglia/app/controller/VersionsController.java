@@ -1,5 +1,6 @@
 package it.gmarseglia.app.controller;
 
+import it.gmarseglia.app.boundary.CsvBoundary;
 import it.gmarseglia.app.entity.JiraVersion;
 import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -58,6 +59,10 @@ public class VersionsController {
             logger.logFine(String.format("Found %d versions: %s",
                     this.allVersions.size(),
                     this.allVersions.stream().map(Version::getName).toList()));
+
+            CsvBoundary.writeList(this.allVersions,
+                    CsvBoundary.DEFAULT_OUT_DIR,
+                    projName + "_allVersions.csv");
         }
 
         return this.allVersions;

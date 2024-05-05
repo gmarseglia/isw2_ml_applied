@@ -1,9 +1,14 @@
 package it.gmarseglia.app.entity;
 
+import it.gmarseglia.app.controller.MyLogger;
+
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
-public class Version {
+public class Version implements Exportable {
 
     private final String id;
     private final boolean released;
@@ -67,9 +72,9 @@ public class Version {
                 "id='" + id + '\'' +
                 ", released=" + released +
                 ", name='" + name + '\'' +
-                ", JiraReleaseDate=" + JiraReleaseDate +
-                ", GithubReleaseDate=" + GithubReleaseDate +
-                ", GithubTag='" + GithubTag + '\'' +
+                ", JiraReleaseDate=" + (JiraReleaseDate == null ? "null" : JiraReleaseDate) +
+                ", GithubReleaseDate=" + (GithubReleaseDate == null ? "null" : GithubReleaseDate) +
+                ", GithubTag='" + (GithubTag == null ? "null" : GithubTag) + '\'' +
                 '}';
     }
 
@@ -84,5 +89,21 @@ public class Version {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, GithubTag, GithubReleaseDate, JiraReleaseDate, released);
+    }
+
+    @Override
+    public List<String> getFieldsNames() {
+        return Arrays.asList("Name", "ID", "Released", "Jira ReleaseDate", "Github tag", "GitHub ReleaseDate");
+    }
+
+    @Override
+    public List<Serializable> getFieldsValues() {
+        return Arrays.asList(
+                name,
+                id,
+                released,
+                (JiraReleaseDate == null ? "null" : JiraReleaseDate),
+                (GithubReleaseDate == null ? "null" : GithubReleaseDate),
+                (GithubTag == null ? "null" : GithubTag));
     }
 }

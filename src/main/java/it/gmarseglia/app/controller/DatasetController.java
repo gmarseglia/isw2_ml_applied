@@ -1,11 +1,13 @@
 package it.gmarseglia.app.controller;
 
 
-import it.gmarseglia.app.boundary.CsvEntryBoundary;
+import it.gmarseglia.app.boundary.CsvBoundary;
 import it.gmarseglia.app.entity.Entry;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DatasetController {
 
@@ -38,7 +40,8 @@ public class DatasetController {
         MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
 
         // write all the found entries on the .csv files
-        CsvEntryBoundary toCsv = new CsvEntryBoundary(projName);
-        toCsv.writeEntries(allDatasetEntries);
+        CsvBoundary.writeList(allDatasetEntries,
+                CsvBoundary.DEFAULT_OUT_DIR,
+                projName + "_dataset.csv");
     }
 }
