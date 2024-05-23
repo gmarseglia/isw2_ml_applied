@@ -3,8 +3,10 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.entity.Entry;
+import it.gmarseglia.app.entity.Version;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +40,49 @@ public class DatasetController {
      * @throws GitAPIException uses <code>GitController</code>
      */
     public void populateDataset() throws GitAPIException {
-        List<Entry> allDatasetEntries = BugginessController.getInstance(projName).getAllLabelledEntries();
+        VersionsController vc = VersionsController.getInstance(projName);
+        BugginessController bc = BugginessController.getInstance(projName);
+        EntriesController ec = EntriesController.getInstance(projName);
+
+        List<Entry> allDatasetEntries = ec.getAllEntriesForHalfVersions();
 
         logger.log(String.format("Total entries size: %d", allDatasetEntries.size()));
 
-        if (computeMetrics) MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
+        if (computeMetrics) {
+            logger.log("Ready to compute metrics.");
+            MetricsController.getInstance(projName).setMetricsForAllEntries(allDatasetEntries);
+        }
+
+        logger.log("Ready to create datasets");
+        bc.setAllMetricsEntries(allDatasetEntries);
+
+        Path datasetsPath = Path.of(ToFileBoundary.DEFAULT_OUT_DIR.toString(), projName, "datasets");
+
+        for (Version v : vc.getHalfVersion()) {
+            List<Entry> perVersionTrainingSet = bc.getAllLabelledEntriesToObservationDate(v.getJiraReleaseDate());
+
+            // write all the found entries on the .csv files
+            ToFileBoundary.writeList(perVersionTrainingSet,
+                    datasetsPath,
+                    v.getName() + "_Trainingset.csv");
+        }
+
+        List<Entry> finalDataset = bc.getAllLabelledEntriesToObservationDate(null);
 
         // write all the found entries on the .csv files
-        ToFileBoundary.writeListProj(allDatasetEntries, projName, "dataset.csv");
+        ToFileBoundary.writeList(finalDataset,
+                datasetsPath,
+                "final_dataset.csv");
+
+        for (Version v : vc.getHalfVersion()) {
+            List<Entry> perVersionTestingSet = finalDataset
+                    .stream()
+                    .filter(entry -> entry.getVersion().equals(v))
+                    .toList();
+
+            ToFileBoundary.writeList(perVersionTestingSet,
+                    datasetsPath,
+                    v.getName() + "_testingset.csv");
+        }
     }
 }

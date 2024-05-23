@@ -1,10 +1,7 @@
 package it.gmarseglia.app;
 
 import it.gmarseglia.app.boundary.ToFileBoundary;
-import it.gmarseglia.app.controller.DatasetController;
-import it.gmarseglia.app.controller.GitController;
-import it.gmarseglia.app.controller.MyLogger;
-import it.gmarseglia.app.controller.ProportionController;
+import it.gmarseglia.app.controller.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.time.Instant;
@@ -22,13 +19,13 @@ public class App {
         MyLogger.setStaticVerboseFinest(false);
 
         Map<String, Boolean> configurations = new LinkedHashMap<>();
-        configurations.put("BOOKKEEPER", false);
-        configurations.put("AVRO", false);
-        configurations.put("OPENJPA", false);
-        configurations.put("STORM", false);
-        configurations.put("ZOOKEEPER", false);
-        configurations.put("SYNCOPE", false);
-        configurations.put("TAJO", false);
+        configurations.put("BOOKKEEPER", true);
+//        configurations.put("AVRO", false);
+//        configurations.put("OPENJPA", false);
+//        configurations.put("STORM", false);
+//        configurations.put("ZOOKEEPER", false);
+//        configurations.put("SYNCOPE", false);
+//        configurations.put("TAJO", false);
 
         for (Map.Entry<String, Boolean> configuration : configurations.entrySet()) {
             String projName = configuration.getKey();
@@ -40,7 +37,7 @@ public class App {
             DatasetController.getInstance(projName).setComputeMetrics(computeMetrics);
 
             ToFileBoundary.writeStringProj(String.format("Begin: \t%s", Instant.now().toString()), projName, "performance.csv");
-            testP(projName);
+            run(projName);
             ToFileBoundary.writeStringProj(String.format("End  : \t%s", Instant.now().toString()), projName, "performance.csv");
         }
 
@@ -56,6 +53,8 @@ public class App {
 
     private static void run(String projName) {
         DatasetController dc = DatasetController.getInstance(projName);
+
+        MyLogger.getInstance(IssueController.class).setVerboseFine(false);
 
         try {
             dc.populateDataset();
