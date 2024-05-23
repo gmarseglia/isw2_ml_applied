@@ -13,11 +13,43 @@ public class BugginessControllerTest {
     private final MyLogger logger = MyLogger.getInstance(BugginessControllerTest.class);
 
     @Test
+    public void getAllLabelledEntriesToObservationDateTest() throws GitAPIException {
+        String projName = "BOOKKEEPER";
+        GitController.getInstance(projName).setTagsRegex("(release-)?%v(-incubating)?");
+
+        MyLogger.setStaticVerbose(true);
+        MyLogger.setStaticVerboseFine(true);
+        MyLogger.getInstance(IssueController.class).setVerboseFine(false);
+        MyLogger.getInstance(BugginessController.class).setVerboseFinest(null);
+
+        // Print half valid versions
+        logger.logNoPrefix("%n%n getHalfVersion");
+        List<Version> halfVersions = VersionsController.getInstance(projName).getHalfVersion();
+        logger.logNoPrefix("getHalfVersion.size(): " + halfVersions.size());
+        for (Version v : halfVersions) {
+            logger.logNoPrefix(v.toString());
+        }
+
+        // Get all entries (without metrics for now)
+        List<Entry> allEntries = EntriesController.getInstance(projName).getAllEntriesForHalfVersions();
+
+        BugginessController bc = BugginessController.getInstance(projName);
+        bc.setAllMetricsEntries(allEntries);
+        for (Version v : halfVersions) {
+            List<Entry> perVersionTrainingSet = bc.getAllLabelledEntriesToObservationDate(v.getJiraReleaseDate());
+            logger.logNoPrefix("%t " + v.getName() + " -> perVersionTrainingSet.size(): " + perVersionTrainingSet.size());
+        }
+
+    }
+
+    @Test
     public void getAllLabelledEntriesTest() throws GitAPIException {
-        String projName = "OPENJPA";
+        String projName = "BOOKKEEPER";
         GitController.getInstance(projName).setTagsRegex("(release-)?%v(-incubating)?");
         BugginessController bc = BugginessController.getInstance(projName);
         EntriesController ec = EntriesController.getInstance(projName);
+
+        bc.setAllMetricsEntries(ec.getAllEntriesForHalfVersions());
 
         MyLogger.setStaticVerbose(true);
         MyLogger.setStaticVerboseFine(true);
