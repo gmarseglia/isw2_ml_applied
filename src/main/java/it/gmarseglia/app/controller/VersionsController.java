@@ -112,7 +112,7 @@ public class VersionsController {
     public List<Version> getHalfVersion() throws GitAPIException {
         if (this.halfValidVersions == null) {
             int tmpSize = this.getAllValidVersions().size();
-            this.halfValidVersions = this.getAllValidVersions().subList(0, tmpSize / 2);
+            this.halfValidVersions = this.getAllValidVersions().subList(0, (int) Math.ceil(tmpSize / 2.0));
 
             logger.logFine(String.format("Found %d half valid versions: %s",
                     this.halfValidVersions.size(),
