@@ -64,7 +64,7 @@ public class DatasetController {
             // write all the found entries on the .csv files
             ToFileBoundary.writeList(perVersionTrainingSet,
                     datasetsPath,
-                    v.getName() + "_Trainingset.csv");
+                    v.getName() + "_trainingset.csv");
         }
 
         List<Entry> finalDataset = bc.getAllLabelledEntriesToObservationDate(null);
@@ -82,7 +82,7 @@ public class DatasetController {
 
             ToFileBoundary.writeList(perVersionTestingSet,
                     datasetsPath,
-                    v.getName() + "_testingset.csv");
+                    v.getName() + "_Testingset.csv");
         }
     }
 }
