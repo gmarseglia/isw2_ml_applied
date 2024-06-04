@@ -55,7 +55,8 @@ public class BugginessController {
         // #2. Obtain the list of observable issues
         ProportionController pc = ProportionController.getInstance(projName);
         List<Issue> observedIssues =
-                pc.getTotalProportionedIssues(Integer.MAX_VALUE)
+                pc.getTotalProportionedIssuesAll(Integer.MAX_VALUE, observationDate)
+//                pc.getTotalProportionedIssuesIncrement(Integer.MAX_VALUE)
                         .stream()
                         // only issues that have resolution date after or equal to startDate
                         .filter(issue -> (startDate == null || issue.getJiraResolutionDate().compareTo(startDate) >= 0))

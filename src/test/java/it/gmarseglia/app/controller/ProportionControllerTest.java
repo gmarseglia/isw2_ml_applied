@@ -39,17 +39,17 @@ public class ProportionControllerTest {
         TimeUnit.SECONDS.sleep(1);
         logger.logNoPrefix("%n%n All valid proportioned issues");
         ProportionController pc = ProportionController.getInstance(projName);
-        List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssues(maxTotal);
+        List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssuesIncrement(maxTotal);
         logger.logNoPrefix(String.format("All valid proportioned issues size: %d\n", allValidProportionedIssues.size()));
         allValidProportionedIssues.forEach(logger::logObjectNoPrefix);
 
         TimeUnit.SECONDS.sleep(1);
         logger.logNoPrefix("%n%n Correctly assigned IV check");
-        long IVNotNullIssues = pc.getTotalProportionedIssues(maxTotal)
+        long IVNotNullIssues = pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
                 .filter(issue -> issue.IVIndex() != null)
                 .count();
-        long IVCorrectIssues = pc.getTotalProportionedIssues(maxTotal)
+        long IVCorrectIssues = pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
                 .filter(issue -> issue.IVIndex() != null)
                 .filter(issue -> Objects.equals(issue.IVIndex(), issue.PredictedIVIndex()))
@@ -61,7 +61,7 @@ public class ProportionControllerTest {
 
         float averageError = 0;
         int updates = 0;
-        for (Issue issue : pc.getTotalProportionedIssues(maxTotal)
+        for (Issue issue : pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
                 .filter(issue -> issue.IVIndex() != null)
                 .filter(issue -> !Objects.equals(issue.IVIndex(), issue.PredictedIVIndex()))
@@ -76,7 +76,7 @@ public class ProportionControllerTest {
 
         float averageDifference = 0;
         updates = 0;
-        for (Issue issue : pc.getTotalProportionedIssues(maxTotal)
+        for (Issue issue : pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
                 .filter(issue -> issue.IVIndex() != null)
                 .toList()) {
