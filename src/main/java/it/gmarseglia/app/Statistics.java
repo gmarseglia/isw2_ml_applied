@@ -80,7 +80,7 @@ public class Statistics {
         TimeUnit.SECONDS.sleep(1);
         logger.logNoPrefix("All valid proportioned issues");
         ProportionController pc = ProportionController.getInstance(projName);
-        List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssues(Integer.MAX_VALUE);
+        List<Issue> allValidProportionedIssues = pc.getTotalProportionedIssuesIncrement(Integer.MAX_VALUE);
         logger.logNoPrefix(String.format("All valid proportioned issues size: %d", allValidProportionedIssues.size()));
         allValidProportionedIssues.forEach(logger::logObjectNoPrefix);
     }

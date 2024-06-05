@@ -45,7 +45,7 @@ public class App {
 
     private static void testP(String projName) {
         try {
-            ProportionController.getInstance(projName).getTotalProportionedIssues(Integer.MAX_VALUE);
+            ProportionController.getInstance(projName).getTotalProportionedIssuesIncrement(Integer.MAX_VALUE);
         } catch (GitAPIException e) {
             logger.log(String.format("jgit throw an exception: %s", e));
         }
