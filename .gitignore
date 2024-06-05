@@ -43,3 +43,4 @@ build/
 /out/*
 /in/*
 /.idea/sonarlint/
+*.arff
