@@ -11,36 +11,32 @@ import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 public class CsvToArffConverter {
 
 
     public static void main(String[] args) throws IOException {
-        final String ARFF_EXT = ".arff";
-
-        List<String> projects = Arrays.asList("BOOKKEEPER");
+        List<String> projects = Configs.getProjects();
 
         // Create WEKA output directory
-        Path wekaDir = Path.of("out", "WEKA");
-        MyFileUtils.createDirectory(wekaDir);
+        MyFileUtils.createDirectory(Configs.WEKA_DIR);
 
         for (String projName : projects) {
             // projOutDir = "out/WEKA/XXX"
-            Path projOutDir = wekaDir.resolve(projName);
+            Path projOutDir = Configs.getProjOutDir(projName);
             MyFileUtils.createDirectory(projOutDir);
 
             // projInDir = "out/XXX/datasets"
-            Path projInDir = Path.of("out", projName, "datasets");
+            Path projInDir = Configs.getProjInDir(projName);
 
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(projInDir)) {
                 for (Path file : stream) {
 
-                    if (file.toString().contains(ARFF_EXT)) continue;
+                    if (file.toString().contains(Configs.ARFF_EXT)) continue;
 
                     Path outFile = projOutDir.resolve(
-                            file.getFileName().toString().replace(".csv", ARFF_EXT)
+                            file.getFileName().toString().replace(".csv", Configs.ARFF_EXT)
                     );
 
                     // load CSV
@@ -59,6 +55,7 @@ public class CsvToArffConverter {
             Path finalDatasetPath = projOutDir.resolve("final_dataset.arff");
             List<String> finalDatasetLines = Files.readAllLines(finalDatasetPath);
 
+            // Align the header of all datasets
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(projOutDir)) {
                 for (Path file : stream) {
                     if (!file.toString().contains(".arff") || file.toString().contains("final_dataset") || Files.readAllLines(file).size() < 4) {
