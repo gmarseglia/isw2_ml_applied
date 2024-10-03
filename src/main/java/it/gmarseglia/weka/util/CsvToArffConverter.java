@@ -24,11 +24,11 @@ public class CsvToArffConverter {
 
         for (String projName : projects) {
             // projOutDir = "out/WEKA/XXX"
-            Path projOutDir = Configs.getProjOutDir(projName);
+            Path projOutDir = Configs.getProjWekaOutDir(projName);
             MyFileUtils.createDirectory(projOutDir);
 
             // projInDir = "out/XXX/datasets"
-            Path projInDir = Configs.getProjInDir(projName);
+            Path projInDir = Configs.getProjRawDatasetDir(projName);
 
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(projInDir)) {
                 for (Path file : stream) {
@@ -66,6 +66,11 @@ public class CsvToArffConverter {
 
                     targetLines.set(2, finalDatasetLines.get(2));
                     targetLines.set(3, finalDatasetLines.get(3));
+                    try {
+                        targetLines.set(18, "@attribute Buggy {true,false}");
+                    } catch (IndexOutOfBoundsException e){
+                        MyLogger.getInstance(CsvToArffConverter.class).logFinest(e.getMessage());
+                    }
 
                     Files.write(file, targetLines);
                 }
