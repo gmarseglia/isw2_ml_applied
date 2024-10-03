@@ -14,13 +14,16 @@ public class Configs {
     private Configs(){
     }
 
-    public static Path getProjInDir(String projName){
+    public static Path getProjRawDatasetDir(String projName){
         return Path.of("out", projName, "datasets");
     }
-    public static Path getProjOutDir(String projName){
+    public static Path getProjWekaOutDir(String projName){
         return Configs.WEKA_DIR.resolve(projName);
     }
 
+    public static Path getProjOutDir(String projName){
+        return Path.of("out", projName);
+    }
 
     public static List<String> getProjects (){
         return PROJECTS;
