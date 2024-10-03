@@ -1,29 +1,33 @@
-package it.gmarseglia.weka.experiments;
+package it.gmarseglia.weka;
 
+import it.gmarseglia.app.boundary.ToFileBoundary;
 import it.gmarseglia.app.controller.MyLogger;
+import it.gmarseglia.weka.controller.ExperimentsController;
+import it.gmarseglia.weka.entity.Experiment;
 import it.gmarseglia.weka.entity.ExperimentResult;
+import it.gmarseglia.weka.entity.ExperimentSuite;
 import it.gmarseglia.weka.util.Configs;
 import it.gmarseglia.weka.util.CsvSequentialReader;
-import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.Evaluation;
+import it.gmarseglia.weka.util.CsvToArffConverter;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
-import weka.core.WekaException;
-import weka.core.converters.ConverterUtils.DataSource;
+import weka.core.converters.ConverterUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Experiments {
-
-    private static final MyLogger logger = MyLogger.getInstance(Experiments.class);
+public class App {
+    private static final MyLogger logger = MyLogger.getInstance(ExperimentsController.class);
 
     public static void main(String[] args) throws Exception {
         List<String> projects = Configs.getProjects();
-        projects = List.of("OPENJPA");
-
+        projects = List.of("SYNCOPE", "BOOKKEEPER", "OPENJPA");
+        // projects = List.of("OPENJPA");
+        CsvToArffConverter.convertProjects(projects);
 
         logger.setVerbose(true);
         logger.setVerboseFine(true);
@@ -39,6 +43,10 @@ public class Experiments {
         Path halfVersionsCsv = Configs.getProjOutDir(projName).resolve("halfValidVersions.csv");
         List<String> halfVersions = CsvSequentialReader.getFirstColumnEntries(halfVersionsCsv);
 
+        List<ExperimentResult> allResults = new ArrayList<>();
+
+        int versionCounter = 0;
+
         // For each version
         for (String version : halfVersions) {
             logger.logFine("Project-Version: " + projName + "-" + version);
@@ -49,8 +57,8 @@ public class Experiments {
             Path trainingPath = Configs.getProjWekaOutDir(projName).resolve(trainingFilename);
             Instances training;
             try {
-                training = DataSource.read(trainingPath.toString());
-                if (training == null) continue;
+                training = ConverterUtils.DataSource.read(trainingPath.toString());
+                if (training == null || training.numInstances() < 2) continue;
             } catch (Exception e) {
                 logger.logFinest("File not found: " + trainingFilename);
                 continue;
@@ -62,7 +70,7 @@ public class Experiments {
             Path testingPath = Configs.getProjWekaOutDir(projName).resolve(testingFilename);
             Instances testing;
             try {
-                testing = DataSource.read(testingPath.toString());
+                testing = ConverterUtils.DataSource.read(testingPath.toString());
                 if (testing == null) continue;
             } catch (Exception e) {
                 logger.logFinest("File not found: " + testingFilename);
@@ -70,50 +78,35 @@ public class Experiments {
             }
 
             // Delete the column with name
-            training.deleteAttributeAt(1);
-            testing.deleteAttributeAt(1);
+            // training.deleteAttributeAt(1);
+            // testing.deleteAttributeAt(1);
 
             // Set the last attribute as the one to be predicted
             int numAttr = training.numAttributes();
             training.setClassIndex(numAttr - 1);
             testing.setClassIndex(numAttr - 1);
 
-            // Choose the classifier
-            String classifierName = "RandomForest";
-            Classifier classifier = new RandomForest();
+            // Create the experiment suite
+            ExperimentSuite suite = new ExperimentSuite(projName, String.format("(%02d)-%s", versionCounter++, version), training, testing);
 
+            suite.add(new Experiment("ZeroR", new ZeroR()));
+            suite.add(new Experiment("Random Forest", new RandomForest()));
+            suite.add(new Experiment("Naive Bayes", new NaiveBayes()));
+            suite.add(new Experiment("IBk", new IBk()));
 
-            // Classifier classifier = new ZeroR();
-            // Classifier classifier = new IBk();
-            // Classifier classifier = new NaiveBayes();
+            ExperimentsController ec = ExperimentsController.getInstance();
 
+            ec.processExperimentSuite(suite);
 
-            // Create a list of experiment results
-            List<ExperimentResult> results = new ArrayList<>();
-
-            try {
-                // Build and train the classifier
-                classifier.buildClassifier(training);
-
-                // Evaluate the classifier against the testing set, without sampling
-                Evaluation eval = new Evaluation(testing);
-                eval.evaluateModel(classifier, testing);
-
-                double correctPercentage = eval.pctCorrect();
-                double recall = eval.recall(1);
-                double precision = eval.precision(1);
-
-                logger.logFine("Correct percentage: " + eval.pctCorrect());
-                logger.logFine("Precision: " + eval.precision(1));
-                logger.logFine("Recall: " + eval.recall(1));
-
-                results.add(new ExperimentResult(classifierName, projName + "-" + version, correctPercentage, recall, precision));
-
-            } catch (WekaException e) {
-                logger.logFine(e.getMessage());
+            for (Experiment experiment : suite.getExperiments()) {
+                logger.logFine(experiment.getResult().toString());
+                allResults.add(experiment.getResult());
             }
-
-            logger.log("");
         }
+
+        ToFileBoundary.writeList(allResults, Configs.getProjWekaOutDir("EXPERIMENTS"), projName + "-RESULTS.csv");
+
     }
+
+
 }

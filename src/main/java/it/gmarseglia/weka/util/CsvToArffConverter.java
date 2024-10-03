@@ -15,9 +15,7 @@ import java.util.List;
 
 public class CsvToArffConverter {
 
-
-    public static void main(String[] args) throws IOException {
-        List<String> projects = Configs.getProjects();
+    public static void convertProjects(List<String> projects) throws IOException {
 
         // Create WEKA output directory
         MyFileUtils.createDirectory(Configs.WEKA_DIR);

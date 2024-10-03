@@ -8,6 +8,8 @@ import java.util.List;
 
 public class ExperimentResult implements Exportable {
 
+    private static final DecimalFormat DF = new DecimalFormat("0.00");
+
     private String experimentName;
     private String version;
     private double correctPercentage;
@@ -23,6 +25,17 @@ public class ExperimentResult implements Exportable {
     }
 
     @Override
+    public String toString() {
+        return "ExperimentResult{" +
+                "experimentName='" + experimentName + '\'' +
+                ", version='" + version + '\'' +
+                ", correctPercentage=" + DF.format(correctPercentage) +
+                ", recall=" + DF.format(recall) +
+                ", precision=" + DF.format(precision) +
+                '}';
+    }
+
+    @Override
     public List<String> getFieldsNames() {
         return List.of("Experiment name", "Version",
                 "Correct Percentage",
@@ -32,10 +45,10 @@ public class ExperimentResult implements Exportable {
 
     @Override
     public List<Serializable> getFieldsValues() {
-        DecimalFormat df = new DecimalFormat("0.00");
+
         return List.of(experimentName, version,
-                df.format(correctPercentage),
-                df.format(recall),
-                df.format(precision));
+                DF.format(correctPercentage),
+                DF.format(recall),
+                DF.format(precision));
     }
 }
