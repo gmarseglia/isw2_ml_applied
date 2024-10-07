@@ -47,7 +47,8 @@ public class ExperimentsController {
                 double correctPercentage = eval.pctCorrect();
                 double recall = eval.recall(0);
                 double precision = eval.precision(0);
-
+                double auc = eval.areaUnderROC(0);
+                double kappa = eval.kappa();
 
                 // logger.logFine("Correct percentage: " + eval.pctCorrect());
                 // logger.logFine("Precision: " + eval.precision(1));
@@ -56,7 +57,7 @@ public class ExperimentsController {
                 ExperimentResult result = new ExperimentResult(
                         experiment.getClassifierName(),
                         suite.getProjName() + "-" + suite.getVersionaName(),
-                        correctPercentage, recall, precision, distribution);
+                        correctPercentage, recall, precision, auc, kappa, distribution);
 
                 experiment.setResult(result);
 

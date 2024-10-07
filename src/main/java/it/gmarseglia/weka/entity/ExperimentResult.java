@@ -15,14 +15,18 @@ public class ExperimentResult implements Exportable {
     private final double correctPercentage;
     private final double recall;
     private final double precision;
+    private final double auc;
+    private final double kappa;
     private final double distribution;
 
-    public ExperimentResult(String experimentName, String version, double correctPercentage, double recall, double precision, double distribution) {
+    public ExperimentResult(String experimentName, String version, double correctPercentage, double recall, double precision, double auc, double kappa, double distribution) {
         this.experimentName = experimentName;
         this.version = version;
         this.correctPercentage = correctPercentage;
         this.recall = recall;
         this.precision = precision;
+        this.auc = auc;
+        this.kappa = kappa;
         this.distribution = distribution;
     }
 
@@ -34,6 +38,8 @@ public class ExperimentResult implements Exportable {
                 ", correctPercentage=" + DF.format(correctPercentage) +
                 ", recall=" + DF.format(recall) +
                 ", precision=" + DF.format(precision) +
+                ", auc=" + DF.format(auc) +
+                ", kappa=" + DF.format(kappa) +
                 ", distribution=" + DF.format(distribution) +
                 '}';
     }
@@ -44,6 +50,8 @@ public class ExperimentResult implements Exportable {
                 "Correct Percentage",
                 "Recall",
                 "Precision",
+                "AUC",
+                "Kappa",
                 "Distribution");
     }
 
@@ -54,6 +62,8 @@ public class ExperimentResult implements Exportable {
                 DF.format(correctPercentage),
                 DF.format(recall),
                 DF.format(precision),
+                DF.format(auc),
+                DF.format(kappa),
                 DF.format(distribution));
     }
 }
