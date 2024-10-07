@@ -2,37 +2,58 @@ package it.gmarseglia.weka.controller;
 
 import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.weka.entity.Experiment;
+import it.gmarseglia.weka.entity.ExperimentPlan;
 import it.gmarseglia.weka.entity.ExperimentResult;
 import it.gmarseglia.weka.entity.ExperimentSuite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
 import weka.core.AttributeStats;
 import weka.core.WekaException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ExperimentsController {
 
+    private static final Map<String, ExperimentsController> instances = new HashMap<>();
     private static final MyLogger logger = MyLogger.getInstance(ExperimentsController.class);
-    private static ExperimentsController instance = null;
+    private static final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
+    private final String projName;
 
-    private ExperimentsController() {
+
+    private ExperimentsController(String projName) {
+        this.projName = projName;
     }
 
-    public static ExperimentsController getInstance() {
-        if (instance == null) {
-            instance = new ExperimentsController();
+    public static ExperimentsController getInstance(String projName) {
+        ExperimentsController.instances.computeIfAbsent(projName, String -> new ExperimentsController(projName));
+        return ExperimentsController.instances.get(projName);
+    }
+
+    public void processExperimentPlan(ExperimentPlan plan) {
+
+        while (!plan.getSuites().isEmpty()) {
+            ExperimentSuite suite = plan.getSuites().getFirst();
+            logger.logFine("Processing suite: " + String.format("%s-%d_(%s)-%s", projName, suite.getVersionCounter(), suite.getVersion(), suite.getName()));
+            processExperimentSuite(suite);
+            plan.addResultsFromSuite(suite);
+            plan.getSuites().removeFirst();
         }
-        return instance;
+        
     }
 
-    public void processExperimentSuite(ExperimentSuite suite) throws Exception {
+
+    public void processExperimentSuite(ExperimentSuite suite) {
         try {
             // get the last attribute as the label
             Attribute label = suite.getTrainingSet().attribute(suite.getTrainingSet().numAttributes() - 1);
 
-            // compute the percentage of "non buggy" classes over the total
+            // compute the percentage of "buggy" classes over the total
             AttributeStats labelStats = suite.getTrainingSet().attributeStats(label.index());
-            int nonBuggyCount = labelStats.nominalCounts[1];
+            int nonBuggyCount = labelStats.nominalCounts[0];
             double distribution = (nonBuggyCount * 100D / labelStats.totalCount);
 
             for (Experiment experiment : suite.getExperiments()) {
@@ -50,20 +71,17 @@ public class ExperimentsController {
                 double auc = eval.areaUnderROC(0);
                 double kappa = eval.kappa();
 
-                // logger.logFine("Correct percentage: " + eval.pctCorrect());
-                // logger.logFine("Precision: " + eval.precision(1));
-                // logger.logFine("Recall: " + eval.recall(1));
-
                 ExperimentResult result = new ExperimentResult(
-                        experiment.getClassifierName(),
-                        suite.getProjName() + "-" + suite.getVersionaName(),
-                        correctPercentage, recall, precision, auc, kappa, distribution);
+                        correctPercentage, recall, precision, auc, kappa, distribution
+                );
 
                 experiment.setResult(result);
 
             }
         } catch (WekaException e) {
             logger.logFine(e.getMessage());
+        } catch (Exception e) {
+            logger.logFine("Generic Exception: " + e.getMessage());
         }
     }
 

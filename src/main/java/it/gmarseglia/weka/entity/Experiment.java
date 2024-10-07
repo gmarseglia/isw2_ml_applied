@@ -4,13 +4,13 @@ import weka.classifiers.Classifier;
 
 public class Experiment {
 
-    private String classifierName;
-    private Classifier classifier;
+    private final String classifierName;
+    private final Classifier classifier;
     private ExperimentResult result;
 
-    public Experiment(String classifierName, Classifier classifer) {
+    public Experiment(String classifierName, Classifier classifier) {
         this.classifierName = classifierName;
-        this.classifier = classifer;
+        this.classifier = classifier;
     }
 
     public String getClassifierName() {

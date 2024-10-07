@@ -9,19 +9,18 @@ import java.util.List;
 public class ExperimentResult implements Exportable {
 
     private static final DecimalFormat DF = new DecimalFormat("0.00");
-
-    private final String experimentName;
-    private final String version;
+    private static final DecimalFormat DF_INT = new DecimalFormat("00");
     private final double correctPercentage;
     private final double recall;
     private final double precision;
     private final double auc;
     private final double kappa;
     private final double distribution;
+    private String experimentName;
+    private int versionCounter;
+    private String experimentType;
 
-    public ExperimentResult(String experimentName, String version, double correctPercentage, double recall, double precision, double auc, double kappa, double distribution) {
-        this.experimentName = experimentName;
-        this.version = version;
+    public ExperimentResult(double correctPercentage, double recall, double precision, double auc, double kappa, double distribution) {
         this.correctPercentage = correctPercentage;
         this.recall = recall;
         this.precision = precision;
@@ -30,11 +29,26 @@ public class ExperimentResult implements Exportable {
         this.distribution = distribution;
     }
 
+    public String getExperimentName() {
+        return experimentName;
+    }
+
+    public void setExperimentName(String experimentName) {
+        this.experimentName = experimentName;
+    }
+
+    public void setVersionCounter(int versionCounter) {
+        this.versionCounter = versionCounter;
+    }
+
+    public void setExperimentType(String experimentType) {
+        this.experimentType = experimentType;
+    }
+
     @Override
     public String toString() {
         return "ExperimentResult{" +
                 "experimentName='" + experimentName + '\'' +
-                ", version='" + version + '\'' +
                 ", correctPercentage=" + DF.format(correctPercentage) +
                 ", recall=" + DF.format(recall) +
                 ", precision=" + DF.format(precision) +
@@ -46,7 +60,9 @@ public class ExperimentResult implements Exportable {
 
     @Override
     public List<String> getFieldsNames() {
-        return List.of("Experiment name", "Version",
+        return List.of("Experiment name",
+                "VersionCounter",
+                "Type",
                 "Correct Percentage",
                 "Recall",
                 "Precision",
@@ -58,7 +74,9 @@ public class ExperimentResult implements Exportable {
     @Override
     public List<Serializable> getFieldsValues() {
 
-        return List.of(experimentName, version,
+        return List.of(experimentName,
+                DF_INT.format(versionCounter),
+                experimentType,
                 DF.format(correctPercentage),
                 DF.format(recall),
                 DF.format(precision),

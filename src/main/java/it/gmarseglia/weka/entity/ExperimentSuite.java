@@ -7,15 +7,17 @@ import java.util.List;
 
 public class ExperimentSuite {
 
-    private String projName;
-    private String versionaName;
+    private int versionCounter;
+    private String version;
+    private String name;
     private Instances trainingSet;
     private Instances testingSet;
     private List<Experiment> experiments = new ArrayList<>();
 
-    public ExperimentSuite(String projName, String versionaName, Instances trainingSet, Instances testingSet) {
-        this.projName = projName;
-        this.versionaName = versionaName;
+    public ExperimentSuite(int versionCounter, String version, String name, Instances trainingSet, Instances testingSet) {
+        this.versionCounter = versionCounter;
+        this.version = version;
+        this.name = name;
         this.trainingSet = trainingSet;
         this.testingSet = testingSet;
     }
@@ -28,16 +30,24 @@ public class ExperimentSuite {
         this.experiments.add(experiment);
     }
 
-    public String getProjName() {
-        return projName;
+    public int getVersionCounter() {
+        return versionCounter;
     }
 
-    public String getVersionaName() {
-        return versionaName;
+    public String getVersion() {
+        return version;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Instances getTrainingSet() {
         return trainingSet;
+    }
+
+    public void setTrainingSet(Instances trainingSet) {
+        this.trainingSet = trainingSet;
     }
 
     public Instances getTestingSet() {
