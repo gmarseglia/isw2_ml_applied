@@ -49,6 +49,8 @@ public class MetricsController {
         long expectedSize = cleanAllEntries.size();
         Instant begin = Instant.now();
 
+        boolean useStepMetrics = ConfigsController.getPropertyUseStepMetrics();
+
         for (Entry entry : cleanAllEntries) {
 
             if (logger.getAnyVerboseFine()) {
@@ -81,13 +83,16 @@ public class MetricsController {
             // get all commits for the path corresponding to the entry
             entryCommits = GitController.getInstance(projName).getRevCommitsFromPath(entry.getPath());
 
+            // option to toggle between step and storic metrics
+
+
             // get all commits for the path and the version
             entryLastVersionCommits = entryCommits
                     .stream()
-                    .filter(revCommit -> revCommit.getAuthorIdent().getWhen().compareTo(targetEntry.getVersion().getGithubReleaseDate()) <= 0)
+                    .filter(revCommit -> revCommit.getAuthorIdent().getWhen().compareTo(targetEntry.getVersion().getJiraReleaseDate()) <= 0)
                     .filter(revCommit -> {
-                        if (previousVersion != null) {
-                            return revCommit.getAuthorIdent().getWhen().compareTo(previousVersion.getGithubReleaseDate()) > 0;
+                        if (useStepMetrics && previousVersion != null) {
+                            return revCommit.getAuthorIdent().getWhen().compareTo(previousVersion.getJiraReleaseDate()) > 0;
                         } else {
                             return true;
                         }
@@ -152,7 +157,8 @@ public class MetricsController {
         long Age;
         long stepAge;
 
-        Date firstCommitDate = GitController.getInstance(projName).getFirstCommit().getAuthorIdent().getWhen();
+        // Date firstCommitDate = GitController.getInstance(projName).getFirstCommit().getAuthorIdent().getWhen();
+        Date firstCommitDate = halfVersions.getFirst().getGithubReleaseDate();
         Date versionGithubReleaseDate = targetEntry.getVersion().getGithubReleaseDate();
         Date previousVersionGithubReleaseDate = previousVersion == null ? firstCommitDate : previousVersion.getGithubReleaseDate();
 

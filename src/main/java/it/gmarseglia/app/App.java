@@ -19,9 +19,9 @@ public class App {
         MyLogger.setStaticVerboseFinest(false);
 
         Map<String, Boolean> configurations = new LinkedHashMap<>();
-        configurations.put("BOOKKEEPER", false);
+        configurations.put("BOOKKEEPER", true);
 //        configurations.put("AVRO", false);
-//        configurations.put("OPENJPA", false);
+       configurations.put("OPENJPA", true);
 //        configurations.put("STORM", false);
 //        configurations.put("ZOOKEEPER", false);
 //        configurations.put("SYNCOPE", false);
