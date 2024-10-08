@@ -5,13 +5,10 @@ import it.gmarseglia.weka.entity.Experiment;
 import it.gmarseglia.weka.entity.ExperimentPlan;
 import it.gmarseglia.weka.entity.ExperimentResult;
 import it.gmarseglia.weka.entity.ExperimentSuite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
 import weka.core.AttributeStats;
-import weka.core.WekaException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +17,6 @@ public class ExperimentsController {
 
     private static final Map<String, ExperimentsController> instances = new HashMap<>();
     private static final MyLogger logger = MyLogger.getInstance(ExperimentsController.class);
-    private static final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
     private final String projName;
 
 
@@ -29,7 +25,7 @@ public class ExperimentsController {
     }
 
     public static ExperimentsController getInstance(String projName) {
-        ExperimentsController.instances.computeIfAbsent(projName, String -> new ExperimentsController(projName));
+        ExperimentsController.instances.computeIfAbsent(projName, s -> new ExperimentsController(projName));
         return ExperimentsController.instances.get(projName);
     }
 
@@ -42,21 +38,23 @@ public class ExperimentsController {
             plan.addResultsFromSuite(suite);
             plan.getSuites().removeFirst();
         }
-        
+
     }
 
 
     public void processExperimentSuite(ExperimentSuite suite) {
-        try {
-            // get the last attribute as the label
-            Attribute label = suite.getTrainingSet().attribute(suite.getTrainingSet().numAttributes() - 1);
+        // get the last attribute as the label
+        Attribute label = suite.getTrainingSet().attribute(suite.getTrainingSet().numAttributes() - 1);
 
-            // compute the percentage of "buggy" classes over the total
-            AttributeStats labelStats = suite.getTrainingSet().attributeStats(label.index());
-            int nonBuggyCount = labelStats.nominalCounts[0];
-            double distribution = (nonBuggyCount * 100D / labelStats.totalCount);
+        // compute the percentage of "buggy" classes over the total
+        AttributeStats labelStats = suite.getTrainingSet().attributeStats(label.index());
+        int buggyCount = labelStats.nominalCounts[0];
+        double distribution = (buggyCount * 100D / labelStats.totalCount);
 
-            for (Experiment experiment : suite.getExperiments()) {
+        for (Experiment experiment : suite.getExperiments()) {
+            try {
+                logger.logFine("\tExperiment: " + experiment.getClassifierName());
+
                 // Build and train the classifier
                 Classifier classifier = experiment.getClassifier();
                 classifier.buildClassifier(suite.getTrainingSet());
@@ -76,13 +74,12 @@ public class ExperimentsController {
                 );
 
                 experiment.setResult(result);
-
+            } catch (Exception e) {
+                logger.log(String.format("Generic exception during experiment %s: %s", experiment.getClassifierName(), e));
             }
-        } catch (WekaException e) {
-            logger.logFine(e.getMessage());
-        } catch (Exception e) {
-            logger.logFine("Generic Exception: " + e.getMessage());
         }
+
+
     }
 
 }
