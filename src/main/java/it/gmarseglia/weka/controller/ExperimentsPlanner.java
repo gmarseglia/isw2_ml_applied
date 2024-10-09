@@ -288,8 +288,8 @@ public class ExperimentsPlanner {
         double weightFalseNegative = 10.0;
         CostMatrix costMatrix = new CostMatrix(2);
         costMatrix.setCell(0, 0, 0.0);
-        costMatrix.setCell(1, 0, weightFalseNegative);
-        costMatrix.setCell(0, 1, weightFalsePositive);
+        costMatrix.setCell(1, 0, weightFalsePositive);
+        costMatrix.setCell(0, 1, weightFalseNegative);
         costMatrix.setCell(1, 1, 0.0);
 
         try {
