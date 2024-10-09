@@ -50,7 +50,7 @@ public class ExperimentsController {
 
         for (Experiment experiment : suite.getExperiments()) {
             try {
-                logger.logFine("\tExperiment: " + experiment.getClassifierName());
+                logger.logFine("\tExperiment: " + experiment.getClassifierName() + "-" + experiment.getClassifierModifier());
 
                 // Build and train the classifier
                 Classifier classifier = experiment.getClassifier();
@@ -84,8 +84,12 @@ public class ExperimentsController {
 
     private void exportExperimentForAcume(ExperimentSuite suite, Experiment experiment) {
         DecimalFormat df = new DecimalFormat("00");
-        String extendedExperimentName = String.format("%s-%s_v%s-%s-%s",
-                projName, df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"), suite.getName(), experiment.getClassifierName());
+        String extendedExperimentName = String.format("%s-%s_v%s-%s-%s-%s",
+                projName,
+                df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"),
+                suite.getName(),
+                experiment.getClassifierName(),
+                experiment.getClassifierModifier());
 
         logger.logFinest("\tACUME for: " + extendedExperimentName);
 

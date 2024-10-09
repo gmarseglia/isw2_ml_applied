@@ -8,18 +8,24 @@ import java.util.List;
 public class Experiment {
 
     private final String classifierName;
+    private final String classifierModifier;
     private final Classifier classifier;
     private ExperimentResult result;
     private List<Prediction> predictions;
 
-    public Experiment(String classifierName, Classifier classifier) {
+    public Experiment(String classifierName, String classifierModifier, Classifier classifier) {
         this.classifierName = classifierName;
+        this.classifierModifier = classifierModifier;
         this.classifier = classifier;
         this.predictions = new ArrayList<>();
     }
 
     public String getClassifierName() {
         return classifierName;
+    }
+
+    public String getClassifierModifier() {
+        return classifierModifier;
     }
 
     public Classifier getClassifier() {
@@ -45,8 +51,9 @@ public class Experiment {
     @Override
     public String toString() {
         return "Experiment{" +
-                "classifierName='" + classifierName + "\t" + '\'' +
-                ", result=" + result +
+                "classifierName='" + classifierName + '\'' +
+                ", classifierModifier='" + classifierModifier + '\'' +
+                ", classifier=" + classifier +
                 '}';
     }
 }

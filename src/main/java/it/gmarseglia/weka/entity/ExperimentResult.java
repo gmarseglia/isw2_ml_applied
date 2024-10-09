@@ -20,6 +20,7 @@ public class ExperimentResult implements Exportable {
     private int versionCounter;
     private String experimentType;
     private String classifierName;
+    private String classifierModifier;
 
     public ExperimentResult(double correctPercentage, double recall, double precision, double auc, double kappa, double distribution) {
         this.correctPercentage = correctPercentage;
@@ -50,6 +51,10 @@ public class ExperimentResult implements Exportable {
         this.classifierName = classifierName;
     }
 
+    public void setClassifierModifier(String classifierModifier) {
+        this.classifierModifier = classifierModifier;
+    }
+
     @Override
     public String toString() {
         return "ExperimentResult{" +
@@ -68,6 +73,7 @@ public class ExperimentResult implements Exportable {
         return List.of("Experiment name",
                 "VersionCounter",
                 "ClassifierName",
+                "ClassifierModifier",
                 "Type",
                 "Correct Percentage",
                 "Recall",
@@ -79,10 +85,10 @@ public class ExperimentResult implements Exportable {
 
     @Override
     public List<Serializable> getFieldsValues() {
-
         return List.of(experimentName,
                 DF_INT.format(versionCounter),
                 classifierName,
+                classifierModifier,
                 experimentType,
                 DF.format(correctPercentage / 100D),
                 DF.format(recall),

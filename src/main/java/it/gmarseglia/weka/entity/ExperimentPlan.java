@@ -29,11 +29,16 @@ public class ExperimentPlan {
             ExperimentResult result = experiment.getResult();
             if (result != null) {
                 DecimalFormat df = new DecimalFormat("00");
-                String extendedExperimentName = String.format("%s-%s_v%s-%s-%s",
-                        projName, df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"), suite.getName(), experiment.getClassifierName());
+                String extendedExperimentName = String.format("%s-%s_v%s-%s-%s-%s",
+                        projName,
+                        df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"),
+                        suite.getName(),
+                        experiment.getClassifierName(),
+                        experiment.getClassifierModifier());
                 result.setExperimentName(extendedExperimentName);
                 result.setExperimentType(suite.getName());
                 result.setClassifierName(experiment.getClassifierName());
+                result.setClassifierModifier(experiment.getClassifierModifier());
                 result.setVersionCounter(suite.getVersionCounter());
                 this.allResults.add(experiment.getResult());
             }

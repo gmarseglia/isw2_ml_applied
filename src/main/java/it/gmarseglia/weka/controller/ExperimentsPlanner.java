@@ -164,8 +164,8 @@ public class ExperimentsPlanner {
     private void addNAIVESuite() {
         ExperimentSuite suite = getBaseSuite("NAIVE");
 
-        suite.add(new Experiment("ZeroR", new ZeroR()));
-        suite.add(new Experiment("OneR", new OneR()));
+        suite.add(new Experiment("ZeroR", "no", new ZeroR()));
+        suite.add(new Experiment("OneR", "no", new OneR()));
 
         plan.addSuite(suite);
     }
@@ -173,9 +173,9 @@ public class ExperimentsPlanner {
     private void addSIMPLESuite() {
         ExperimentSuite suite = getBaseSuite("SIMPLE");
 
-        suite.add(new Experiment("Random_Forest", new RandomForest()));
-        suite.add(new Experiment("Naive_Bayes", new NaiveBayes()));
-        suite.add(new Experiment("IBk", new IBk()));
+        suite.add(new Experiment("Random_Forest", "no", new RandomForest()));
+        suite.add(new Experiment("Naive_Bayes", "no", new NaiveBayes()));
+        suite.add(new Experiment("IBk", "no", new IBk()));
 
         plan.addSuite(suite);
     }
@@ -192,7 +192,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(spreadSubsample);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-under_sampling", filteredClassifier));
+                suite.add(new Experiment(entry.getKey(), "under_sampling", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during under sample: " + e);
@@ -221,7 +221,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(resample);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-over_sampling", filteredClassifier));
+                suite.add(new Experiment(entry.getKey(), "over_sampling", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception, during over sample: " + e);
@@ -235,7 +235,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(smote);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-SMOTE", filteredClassifier));
+                suite.add(new Experiment(entry.getKey(), "SMOTE", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception, during SMOTE: " + e);
@@ -271,7 +271,7 @@ public class ExperimentsPlanner {
             suite.setUnfilteredTestingSet(testingSet);
 
             for (Map.Entry<String, Classifier> entry : getBaseClassifiersMap().entrySet()) {
-                suite.add(new Experiment(entry.getKey() + "-feature_selection", entry.getValue()));
+                suite.add(new Experiment(entry.getKey(), "feature_selection", entry.getValue()));
             }
 
             plan.addSuite(suite);
@@ -298,7 +298,7 @@ public class ExperimentsPlanner {
                 classifier.setClassifier(entry.getValue());
                 classifier.setCostMatrix(costMatrix);
                 classifier.setMinimizeExpectedCost(true);
-                suite.add(new Experiment(entry.getKey() + "-sensitivity_threshold", classifier));
+                suite.add(new Experiment(entry.getKey(), "sensitivity_threshold", classifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during sensitivity threshold: " + e);
@@ -310,7 +310,7 @@ public class ExperimentsPlanner {
                 classifier.setClassifier(entry.getValue());
                 classifier.setCostMatrix(costMatrix);
                 classifier.setMinimizeExpectedCost(false);
-                suite.add(new Experiment(entry.getKey() + "-sensitivity_learning", classifier));
+                suite.add(new Experiment(entry.getKey(), "sensitivity_learning", classifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during sensitivity learning: " + e);
