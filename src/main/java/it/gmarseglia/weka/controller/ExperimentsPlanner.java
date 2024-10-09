@@ -92,7 +92,7 @@ public class ExperimentsPlanner {
             actualVersion = versionName;
             versionCounter++;
 
-            String extendedVersionName = String.format("%s-%d_(%s)", projName, versionCounter, actualVersion);
+            String extendedVersionName = String.format("%s-%d_v%s", projName, versionCounter, actualVersion);
             logger.logFine("Creating suite for: " + extendedVersionName);
 
             planVersion();
@@ -192,7 +192,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(spreadSubsample);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-[under_sampling]", filteredClassifier));
+                suite.add(new Experiment(entry.getKey() + "-under_sampling", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during under sample: " + e);
@@ -221,7 +221,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(resample);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-[over_sampling]", filteredClassifier));
+                suite.add(new Experiment(entry.getKey() + "-over_sampling", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception, during over sample: " + e);
@@ -235,7 +235,7 @@ public class ExperimentsPlanner {
                 FilteredClassifier filteredClassifier = new FilteredClassifier();
                 filteredClassifier.setFilter(smote);
                 filteredClassifier.setClassifier(entry.getValue());
-                suite.add(new Experiment(entry.getKey() + "-[SMOTE]", filteredClassifier));
+                suite.add(new Experiment(entry.getKey() + "-SMOTE", filteredClassifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception, during SMOTE: " + e);
@@ -268,8 +268,10 @@ public class ExperimentsPlanner {
 
             ExperimentSuite suite = new ExperimentSuite(versionCounter, actualVersion, "FEATURE_SELECTION", filteredTrainingSet, filteredTestingSet);
 
+            suite.setUnfilteredTestingSet(testingSet);
+
             for (Map.Entry<String, Classifier> entry : getBaseClassifiersMap().entrySet()) {
-                suite.add(new Experiment(entry.getKey() + "-[feature_selection]", entry.getValue()));
+                suite.add(new Experiment(entry.getKey() + "-feature_selection", entry.getValue()));
             }
 
             plan.addSuite(suite);
@@ -296,7 +298,7 @@ public class ExperimentsPlanner {
                 classifier.setClassifier(entry.getValue());
                 classifier.setCostMatrix(costMatrix);
                 classifier.setMinimizeExpectedCost(true);
-                suite.add(new Experiment(entry.getKey() + "-[sensitivity_threshold]", classifier));
+                suite.add(new Experiment(entry.getKey() + "-sensitivity_threshold", classifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during sensitivity threshold: " + e);
@@ -308,7 +310,7 @@ public class ExperimentsPlanner {
                 classifier.setClassifier(entry.getValue());
                 classifier.setCostMatrix(costMatrix);
                 classifier.setMinimizeExpectedCost(false);
-                suite.add(new Experiment(entry.getKey() + "-[sensitivity_learning]", classifier));
+                suite.add(new Experiment(entry.getKey() + "-sensitivity_learning", classifier));
             }
         } catch (Exception e) {
             logger.log("Generic exception during sensitivity learning: " + e);

@@ -2,17 +2,19 @@ package it.gmarseglia.weka.entity;
 
 import weka.core.Instances;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExperimentSuite {
 
-    private int versionCounter;
-    private String version;
-    private String name;
+    private final int versionCounter;
+    private final String version;
+    private final String name;
+    private final Instances testingSet;
+    private final List<Experiment> experiments = new ArrayList<>();
     private Instances trainingSet;
-    private Instances testingSet;
-    private List<Experiment> experiments = new ArrayList<>();
+    private Instances unfilteredTestingSet;
 
     public ExperimentSuite(int versionCounter, String version, String name, Instances trainingSet, Instances testingSet) {
         this.versionCounter = versionCounter;
@@ -52,5 +54,17 @@ public class ExperimentSuite {
 
     public Instances getTestingSet() {
         return testingSet;
+    }
+
+    public Instances getUnfilteredTestingSet() {
+        if (unfilteredTestingSet != null) {
+            return unfilteredTestingSet;
+        } else {
+            return getTestingSet();
+        }
+    }
+
+    public void setUnfilteredTestingSet(Instances unfilteredTestingSet) {
+        this.unfilteredTestingSet = unfilteredTestingSet;
     }
 }

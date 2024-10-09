@@ -16,7 +16,6 @@ public class App {
     public static void main(String[] args) throws Exception {
         List<String> projects = Configs.getProjects();
         projects = List.of("BOOKKEEPER", "OPENJPA");
-        // projects = List.of("BOOKKEEPER");
         CsvToArffConverter.convertProjects(projects);
 
         logger.setVerbose(true);
@@ -33,7 +32,6 @@ public class App {
         ExperimentsController.getInstance(projName).processExperimentPlan(plan);
 
         ToFileBoundary.writeList(plan.getAllResults(), Configs.getProjWekaOutDir("EXPERIMENTS"), projName + "-RESULTS.csv");
-
     }
 
 

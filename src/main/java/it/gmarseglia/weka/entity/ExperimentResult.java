@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ExperimentResult implements Exportable {
 
-    private static final DecimalFormat DF = new DecimalFormat("0.00");
+    private static final DecimalFormat DF = new DecimalFormat("0.000");
     private static final DecimalFormat DF_INT = new DecimalFormat("00");
     private final double correctPercentage;
     private final double recall;
@@ -19,6 +19,7 @@ public class ExperimentResult implements Exportable {
     private String experimentName;
     private int versionCounter;
     private String experimentType;
+    private String classifierName;
 
     public ExperimentResult(double correctPercentage, double recall, double precision, double auc, double kappa, double distribution) {
         this.correctPercentage = correctPercentage;
@@ -45,6 +46,10 @@ public class ExperimentResult implements Exportable {
         this.experimentType = experimentType;
     }
 
+    public void setClassifierName(String classifierName) {
+        this.classifierName = classifierName;
+    }
+
     @Override
     public String toString() {
         return "ExperimentResult{" +
@@ -62,6 +67,7 @@ public class ExperimentResult implements Exportable {
     public List<String> getFieldsNames() {
         return List.of("Experiment name",
                 "VersionCounter",
+                "ClassifierName",
                 "Type",
                 "Correct Percentage",
                 "Recall",
@@ -76,12 +82,13 @@ public class ExperimentResult implements Exportable {
 
         return List.of(experimentName,
                 DF_INT.format(versionCounter),
+                classifierName,
                 experimentType,
-                DF.format(correctPercentage),
+                DF.format(correctPercentage / 100D),
                 DF.format(recall),
                 DF.format(precision),
                 DF.format(auc),
                 DF.format(kappa),
-                DF.format(distribution));
+                DF.format(distribution / 100D));
     }
 }

@@ -1,5 +1,6 @@
 package it.gmarseglia.weka.entity;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +28,12 @@ public class ExperimentPlan {
         for (Experiment experiment : suite.getExperiments()) {
             ExperimentResult result = experiment.getResult();
             if (result != null) {
-                String extendedExperimentName = String.format("%s-%d_(%s)-%s-%s",
-                        projName, suite.getVersionCounter(), suite.getVersion(), suite.getName(), experiment.getClassifierName());
+                DecimalFormat df = new DecimalFormat("00");
+                String extendedExperimentName = String.format("%s-%s_v%s-%s-%s",
+                        projName, df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"), suite.getName(), experiment.getClassifierName());
                 result.setExperimentName(extendedExperimentName);
-                result.setExperimentType(String.format("%s-%s", suite.getName(), experiment.getClassifierName()));
+                result.setExperimentType(suite.getName());
+                result.setClassifierName(experiment.getClassifierName());
                 result.setVersionCounter(suite.getVersionCounter());
                 this.allResults.add(experiment.getResult());
             }
