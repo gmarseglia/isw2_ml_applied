@@ -41,7 +41,7 @@ public class ProportionController {
                     .toList()
                     .iterator();
 
-            float P = 1;
+            float p = 1;
             int updates = 0;
 
             while (issueIterator.hasNext()) {
@@ -54,9 +54,9 @@ public class ProportionController {
                     float newP = (i.FVIndex() - i.IVIndex()) / den;
                     // in place average update
                     updates = updates + 1;
-                    P = P + ((float) 1 / updates) * (newP - P);
+                    p = p + ((float) 1 / updates) * (newP - p);
 
-                    float finalP = P;
+                    float finalP = p;
                     int finalUpdates = updates;
                     logger.logFinest(String.format("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f",
                                     i.getKey(),
@@ -71,7 +71,7 @@ public class ProportionController {
                 // Paper: 1.8089F
                 // Weighted avg: (1.386 * 66 + 1.674 * 597 + 2.154 * 631 + 2.553 * 315 + 2.432 * 630 + 1.438 * 494 + 1.420 * 104) / (66 + 597 + 631 + 315 + 630 + 494 + 104) = 1.98957878F
                 // Avg: (1.386 + 1.674 + 2.154 + 2.553 + 2.432 + 1.438 + 1.420) / 7 = 1.865285714F
-                float actualP = (updates <= 5) ? 1.8089F : P;
+                float actualP = (updates <= 5) ? 1.8089F : p;
 
                 float predictedIV = (float) i.FVIndex() - step * actualP;
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
@@ -89,7 +89,7 @@ public class ProportionController {
 
             logger.log(String.format("Actually proportioned %d issues which didn't have explicit IV.", proportionedIssues));
 
-            logger.log(String.format("Finally computed P=%.3f on %d updated.", P, updates));
+            logger.log(String.format("Finally computed P=%.3f on %d updated.", p, updates));
 
             ToFileBoundary.writeListProj(this.totalProportionedIssues, projName, "totalProportionedIssue.csv");
         }
@@ -116,7 +116,7 @@ public class ProportionController {
 
             Iterator<Issue> issueIterator = baseList.iterator();
 
-            float P = 1;
+            float p = 1;
             int updates = 0;
 
             while (issueIterator.hasNext()) {
@@ -128,9 +128,9 @@ public class ProportionController {
                     float newP = (i.FVIndex() - i.IVIndex()) / den;
                     // in place average update
                     updates = updates + 1;
-                    P = P + ((float) 1 / updates) * (newP - P);
+                    p = p + ((float) 1 / updates) * (newP - p);
 
-                    float finalP = P;
+                    float finalP = p;
                     int finalUpdates = updates;
                     logger.logFinest(String.format("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f",
                             i.getKey(),
@@ -148,7 +148,7 @@ public class ProportionController {
                 // Paper: 1.8089F
                 // Weighted avg: (1.386 * 66 + 1.674 * 597 + 2.154 * 631 + 2.553 * 315 + 2.432 * 630 + 1.438 * 494 + 1.420 * 104) / (66 + 597 + 631 + 315 + 630 + 494 + 104) = 1.98957878F
                 // Avg: (1.386 + 1.674 + 2.154 + 2.553 + 2.432 + 1.438 + 1.420) / 7 = 1.865285714F
-                float actualP = (updates <= 5) ?  1.865285714F : P;
+                float actualP = (updates <= 5) ?  1.865285714F : p;
 
                 float predictedIV = (float) i.FVIndex() - step * actualP;
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
@@ -164,7 +164,7 @@ public class ProportionController {
 
             logger.log(String.format("Actually proportioned %d issues which didn't have explicit IV.", proportionedIssues));
 
-            logger.log(String.format("Finally computed P=%.3f on %d updated.", P, updates));
+            logger.log(String.format("Finally computed P=%.3f on %d updated.", p, updates));
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd");
             ToFileBoundary.writeListProj(
