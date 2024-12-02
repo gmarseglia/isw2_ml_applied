@@ -2,7 +2,6 @@ package it.gmarseglia.weka.entity;
 
 import weka.core.Instances;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
