@@ -65,7 +65,7 @@ public class BugginessController {
                         .toList();
 
         // Obtain the index of the last half usable versions
-        int HALF_LASTi = vc.getAllReleasedVersions().indexOf(vc.getHalfVersion().getLast());
+        int halfLastI = vc.getAllReleasedVersions().indexOf(vc.getHalfVersion().getLast());
 
         int usable = 0;
         int invalidAfterProportion = 0;
@@ -76,26 +76,28 @@ public class BugginessController {
 
         for (Issue proportionedIssue : observedIssues) {
             // Actual IV = "Jira IV" if present, otherwise "Predicted IV"
-            int IVi = proportionedIssue.IVIndex() != null ? proportionedIssue.IVIndex() : proportionedIssue.PredictedIVIndex();
+            int ivI = proportionedIssue.IVIndex() != null ? proportionedIssue.IVIndex() : proportionedIssue.PredictedIVIndex();
 
             // Actual FV = "Jira FV" if in valid versions, otherwise "Practically last possible FV"
-            int FVi = proportionedIssue.FVIndex() != null ? proportionedIssue.FVIndex() : HALF_LASTi + 1;
+            int fvI = proportionedIssue.FVIndex() != null ? proportionedIssue.FVIndex() : halfLastI
+         + 1;
 
-            // skip nonPostRelease && invalid issues -> "invalidAfterProportion" issues
-            if (IVi >= FVi) {
-                invalidAfterProportion++;
+            if (ivI >= fvI || ivI > halfLastI) {
+                if (ivI >= fvI) {
+                    // skip nonPostRelease && invalid issues -> "invalidAfterProportion" issue
+                    invalidAfterProportion++;
+                } else if (ivI > halfLastI) {
+                    // skip "over half" issues
+                    overHalf++;
+                }
                 continue;
             }
-            // skip "over half" issues
-            else if (IVi > HALF_LASTi) {
-                overHalf++;
-                continue;
-            } else {
-                usable++;
-            }
+
+            usable++;
 
             // Obtain the list of the valid versions affected by the issue
-            List<Version> affectedVersions = vc.getAllValidVersions().subList(IVi, FVi);
+            List<Version> affectedVersions = vc.getAllValidVersions().subList(ivI
+            , fvI);
 
             // Obtain the list of the valid versions affected by the issue which are part of
             // the half sublist
