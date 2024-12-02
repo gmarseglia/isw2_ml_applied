@@ -2,6 +2,7 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.entity.Entry;
 import it.gmarseglia.app.entity.Version;
+import it.gmarseglia.app.exceptions.CustomRuntimeException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -22,9 +23,7 @@ public class MetricsController {
     private List<Version> halfVersions;
 
     private Entry targetEntry;
-    private int currentVersionIndex;
     private Version previousVersion;
-    private List<RevCommit> entryCommits;
     private List<RevCommit> entryLastVersionCommits;
     private Map<RevCommit, DiffEntry> commitAndDiffAll;
     private Map<RevCommit, List<DiffEntry>> commitAndDiffListAll;
@@ -39,6 +38,8 @@ public class MetricsController {
     }
 
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
+        List<RevCommit> entryCommits;
+        int currentVersionIndex;
 
         logger.log("Ready to compute " + (cleanAllEntries.getFirst().getFieldsNames().size() - 3) + " metrics for " + cleanAllEntries.size() + " entries.");
 
@@ -83,8 +84,7 @@ public class MetricsController {
             // get all commits for the path corresponding to the entry
             entryCommits = GitController.getInstance(projName).getRevCommitsFromPath(entry.getPath());
 
-            // option to toggle between step and storic metrics
-
+            // option to toggle between step and storic metric
 
             // get all commits for the path and the version
             entryLastVersionCommits = entryCommits
@@ -111,15 +111,15 @@ public class MetricsController {
             String mostRecentPath = entry.getLongName().substring(1);
             boolean addFound = false;
 
-            for (RevCommit commit : this.commitAndDiffListAll.keySet()) {
+            for (Map.Entry<RevCommit, List<DiffEntry>> commitAndDiff : this.commitAndDiffListAll.entrySet()) {
                 if (addFound) break;
 
-                for (DiffEntry diffEntry : this.commitAndDiffListAll.get(commit)) {
+                for (DiffEntry diffEntry : commitAndDiff.getValue()) {
                     if (mostRecentPath.equals(diffEntry.getNewPath())) {
                         mostRecentPath = diffEntry.getOldPath();
                     }
                     if (mostRecentPath.equals(diffEntry.getOldPath())) {
-                        this.commitAndDiffAll.put(commit, diffEntry);
+                        this.commitAndDiffAll.put(commitAndDiff.getKey(), diffEntry);
 
                         if (diffEntry.getChangeType() == DiffEntry.ChangeType.ADD)
                             addFound = true;
@@ -128,120 +128,119 @@ public class MetricsController {
                 }
             }
 
-            this.LOC();
-            this.Age();
-            this.NR();
-            this.NAuth();
-            this.LOCAdded();
-            this.Churn();
-            this.ChangeSetSize();
+            this.getLOC();
+            this.getAge();
+            this.getNR();
+            this.getNAuth();
+            this.getLOCAdded();
+            this.getChurn();
+            this.getChangeSetSize();
         }
 
         logger.log("Computed all metrics for " + cleanAllEntries.size() + " entries.");
     }
 
-    private void LOC() {
-        long LOC;
+    private void getLOC() {
+        long loc;
 
         // https://stackoverflow.com/questions/51639536/java-nio-files-count-method-for-counting-the-number-of-lines
         try (Stream<String> stream = Files.lines(targetEntry.getPath())) {
-            LOC = stream.count();
+            loc = stream.count();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
-        targetEntry.getMetrics().setLOC(LOC);
+        targetEntry.getMetrics().setLOC(loc);
     }
 
-    private void Age() throws GitAPIException {
-        long Age;
+    private void getAge() {
+        long age;
         long stepAge;
 
-        // Date firstCommitDate = GitController.getInstance(projName).getFirstCommit().getAuthorIdent().getWhen();
         Date firstCommitDate = halfVersions.getFirst().getGithubReleaseDate();
         Date versionGithubReleaseDate = targetEntry.getVersion().getGithubReleaseDate();
         Date previousVersionGithubReleaseDate = previousVersion == null ? firstCommitDate : previousVersion.getGithubReleaseDate();
 
-        Age = ChronoUnit.DAYS.between(firstCommitDate.toInstant(), versionGithubReleaseDate.toInstant());
+        age = ChronoUnit.DAYS.between(firstCommitDate.toInstant(), versionGithubReleaseDate.toInstant());
         stepAge = ChronoUnit.DAYS.between(previousVersionGithubReleaseDate.toInstant(), versionGithubReleaseDate.toInstant());
 
-        targetEntry.getMetrics().setAge(Age);
+        targetEntry.getMetrics().setAge(age);
         targetEntry.getMetrics().setStepAge(stepAge);
     }
 
     // computes the number of commits between versions
 
-    private void NR() {
-        long NR = entryLastVersionCommits.size();
+    private void getNR() {
+        long nr = entryLastVersionCommits.size();
 
-        targetEntry.getMetrics().setNR(NR);
+        targetEntry.getMetrics().setNR(nr);
     }
 
-    private void NAuth() {
-        long NAuth = entryLastVersionCommits.stream()
+    private void getNAuth() {
+        long nAuth = entryLastVersionCommits.stream()
                 .map(revCommit -> revCommit.getAuthorIdent().getName())
                 .toList()
                 .stream()
                 .distinct()
                 .count();
 
-        targetEntry.getMetrics().setNAuth(NAuth);
+        targetEntry.getMetrics().setNAuth(nAuth);
     }
 
-    private void LOCAdded() throws GitAPIException {
-        long LOCAdded = 0;
+    private void getLOCAdded() throws GitAPIException {
+        long lOCAdded = 0;
         long maxLOCAdded = 0;
         long avgLOCAdded = 0;
         long entries = 0;
 
-        for (RevCommit commit : this.commitAndDiffAll.keySet()) {
-            DiffEntry diffEntry = this.commitAndDiffAll.get(commit);
+        for (Map.Entry<RevCommit, DiffEntry> commitAndDiff : this.commitAndDiffAll.entrySet()) {
+            DiffEntry diffEntry = commitAndDiff.getValue();
             long perCommitLOCAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
-            LOCAdded += perCommitLOCAdded;
+            lOCAdded += perCommitLOCAdded;
             avgLOCAdded = avgLOCAdded + (long) ((1.0F / ++entries) * (perCommitLOCAdded - avgLOCAdded));
             if (perCommitLOCAdded > maxLOCAdded) maxLOCAdded = perCommitLOCAdded;
         }
 
-        targetEntry.getMetrics().setLOCAdded(LOCAdded);
+        targetEntry.getMetrics().setLOCAdded(lOCAdded);
         targetEntry.getMetrics().setAvgLOCAdded(avgLOCAdded);
         targetEntry.getMetrics().setMaxLOCAdded(maxLOCAdded);
     }
 
-    private void Churn() throws GitAPIException {
-        long Churn = 0;
+    private void getChurn() throws GitAPIException {
+        long churn = 0;
         long maxChurn = 0;
         long avgChurn = 0;
         long entries = 0;
 
-        for (RevCommit commit : this.commitAndDiffAll.keySet()) {
-            DiffEntry diffEntry = this.commitAndDiffAll.get(commit);
+        for (Map.Entry<RevCommit, DiffEntry> commitAndDiff : this.commitAndDiffAll.entrySet()) {
+            DiffEntry diffEntry = commitAndDiff.getValue();
             long perCommitLOCAdded = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[0];
             long perCommitLOCDeleted = GitController.getInstance(projName).getLOCModifiedByDiff(diffEntry)[1];
             long perCommitChurn = perCommitLOCAdded + perCommitLOCDeleted;
-            Churn += perCommitChurn;
+            churn += perCommitChurn;
             avgChurn = avgChurn + (long) ((1.0F / ++entries) * (perCommitChurn - avgChurn));
             if (perCommitChurn > maxChurn) maxChurn = perCommitChurn;
         }
 
-        targetEntry.getMetrics().setChurn(Churn);
+        targetEntry.getMetrics().setChurn(churn);
         targetEntry.getMetrics().setAvgChurn(avgChurn);
         targetEntry.getMetrics().setMaxChurn(maxChurn);
     }
 
-    private void ChangeSetSize() {
-        long ChangeSetSize = 0;
+    private void getChangeSetSize() {
+        long changeSetSize = 0;
         long maxChangeSetSize = 0;
         long avgChangeSetSize = 0;
         long entries = 0;
 
-        for (RevCommit commit : this.commitAndDiffListAll.keySet()) {
-            long perCommitChangeSetSize = this.commitAndDiffListAll.get(commit).size();
-            ChangeSetSize += perCommitChangeSetSize;
+        for (Map.Entry<RevCommit, List<DiffEntry>> commitAndDiff : this.commitAndDiffListAll.entrySet()) {
+            long perCommitChangeSetSize = commitAndDiff.getValue().size();
+            changeSetSize += perCommitChangeSetSize;
             avgChangeSetSize = avgChangeSetSize + (long) ((1.0F / ++entries) * (perCommitChangeSetSize - avgChangeSetSize));
             if (perCommitChangeSetSize > maxChangeSetSize) maxChangeSetSize = perCommitChangeSetSize;
         }
 
-        targetEntry.getMetrics().setChangeSetSize(ChangeSetSize);
+        targetEntry.getMetrics().setChangeSetSize(changeSetSize);
         targetEntry.getMetrics().setAvgChangeSetSize(avgChangeSetSize);
         targetEntry.getMetrics().setMaxChangeSetSize(maxChangeSetSize);
 
