@@ -9,6 +9,9 @@ import java.util.Map;
 
 public class IssueFactory {
 
+    private record FVResult(Version fv, IssueFVType fvType){}
+    private record IVResult(Version iv, boolean found){}
+
     private static final Map<String, IssueFactory> instances = new HashMap<>();
     private static final boolean USE_JIRA_FV = true;
 
@@ -24,35 +27,17 @@ public class IssueFactory {
         return IssueFactory.instances.get(projName);
     }
 
-    /**
-     * The date present on Jira are compared to the valid versions obtained earlier.
-     * <p>
-     * The creation date on Jira is used to set the OV.
-     * The resolution date on Jira is used to set the FV.
-     * The release date of the oldest version in AffectsVersion (if present) is used to set the IV.
-     *
-     * @param jiraIssue Version from Jira.
-     * @return Version with OV, FV and IV set to valid versions.
-     * @throws GitAPIException due to {@link GitController}
-     */
-    public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException {
-        Version ov;
-        Version fv;
-        Version iv;
-        Integer[] versionsIndex = new Integer[]{null, null, null, null};
-
-        IssueFVType fvType = null;
-
-        List<Version> allReleasedVersions = vc.getAllReleasedVersions();
-
-        ov = vc.getAllReleasedVersions()
+    private Version getOV(JiraIssue jiraIssue) throws GitAPIException {
+        return vc.getAllReleasedVersions()
                 .stream()
                 .filter(version -> version.getJiraReleaseDate().after(jiraIssue.getFields().getCreated()))
                 .findFirst()
                 .orElse(null);
+    }
 
-        versionsIndex[0] = (ov == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(ov);
-
+    private FVResult getFV(JiraIssue jiraIssue) throws GitAPIException {
+        Version fv;
+        IssueFVType fvType = null;
         if (USE_JIRA_FV && jiraIssue.getFields().getOldestAFixVersion() != null) {
             List<String> idsOfFixedVersions = jiraIssue.getFields().getFixVersions().stream().map(JiraVersion::getId).toList();
 
@@ -82,12 +67,16 @@ public class IssueFactory {
 
         if (fv == null) fvType = IssueFVType.GOT_NULL;
 
-        versionsIndex[1] = (fv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(fv);
+        return new FVResult(fv, fvType);
+    }
 
+    private IVResult getIV(JiraIssue jiraIssue) throws GitAPIException {
+        Version iv;
+        boolean found = false;
         if (jiraIssue.getFields().getOldestAffectedVersion() == null) {
             iv = null;
         } else {
-
+            found = true;
             List<String> idsOfAffectsVersion = jiraIssue.getFields().getVersions().stream().map(JiraVersion::getId).toList();
 
             iv = vc.getAllReleasedVersions()
@@ -105,11 +94,49 @@ public class IssueFactory {
                         .findFirst()
                         .orElse(null);
             }
-
-            versionsIndex[2] = (iv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(iv);
         }
 
-        Issue result = new Issue(jiraIssue.getKey(),
+        return new IVResult(iv, found);
+    }
+
+    /**
+     * The date present on Jira are compared to the valid versions obtained earlier.
+     * <p>
+     * The creation date on Jira is used to set the OV.
+     * The resolution date on Jira is used to set the FV.
+     * The release date of the oldest version in AffectsVersion (if present) is used to set the IV.
+     *
+     * @param jiraIssue Version from Jira.
+     * @return Version with OV, FV and IV set to valid versions.
+     * @throws GitAPIException due to {@link GitController}
+     */
+    public Issue issueFromJiraIssue(JiraIssue jiraIssue) throws GitAPIException {
+        Version ov;
+        Version fv;
+        Version iv;
+        Integer[] versionsIndex = new Integer[]{null, null, null, null};
+
+        IssueFVType fvType = null;
+
+        List<Version> allReleasedVersions = vc.getAllReleasedVersions();
+
+        ov = getOV(jiraIssue);
+
+        versionsIndex[0] = (ov == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(ov);
+
+        FVResult result = getFV(jiraIssue);
+        fv = result.fv;
+        fvType = result.fvType;
+
+        versionsIndex[1] = (fv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(fv);
+
+        IVResult ivResult = getIV(jiraIssue);
+        iv = ivResult.iv;
+        boolean found = ivResult.found;
+
+        if(found) versionsIndex[2] = (iv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(iv);
+
+        Issue newIssue = new Issue(jiraIssue.getKey(),
                 ov,
                 fv,
                 iv,
@@ -117,8 +144,8 @@ public class IssueFactory {
                 jiraIssue.getFields().getResolutiondate(),
                 versionsIndex);
 
-        result.setFvType(fvType);
+        newIssue.setFvType(fvType);
 
-        return result;
+        return newIssue;
     }
 }
