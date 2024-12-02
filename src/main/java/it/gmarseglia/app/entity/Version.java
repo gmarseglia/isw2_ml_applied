@@ -10,18 +10,18 @@ public class Version implements Exportable {
 
     private final String id;
     private final boolean released;
-    private final String GithubTag;
+    private final String githubTag;
     private String name;
-    private Date JiraReleaseDate;
-    private Date GithubReleaseDate;
+    private Date jiraReleaseDate;
+    private Date githubReleaseDate;
 
     public Version(String id, boolean released, String name, Date jiraReleaseDate, Date githubReleaseDate, String githubTag) {
         this.id = id;
         this.released = released;
         this.name = name;
-        JiraReleaseDate = jiraReleaseDate;
-        GithubReleaseDate = githubReleaseDate;
-        GithubTag = githubTag;
+        this.jiraReleaseDate = jiraReleaseDate;
+        this.githubReleaseDate = githubReleaseDate;
+        this.githubTag = githubTag;
     }
 
     public String getId() {
@@ -37,19 +37,19 @@ public class Version implements Exportable {
     }
 
     public Date getGithubReleaseDate() {
-        return GithubReleaseDate;
+        return githubReleaseDate;
     }
 
     public void setGithubReleaseDate(Date githubReleaseDate) {
-        this.GithubReleaseDate = githubReleaseDate;
+        this.githubReleaseDate = githubReleaseDate;
     }
 
     public Date getJiraReleaseDate() {
-        return JiraReleaseDate;
+        return jiraReleaseDate;
     }
 
     public void setJiraReleaseDate(Date jiraReleaseDate) {
-        JiraReleaseDate = jiraReleaseDate;
+        this.jiraReleaseDate = jiraReleaseDate;
     }
 
     public boolean isReleased() {
@@ -61,7 +61,7 @@ public class Version implements Exportable {
     }
 
     public String getGithubTag() {
-        return GithubTag;
+        return githubTag;
     }
 
     @Override
@@ -70,9 +70,9 @@ public class Version implements Exportable {
                 "id='" + id + '\'' +
                 ", released=" + released +
                 ", name='" + name + '\'' +
-                ", JiraReleaseDate=" + (JiraReleaseDate == null ? "null" : JiraReleaseDate) +
-                ", GithubReleaseDate=" + (GithubReleaseDate == null ? "null" : GithubReleaseDate) +
-                ", GithubTag='" + (GithubTag == null ? "null" : GithubTag) + '\'' +
+                ", JiraReleaseDate=" + (jiraReleaseDate == null ? "null" : jiraReleaseDate) +
+                ", GithubReleaseDate=" + (githubReleaseDate == null ? "null" : githubReleaseDate) +
+                ", GithubTag='" + (githubTag == null ? "null" : githubTag) + '\'' +
                 '}';
     }
 
@@ -81,12 +81,12 @@ public class Version implements Exportable {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Version version = (Version) object;
-        return released == version.released && Objects.equals(id, version.id) && Objects.equals(name, version.name) && Objects.equals(GithubTag, version.GithubTag) && Objects.equals(GithubReleaseDate, version.GithubReleaseDate) && Objects.equals(JiraReleaseDate, version.JiraReleaseDate);
+        return released == version.released && Objects.equals(id, version.id) && Objects.equals(name, version.name) && Objects.equals(githubTag, version.githubTag) && Objects.equals(githubReleaseDate, version.githubReleaseDate) && Objects.equals(jiraReleaseDate, version.jiraReleaseDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, GithubTag, GithubReleaseDate, JiraReleaseDate, released);
+        return Objects.hash(id, name, githubTag, githubReleaseDate, jiraReleaseDate, released);
     }
 
     @Override
@@ -100,8 +100,8 @@ public class Version implements Exportable {
                 name,
                 id,
                 released,
-                JiraReleaseDate,
-                GithubTag,
-                GithubReleaseDate);
+                jiraReleaseDate,
+                githubTag,
+                githubReleaseDate);
     }
 }
