@@ -7,11 +7,11 @@ import it.gmarseglia.app.entity.JiraIssueReport;
 
 public class IssueJSONGetter {
 
-    private final String urlBase = "https://issues.apache.org/jira/rest/api/2/search?" +
+    private static final String URL_BASE = "https://issues.apache.org/jira/rest/api/2/search?" +
             "jql=QUERY" +
             "&startAt=START_AT" +
             "&maxResults=MAX_RESULT";
-    private final String query = "project=PROJ_NAME" +
+    private static final  String QUERY = "project=PROJ_NAME" +
             " AND issueType=Bug" +
             " AND (status=closed OR status=resolved)" +
             " AND resolution=fixed";
@@ -24,12 +24,12 @@ public class IssueJSONGetter {
     }
 
     private String buildQuery() {
-        return this.query
+        return QUERY
                 .replace("PROJ_NAME", this.projName);
     }
 
     private String buildURL(int startAt, int maxResult) {
-        return this.urlBase
+        return URL_BASE
                 .replace("QUERY", this.buildQuery())
                 .replace("START_AT", String.valueOf(startAt))
                 .replace("MAX_RESULT", String.valueOf(maxResult))
