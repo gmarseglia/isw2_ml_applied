@@ -1,5 +1,7 @@
 package it.gmarseglia.app.controller;
 
+import it.gmarseglia.app.exceptions.CustomRuntimeException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +11,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class MyFileUtils {
+
+    private MyFileUtils(){}
 
     private static final MyLogger logger = MyLogger.getInstance(MyFileUtils.class);
 
@@ -37,7 +41,7 @@ public class MyFileUtils {
         ) {
             result = pathStream.toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
         return result;
@@ -47,7 +51,7 @@ public class MyFileUtils {
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
     }
 
@@ -55,7 +59,7 @@ public class MyFileUtils {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
     }
 
@@ -63,7 +67,7 @@ public class MyFileUtils {
         try {
             Files.createFile(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
         return path;
     }
