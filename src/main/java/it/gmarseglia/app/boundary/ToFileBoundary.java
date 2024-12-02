@@ -1,6 +1,7 @@
 package it.gmarseglia.app.boundary;
 
 import it.gmarseglia.app.controller.MyFileUtils;
+import it.gmarseglia.app.controller.MyLogger;
 import it.gmarseglia.app.entity.Exportable;
 
 import java.io.IOException;
@@ -14,8 +15,13 @@ import static java.nio.file.StandardOpenOption.*;
 
 public class ToFileBoundary {
 
+    private static final MyLogger logger = MyLogger.getInstance(ToFileBoundary.class);
     public static final Path DEFAULT_OUT_DIR = Paths.get(".", "out");
     private static final List<String> alreadyUsedFilenames = new ArrayList<>();
+
+    private ToFileBoundary(){
+
+    }
 
     public static void writeListProj(List<? extends Exportable> elements, String projName, String fileName) {
         Path outDir = DEFAULT_OUT_DIR.resolve(projName);
@@ -36,7 +42,7 @@ public class ToFileBoundary {
                 Files.writeString(outFile, outText, APPEND);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.log(String.format("Can't write \"%s\" to: \"%s\"", text, fileName));
         }
     }
 
@@ -70,7 +76,7 @@ public class ToFileBoundary {
                         APPEND);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.log(String.format("Can't write \"%s\" to: \"%s\"", elements.getClass().getSimpleName(), fileName));
         }
     }
 
