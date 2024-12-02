@@ -58,7 +58,7 @@ public class IssueController {
                     tmpIssues.stream().filter(noCommitFilter.negate()).count()));
 
             // indexOf(FV) > 0
-            Predicate<Issue> nonFirstFVFilter = issue -> !(issue.FVIndex() == null || issue.FVIndex() <= 0);
+            Predicate<Issue> nonFirstFVFilter = issue -> !(issue.getFVIndex() == null || issue.getFVIndex() <= 0);
             logger.logFine(String.format("%d issues fails \"nonFirstFVFilter\" (indexOf(FV) > 0)",
                     tmpIssues.stream().filter(nonFirstFVFilter.negate()).count()));
 

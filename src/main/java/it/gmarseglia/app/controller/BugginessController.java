@@ -76,10 +76,10 @@ public class BugginessController {
 
         for (Issue proportionedIssue : observedIssues) {
             // Actual IV = "Jira IV" if present, otherwise "Predicted IV"
-            int ivI = proportionedIssue.IVIndex() != null ? proportionedIssue.IVIndex() : proportionedIssue.PredictedIVIndex();
+            int ivI = proportionedIssue.getIVIndex() != null ? proportionedIssue.getIVIndex() : proportionedIssue.getPredictedIVIndex();
 
             // Actual FV = "Jira FV" if in valid versions, otherwise "Practically last possible FV"
-            int fvI = proportionedIssue.FVIndex() != null ? proportionedIssue.FVIndex() : halfLastI
+            int fvI = proportionedIssue.getFVIndex() != null ? proportionedIssue.getFVIndex() : halfLastI
          + 1;
 
             if (ivI >= fvI || ivI > halfLastI) {

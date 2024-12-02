@@ -47,11 +47,11 @@ public class ProportionController {
             while (issueIterator.hasNext()) {
                 Issue i = issueIterator.next();
 
-                if (i.IVIndex() != null) {
+                if (i.getIVIndex() != null) {
                     // update P
                     // if IV is present, then newP = (FV - IV) / (FV - OV)
-                    float den = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
-                    float newP = (i.FVIndex() - i.IVIndex()) / den;
+                    float den = (i.getFVIndex() - i.getOVIndex() != 0) ? i.getFVIndex() - i.getOVIndex() : 1;
+                    float newP = (i.getFVIndex() - i.getIVIndex()) / den;
                     // in place average update
                     updates = updates + 1;
                     p = p + ((float) 1 / updates) * (newP - p);
@@ -60,26 +60,26 @@ public class ProportionController {
                     int finalUpdates = updates;
                     logger.logFinest(String.format("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f",
                                     i.getKey(),
-                                    i.OVIndex(), i.FVIndex(), i.IVIndex(),
+                                    i.getOVIndex(), i.getFVIndex(), i.getIVIndex(),
                                     newP, finalUpdates, finalP));
 
                 }
 
                 // apply P
                 // if IV is not present, then predictedIV = FV - (FV - OV) * P
-                float step = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
+                float step = (i.getFVIndex() - i.getOVIndex() != 0) ? i.getFVIndex() - i.getOVIndex() : 1;
                 // Paper: 1.8089F
                 // Weighted avg: (1.386 * 66 + 1.674 * 597 + 2.154 * 631 + 2.553 * 315 + 2.432 * 630 + 1.438 * 494 + 1.420 * 104) / (66 + 597 + 631 + 315 + 630 + 494 + 104) = 1.98957878F
                 // Avg: (1.386 + 1.674 + 2.154 + 2.553 + 2.432 + 1.438 + 1.420) / 7 = 1.865285714F
                 float actualP = (updates <= 5) ? 1.8089F : p;
 
-                float predictedIV = (float) i.FVIndex() - step * actualP;
+                float predictedIV = (float) i.getFVIndex() - step * actualP;
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
                 i.setPredictedIVIndex(actualPredictedIV);
 
                 logger.logFinest(String.format("P apply on %s -> OV: %d, FV: %d, IV: %d, P: %.3f, predictedIV: %.3f->%d",
                                 i.getKey(),
-                                i.OVIndex(), i.FVIndex(), i.IVIndex(),
+                                i.getOVIndex(), i.getFVIndex(), i.getIVIndex(),
                                 actualP,
                                 predictedIV, actualPredictedIV));
 
@@ -121,11 +121,11 @@ public class ProportionController {
 
             while (issueIterator.hasNext()) {
                 Issue i = issueIterator.next();
-                if (i.IVIndex() != null) {
+                if (i.getIVIndex() != null) {
                     // update P
                     // if IV is present, then newP = (FV - IV) / (FV - OV)
-                    float den = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
-                    float newP = (i.FVIndex() - i.IVIndex()) / den;
+                    float den = (i.getFVIndex() - i.getOVIndex() != 0) ? i.getFVIndex() - i.getOVIndex() : 1;
+                    float newP = (i.getFVIndex() - i.getIVIndex()) / den;
                     // in place average update
                     updates = updates + 1;
                     p = p + ((float) 1 / updates) * (newP - p);
@@ -134,7 +134,7 @@ public class ProportionController {
                     int finalUpdates = updates;
                     logger.logFinest(String.format("P update on %s-> OV: %d, FV: %d, IV: %d, newP: %.3f, updates: %d,P: %.3f",
                             i.getKey(),
-                            i.OVIndex(), i.FVIndex(), i.IVIndex(),
+                            i.getOVIndex(), i.getFVIndex(), i.getIVIndex(),
                             newP, finalUpdates, finalP));
                 }
             }
@@ -144,18 +144,18 @@ public class ProportionController {
                 Issue i = issueIterator.next();
                 // apply P
                 // if IV is not present, then predictedIV = FV - (FV - OV) * P
-                float step = (i.FVIndex() - i.OVIndex() != 0) ? i.FVIndex() - i.OVIndex() : 1;
+                float step = (i.getFVIndex() - i.getOVIndex() != 0) ? i.getFVIndex() - i.getOVIndex() : 1;
                 // Paper: 1.8089F
                 // Weighted avg: (1.386 * 66 + 1.674 * 597 + 2.154 * 631 + 2.553 * 315 + 2.432 * 630 + 1.438 * 494 + 1.420 * 104) / (66 + 597 + 631 + 315 + 630 + 494 + 104) = 1.98957878F
                 // Avg: (1.386 + 1.674 + 2.154 + 2.553 + 2.432 + 1.438 + 1.420) / 7 = 1.865285714F
                 float actualP = (updates <= 5) ?  1.865285714F : p;
 
-                float predictedIV = (float) i.FVIndex() - step * actualP;
+                float predictedIV = (float) i.getFVIndex() - step * actualP;
                 int actualPredictedIV = Math.max((int) Math.floor(predictedIV), 0);
                 i.setPredictedIVIndex(actualPredictedIV);
                 logger.logFinest(String.format("P apply on %s -> OV: %d, FV: %d, IV: %d, P: %.3f, predictedIV: %.3f->%d",
                         i.getKey(),
-                        i.OVIndex(), i.FVIndex(), i.IVIndex(),
+                        i.getOVIndex(), i.getFVIndex(), i.getIVIndex(),
                         actualP,
                         predictedIV, actualPredictedIV));
             }

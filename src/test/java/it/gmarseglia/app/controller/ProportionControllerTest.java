@@ -47,12 +47,12 @@ public class ProportionControllerTest {
         logger.logNoPrefix("%n%n Correctly assigned IV check");
         long IVNotNullIssues = pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
-                .filter(issue -> issue.IVIndex() != null)
+                .filter(issue -> issue.getIVIndex() != null)
                 .count();
         long IVCorrectIssues = pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
-                .filter(issue -> issue.IVIndex() != null)
-                .filter(issue -> Objects.equals(issue.IVIndex(), issue.PredictedIVIndex()))
+                .filter(issue -> issue.getIVIndex() != null)
+                .filter(issue -> Objects.equals(issue.getIVIndex(), issue.getPredictedIVIndex()))
                 .count();
         logger.logNoPrefix(String.format("Correctly assigned IV percentage: %d/%d = %.1f%%\n",
                 IVCorrectIssues, IVNotNullIssues,
@@ -63,11 +63,11 @@ public class ProportionControllerTest {
         int updates = 0;
         for (Issue issue : pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
-                .filter(issue -> issue.IVIndex() != null)
-                .filter(issue -> !Objects.equals(issue.IVIndex(), issue.PredictedIVIndex()))
+                .filter(issue -> issue.getIVIndex() != null)
+                .filter(issue -> !Objects.equals(issue.getIVIndex(), issue.getPredictedIVIndex()))
                 .toList()) {
             updates = updates + 1;
-            averageError = averageError + ((float) 1 / updates) * (Math.abs(issue.PredictedIVIndex() - issue.IVIndex()) - averageError);
+            averageError = averageError + ((float) 1 / updates) * (Math.abs(issue.getPredictedIVIndex() - issue.getIVIndex()) - averageError);
         }
         float finalAverageError = averageError;
         logger.logNoPrefix(String.format("Average error: %.2f\n",
@@ -78,10 +78,10 @@ public class ProportionControllerTest {
         updates = 0;
         for (Issue issue : pc.getTotalProportionedIssuesIncrement(maxTotal)
                 .stream()
-                .filter(issue -> issue.IVIndex() != null)
+                .filter(issue -> issue.getIVIndex() != null)
                 .toList()) {
             updates = updates + 1;
-            averageDifference = averageDifference + ((float) 1 / updates) * (Math.abs(issue.PredictedIVIndex() - issue.IVIndex()) - averageDifference);
+            averageDifference = averageDifference + ((float) 1 / updates) * (Math.abs(issue.getPredictedIVIndex() - issue.getIVIndex()) - averageDifference);
         }
         float finalAverageDifference = averageDifference;
         logger.logNoPrefix(String.format("Average difference: %.2f\n",

@@ -109,13 +109,16 @@ public class IssueFactory {
             versionsIndex[2] = (iv == null) ? allReleasedVersions.size() : allReleasedVersions.indexOf(iv);
         }
 
-        return new Issue(jiraIssue.getKey(),
+        Issue result = new Issue(jiraIssue.getKey(),
                 ov,
                 fv,
                 iv,
                 jiraIssue.getFields().getCreated(),
                 jiraIssue.getFields().getResolutiondate(),
-                versionsIndex,
-                fvType);
+                versionsIndex);
+
+        result.setFvType(fvType);
+
+        return result;
     }
 }

@@ -1,5 +1,7 @@
 package it.gmarseglia.app.entity;
 
+import it.gmarseglia.app.exceptions.CustomRuntimeException;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,7 +12,7 @@ import java.util.stream.Stream;
 public class Issue implements Exportable {
 
     private final Integer[] versionsIndex;
-    private final IssueFVType fvType;
+    private IssueFVType fvType;
     private String key;
     private Version openingVersion;
     private Version fixVersion;
@@ -19,16 +21,15 @@ public class Issue implements Exportable {
     private Date jiraResolutionDate;
     private boolean hasBeenProportioned = false;
 
-    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex, IssueFVType fvType) {
+    public Issue(String key, Version openingVersion, Version fixVersion, Version injectVersion, Date jiraCreationDate, Date jiraResolutionDate, Integer[] versionsIndex) {
         this.key = key;
         this.openingVersion = openingVersion;
         this.fixVersion = fixVersion;
         this.injectVersion = injectVersion;
         this.jiraCreationDate = jiraCreationDate;
         this.jiraResolutionDate = jiraResolutionDate;
-        if (versionsIndex.length != 4) throw new RuntimeException("4 Integer has to be given");
+        if (versionsIndex.length != 4) throw new CustomRuntimeException("4 Integer has to be given");
         this.versionsIndex = versionsIndex;
-        this.fvType = fvType;
     }
 
     public String getKey() {
@@ -121,25 +122,29 @@ public class Issue implements Exportable {
         return versionsIndex;
     }
 
-    public Integer OVIndex() {
+    public Integer getOVIndex() {
         return this.versionsIndex[0];
     }
 
-    public Integer FVIndex() {
+    public Integer getFVIndex() {
         return this.versionsIndex[1];
     }
 
-    public Integer IVIndex() {
+    public Integer getIVIndex() {
         return this.versionsIndex[2];
     }
 
-    public Integer PredictedIVIndex() {
+    public Integer getPredictedIVIndex() {
         return this.versionsIndex[3];
     }
 
     public void setPredictedIVIndex(Integer newIVIndex) {
         this.setHasBeenProportioned(true);
         this.versionsIndex[3] = newIVIndex;
+    }
+
+    public void setFvType(IssueFVType fvType) {
+        this.fvType = fvType;
     }
 
     public IssueFVType getFvType() {
@@ -167,10 +172,10 @@ public class Issue implements Exportable {
     public List<Serializable> getFieldsValues() {
         Stream<Serializable> tmp = Stream.of(
                 key,
-                (OVIndex() == null ? "null" : OVIndex()),
-                (FVIndex() == null ? "null" : FVIndex()),
-                (IVIndex() == null ? "null" : IVIndex()),
-                (PredictedIVIndex() == null ? "null" : PredictedIVIndex()),
+                (getOVIndex() == null ? "null" : getOVIndex()),
+                (getFVIndex() == null ? "null" : getFVIndex()),
+                (getIVIndex() == null ? "null" : getIVIndex()),
+                (getPredictedIVIndex() == null ? "null" : getPredictedIVIndex()),
                 (openingVersion == null ? "last" : openingVersion.getName()),
                 (fixVersion == null ? "last" : fixVersion.getName()),
                 (injectVersion == null ? "NA" : injectVersion.getName()),
