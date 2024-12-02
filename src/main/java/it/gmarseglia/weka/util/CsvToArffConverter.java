@@ -15,6 +15,8 @@ import java.util.List;
 
 public class CsvToArffConverter {
 
+    private CsvToArffConverter() { }
+
     public static void convertProjects(List<String> projects) throws IOException {
 
         // Create WEKA output directory
@@ -64,11 +66,7 @@ public class CsvToArffConverter {
 
                     targetLines.set(2, finalDatasetLines.get(2));
                     targetLines.set(3, finalDatasetLines.get(3));
-                    try {
-                        targetLines.set(18, "@attribute Buggy {true,false}");
-                    } catch (IndexOutOfBoundsException e){
-                        MyLogger.getInstance(CsvToArffConverter.class).logFinest(e.getMessage());
-                    }
+                    targetLines.set(18, "@attribute Buggy {true,false}");
 
                     Files.write(file, targetLines);
                 }
