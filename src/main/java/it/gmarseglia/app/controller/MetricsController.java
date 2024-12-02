@@ -150,7 +150,7 @@ public class MetricsController {
             throw new CustomRuntimeException(e);
         }
 
-        targetEntry.getMetrics().setLOC(loc);
+        targetEntry.getMetrics().setLoc(loc);
     }
 
     private void getAge() {
@@ -173,7 +173,7 @@ public class MetricsController {
     private void getNR() {
         long nr = entryLastVersionCommits.size();
 
-        targetEntry.getMetrics().setNR(nr);
+        targetEntry.getMetrics().setNr(nr);
     }
 
     private void getNAuth() {
@@ -184,7 +184,7 @@ public class MetricsController {
                 .distinct()
                 .count();
 
-        targetEntry.getMetrics().setNAuth(nAuth);
+        targetEntry.getMetrics().setnAuth(nAuth);
     }
 
     private void getLOCAdded() throws GitAPIException {
@@ -201,7 +201,7 @@ public class MetricsController {
             if (perCommitLOCAdded > maxLOCAdded) maxLOCAdded = perCommitLOCAdded;
         }
 
-        targetEntry.getMetrics().setLOCAdded(lOCAdded);
+        targetEntry.getMetrics().setLocAdded(lOCAdded);
         targetEntry.getMetrics().setAvgLOCAdded(avgLOCAdded);
         targetEntry.getMetrics().setMaxLOCAdded(maxLOCAdded);
     }

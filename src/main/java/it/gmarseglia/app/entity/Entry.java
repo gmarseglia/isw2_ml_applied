@@ -95,10 +95,10 @@ public class Entry implements Exportable {
     @Override
     public List<Serializable> getFieldsValues() {
         return Arrays.asList(this.version.getName(), this.longName,
-                this.metrics.getLOC(),
+                this.metrics.getLoc(),
                 this.metrics.getAge(), this.metrics.getStepAge(),
-                this.metrics.getNR(), this.metrics.getNAuth(),
-                this.metrics.getLOCAdded(), this.metrics.getMaxLOCAdded(), this.metrics.getAvgLOCAdded(),
+                this.metrics.getNr(), this.metrics.getnAuth(),
+                this.metrics.getLocAdded(), this.metrics.getMaxLOCAdded(), this.metrics.getAvgLOCAdded(),
                 this.metrics.getChurn(), this.metrics.getMaxChurn(), this.metrics.getAvgChurn(),
                 this.metrics.getChangeSetSize(), this.metrics.getMaxChangeSetSize(), this.metrics.getAvgChangeSetSize(),
                 this.buggy);

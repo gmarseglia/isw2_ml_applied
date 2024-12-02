@@ -2,27 +2,27 @@ package it.gmarseglia.app.entity;
 
 public class Metrics {
 
-    private long LOC;
+    private long loc;
     private long age;
     private long stepAge;
-    private long NR;
-    private long NAuth;
-    private long LOCAdded;
+    private long nr;
+    private long nAuth;
+    private long locAdded;
     private long maxLOCAdded;
     private long avgLOCAdded;
-    private long Churn;
+    private long churn;
     private long maxChurn;
     private long avgChurn;
-    private long ChangeSetSize;
+    private long changeSetSize;
     private long maxChangeSetSize;
     private long avgChangeSetSize;
 
-    public long getLOC() {
-        return LOC;
+    public long getLoc() {
+        return loc;
     }
 
-    public void setLOC(long LOC) {
-        this.LOC = LOC;
+    public void setLoc(long loc) {
+        this.loc = loc;
     }
 
     public long getAge() {
@@ -41,28 +41,28 @@ public class Metrics {
         this.stepAge = stepAge;
     }
 
-    public long getNR() {
-        return NR;
+    public long getNr() {
+        return nr;
     }
 
-    public void setNR(long NR) {
-        this.NR = NR;
+    public void setNr(long nr) {
+        this.nr = nr;
     }
 
-    public long getNAuth() {
-        return NAuth;
+    public long getnAuth() {
+        return nAuth;
     }
 
-    public void setNAuth(long NAuth) {
-        this.NAuth = NAuth;
+    public void setnAuth(long nAuth) {
+        this.nAuth = nAuth;
     }
 
-    public long getLOCAdded() {
-        return LOCAdded;
+    public long getLocAdded() {
+        return locAdded;
     }
 
-    public void setLOCAdded(long LOCAdded) {
-        this.LOCAdded = LOCAdded;
+    public void setLocAdded(long locAdded) {
+        this.locAdded = locAdded;
     }
 
     public long getMaxLOCAdded() {
@@ -82,11 +82,11 @@ public class Metrics {
     }
 
     public long getChurn() {
-        return Churn;
+        return churn;
     }
 
     public void setChurn(long churn) {
-        Churn = churn;
+        this.churn = churn;
     }
 
     public long getMaxChurn() {
@@ -106,11 +106,11 @@ public class Metrics {
     }
 
     public long getChangeSetSize() {
-        return ChangeSetSize;
+        return changeSetSize;
     }
 
     public void setChangeSetSize(long changeSetSize) {
-        ChangeSetSize = changeSetSize;
+        this.changeSetSize = changeSetSize;
     }
 
     public long getMaxChangeSetSize() {
@@ -132,18 +132,18 @@ public class Metrics {
     @Override
     public String toString() {
         return "Metrics{" +
-                "LOC=" + LOC +
+                "LOC=" + loc +
                 ", age=" + age +
                 ", stepAge=" + stepAge +
-                ", NR=" + NR +
-                ", NAuth=" + NAuth +
-                ", LOCAdded=" + LOCAdded +
+                ", NR=" + nr +
+                ", NAuth=" + nAuth +
+                ", LOCAdded=" + locAdded +
                 ", maxLOCAdded=" + maxLOCAdded +
                 ", avgLOCAdded=" + avgLOCAdded +
-                ", Churn=" + Churn +
+                ", Churn=" + churn +
                 ", maxChurn=" + maxChurn +
                 ", avgChurn=" + avgChurn +
-                ", ChangeSetSize=" + ChangeSetSize +
+                ", ChangeSetSize=" + changeSetSize +
                 ", maxChangeSetSize=" + maxChangeSetSize +
                 ", avgChangeSetSize=" + avgChangeSetSize +
                 '}';
