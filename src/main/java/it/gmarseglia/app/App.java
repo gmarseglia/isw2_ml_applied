@@ -20,12 +20,7 @@ public class App {
 
         Map<String, Boolean> configurations = new LinkedHashMap<>();
         configurations.put("BOOKKEEPER", true);
-//        configurations.put("AVRO", false);
        configurations.put("OPENJPA", true);
-//        configurations.put("STORM", false);
-//        configurations.put("ZOOKEEPER", false);
-//        configurations.put("SYNCOPE", false);
-//        configurations.put("TAJO", false);
 
         for (Map.Entry<String, Boolean> configuration : configurations.entrySet()) {
             String projName = configuration.getKey();
@@ -41,14 +36,6 @@ public class App {
             ToFileBoundary.writeStringProj(String.format("End  : \t%s", Instant.now().toString()), projName, "performance.csv");
         }
 
-    }
-
-    private static void testP(String projName) {
-        try {
-            ProportionController.getInstance(projName).getTotalProportionedIssuesIncrement(Integer.MAX_VALUE);
-        } catch (GitAPIException e) {
-            logger.log(String.format("jgit throw an exception: %s", e));
-        }
     }
 
     private static void run(String projName) {
