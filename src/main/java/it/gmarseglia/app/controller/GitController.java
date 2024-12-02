@@ -2,6 +2,7 @@ package it.gmarseglia.app.controller;
 
 import it.gmarseglia.app.entity.Issue;
 import it.gmarseglia.app.entity.JiraVersion;
+import it.gmarseglia.app.exceptions.CustomRuntimeException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -31,7 +32,6 @@ public class GitController {
 
     private static final Map<String, GitController> instances = new HashMap<>();
 
-    private final String projName;
     private final MyLogger logger = MyLogger.getInstance(GitController.class);
     private final String repoUrl;
     private final Path localPath;
@@ -40,7 +40,6 @@ public class GitController {
 
 
     private GitController(String projName) {
-        this.projName = projName;
         String repoBase = "https://github.com/apache/%s.git";
         this.repoUrl = String.format(repoBase, projName);
         this.localPath = Paths.get(System.getProperty("java.io.tmpdir"), projName);
@@ -75,7 +74,7 @@ public class GitController {
                         fullPath));
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
         return result;
@@ -99,7 +98,7 @@ public class GitController {
             diffs = df.scan(parent.getTree(), revCommit.getTree());
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
         return diffs;
@@ -122,7 +121,7 @@ public class GitController {
                     result.add(revCommit);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
         return result;
@@ -149,7 +148,7 @@ public class GitController {
     public Date getVersionGitDate(JiraVersion jiraVersion) throws GitAPIException {
         String targetTag = this.getTagByNameRegex(jiraVersion.getName());
         try {
-            if (targetTag == null) throw new RuntimeException("Tag not found with regex");
+            if (targetTag == null) throw new CustomRuntimeException("Tag not found with regex");
             this.checkoutByTag(targetTag);
             RevCommit lastCommit = this.getLastCommit();
             return new Date(lastCommit.getCommitTime() * 1000L);
@@ -225,7 +224,7 @@ public class GitController {
             Repository repository = FileRepositoryBuilder.create(localGitPath.toFile());
             return new Git(repository);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to open local Git");
+            throw new CustomRuntimeException(e);
         }
     }
 
@@ -299,7 +298,7 @@ public class GitController {
             }
 
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            throw new CustomRuntimeException(ex);
         }
 
         logger.logFinest(String.format("Found commits by \"git log ...\": %s, found by \"jgit\": %s", commitsID.size(), result.size()));
@@ -326,7 +325,7 @@ public class GitController {
                 linesDeleted += edit.getEndA() - edit.getBeginA();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e);
         }
 
         result[0] = linesAdded;
@@ -352,7 +351,7 @@ public class GitController {
                 // Get the first commit
                 firstCommit = revWalk.next();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new CustomRuntimeException(e);
             }
         }
 
