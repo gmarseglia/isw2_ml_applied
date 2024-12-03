@@ -114,8 +114,7 @@ public class ExperimentsController {
 
             ToFileBoundary.writeList(experiment.getPredictions(), Configs.getProjWekaOutDir("ACUME").resolve(projName), extendedExperimentName + ".csv");
         } catch (Exception e) {
-            logger.log("Generic exception during Acume: " + e);
-            e.printStackTrace();
+            logger.log("Generic exception during Acume: " + e + ": " + e.getMessage());
         }
     }
 
