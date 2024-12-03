@@ -31,7 +31,7 @@ public class ExperimentPlan {
                 DecimalFormat df = new DecimalFormat("00");
                 String extendedExperimentName = String.format("%s-%s_v%s-%s-%s-%s",
                         projName,
-                        df.format(suite.getVersionCounter()), suite.getVersion().replaceAll("\\.", "+"),
+                        df.format(suite.getVersionCounter()), suite.getVersion().replace(".", "+"),
                         suite.getName(),
                         experiment.getClassifierName(),
                         experiment.getClassifierModifier());
