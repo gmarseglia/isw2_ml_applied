@@ -17,6 +17,22 @@ public class CsvToArffConverter {
 
     private CsvToArffConverter() { }
 
+    private static void writeLines(Path file, List<String> finalDatasetLines) throws IOException {
+        if (!file.toString().contains(".arff") || file.toString().contains("final_dataset") || Files.readAllLines(file).size() < 4) {
+            return;
+        }
+
+        List<String> targetLines = Files.readAllLines(file);
+
+        targetLines.set(2, finalDatasetLines.get(2));
+        targetLines.set(3, finalDatasetLines.get(3));
+        if(targetLines.size() >= 18) {
+            targetLines.set(18, "@attribute Buggy {true,false}");
+        }
+
+        Files.write(file, targetLines);
+    }
+
     public static void convertProjects(List<String> projects) throws IOException {
 
         // Create WEKA output directory
@@ -58,17 +74,7 @@ public class CsvToArffConverter {
             // Align the header of all datasets
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(projOutDir)) {
                 for (Path file : stream) {
-                    if (!file.toString().contains(".arff") || file.toString().contains("final_dataset") || Files.readAllLines(file).size() < 4) {
-                        continue;
-                    }
-
-                    List<String> targetLines = Files.readAllLines(file);
-
-                    targetLines.set(2, finalDatasetLines.get(2));
-                    targetLines.set(3, finalDatasetLines.get(3));
-                    targetLines.set(18, "@attribute Buggy {true,false}");
-
-                    Files.write(file, targetLines);
+                    writeLines(file, finalDatasetLines);
                 }
             } catch (IOException | DirectoryIteratorException ex) {
                 MyLogger.getInstance(CsvToArffConverter.class).log(ex.toString());
