@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public class IssueController {
 
@@ -40,6 +39,45 @@ public class IssueController {
         return IssueController.instances.get(projName);
     }
 
+    // commits > 0
+    private boolean noCommitFilter(Issue issue) {
+        try {
+            return !gc.getAllCommitsByIssue(issue).isEmpty();
+        } catch (GitAPIException e) {
+            return false;
+        }
+    }
+
+    // indexOf(FV) > 0
+    private boolean nonFirstFVFilter(Issue issue){
+        return !(issue.getFVIndex() == null || issue.getFVIndex() <= 0);
+    }
+
+    private boolean nonPostReleaseFilter(Issue issue) {
+        if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
+            return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) < 0;
+        } else {
+            return true;
+        }
+    }
+    // IV <= OV
+    private boolean consistentIVFilter(Issue issue){
+        if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
+            return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
+        } else {
+            return true;
+        }
+    }
+
+    // OV <= FV
+    private boolean openingConsistencyFilter(Issue issue) {
+        if (issue.getOpeningVersion() != null && issue.getFixVersion() != null) {
+            return issue.getOpeningVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) <= 0;
+        } else {
+            return true;
+        }
+    }
+
     public List<Issue> getTotalValidIssues(int maxTotal) throws GitAPIException {
         if (this.totalValidIssues == null || maxTotal != this.lastMaxTotal) {
             List<Issue> tmpIssues = this.getTotalIssues(maxTotal);
@@ -47,60 +85,31 @@ public class IssueController {
             logger.log(String.format("Ready to validate %d issues.", tmpIssues.size()));
 
             // commits > 0
-            Predicate<Issue> noCommitFilter = issue -> {
-                try {
-                    return !gc.getAllCommitsByIssue(issue).isEmpty();
-                } catch (GitAPIException e) {
-                    return false;
-                }
-            };
             logger.logFine(String.format("%d issues fails \"noCommitFilter\" (commits > 0)",
-                    tmpIssues.stream().filter(noCommitFilter.negate()).count()));
+                    tmpIssues.stream().filter(issue -> !noCommitFilter(issue)).count()));
 
             // indexOf(FV) > 0
-            Predicate<Issue> nonFirstFVFilter = issue -> !(issue.getFVIndex() == null || issue.getFVIndex() <= 0);
             logger.logFine(String.format("%d issues fails \"nonFirstFVFilter\" (indexOf(FV) > 0)",
-                    tmpIssues.stream().filter(nonFirstFVFilter.negate()).count()));
+                    tmpIssues.stream().filter(issue -> !nonFirstFVFilter(issue)).count()));
 
             // IV < FV
-            Predicate<Issue> nonPostReleaseFilter = issue -> {
-                if (issue.getInjectVersion() != null && issue.getFixVersion() != null) {
-                    return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) < 0;
-                } else {
-                    return true;
-                }
-            };
             logger.logFine(String.format("%d issues fails \"nonPostReleaseFilter\" (IV < FV)",
-                    tmpIssues.stream().filter(nonPostReleaseFilter.negate()).count()));
+                    tmpIssues.stream().filter(issue -> !nonPostReleaseFilter(issue)).count()));
 
             // IV <= OV
-            Predicate<Issue> consistentIVFilter = issue -> {
-                if (issue.getInjectVersion() != null && issue.getOpeningVersion() != null) {
-                    return issue.getInjectVersion().getJiraReleaseDate().compareTo(issue.getOpeningVersion().getJiraReleaseDate()) <= 0;
-                } else {
-                    return true;
-                }
-            };
             logger.logFine(String.format("%d issues fails \"consistentIVFilter\" (IV <= OV)",
-                    tmpIssues.stream().filter(consistentIVFilter.negate()).count()));
+                    tmpIssues.stream().filter(issue -> !consistentIVFilter(issue)).count()));
 
             // OV <= FV
-            Predicate<Issue> openingConsistencyFilter = issue -> {
-                if (issue.getOpeningVersion() != null && issue.getFixVersion() != null) {
-                    return issue.getOpeningVersion().getJiraReleaseDate().compareTo(issue.getFixVersion().getJiraReleaseDate()) <= 0;
-                } else {
-                    return true;
-                }
-            };
             logger.logFine(String.format("%d issues fails \"openingConsistencyFilter\" (OV <= FV)",
-                    tmpIssues.stream().filter(openingConsistencyFilter.negate()).count()));
+                    tmpIssues.stream().filter(issue -> !openingConsistencyFilter(issue)).count()));
 
             this.totalValidIssues = tmpIssues.stream()
-                    .filter(nonFirstFVFilter)
-                    .filter(nonPostReleaseFilter)
-                    .filter(consistentIVFilter)
-                    .filter(openingConsistencyFilter)
-                    .filter(noCommitFilter)
+                    .filter(this::nonFirstFVFilter)
+                    .filter(this::nonPostReleaseFilter)
+                    .filter(this::consistentIVFilter)
+                    .filter(this::openingConsistencyFilter)
+                    .filter(this::noCommitFilter)
                     .toList();
 
             logger.log(String.format("Validated %d issues.", this.totalValidIssues.size()));
