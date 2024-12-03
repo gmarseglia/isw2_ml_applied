@@ -37,6 +37,30 @@ public class MetricsController {
         return MetricsController.instances.get(projName);
     }
 
+    private void followFilename() {
+        // follow filename through commits and assign correct diff to each commit
+        this.commitAndDiffAll = new LinkedHashMap<>();
+        String mostRecentPath = targetEntry.getLongName().substring(1);
+        boolean addFound = false;
+
+        for (Map.Entry<RevCommit, List<DiffEntry>> commitAndDiff : this.commitAndDiffListAll.entrySet()) {
+            if (addFound) break;
+
+            for (DiffEntry diffEntry : commitAndDiff.getValue()) {
+                if (mostRecentPath.equals(diffEntry.getNewPath())) {
+                    mostRecentPath = diffEntry.getOldPath();
+                }
+                if (mostRecentPath.equals(diffEntry.getOldPath())) {
+                    this.commitAndDiffAll.put(commitAndDiff.getKey(), diffEntry);
+
+                    if (diffEntry.getChangeType() == DiffEntry.ChangeType.ADD)
+                        addFound = true;
+                    break;
+                }
+            }
+        }
+    }
+
     public void setMetricsForAllEntries(List<Entry> cleanAllEntries) throws GitAPIException {
         List<RevCommit> entryCommits;
         int currentVersionIndex;
@@ -54,19 +78,13 @@ public class MetricsController {
 
         for (Entry entry : cleanAllEntries) {
 
-            if (logger.getAnyVerboseFine()) {
-                String logMsg;
-                if ((++i * 100 / expectedSize) > percentage) {
-                    long minutes = ChronoUnit.MINUTES.between(begin, Instant.now());
-                    if (minutes == 0) {
-                        long seconds = ChronoUnit.SECONDS.between(begin, Instant.now());
-                        logMsg = "Computed metrics for " + percentage + "% of all entries in " + seconds + " seconds.";
-                    } else {
-                        logMsg = "Computed metrics for " + percentage + "% of all entries in " + minutes + " minutes.";
-                    }
-                    percentage += 5;
-                    logger.logFine(logMsg);
-                }
+            String logMsg;
+            if (logger.getAnyVerboseFine() && (++i * 100 / expectedSize) > percentage) {
+                long minutes = ChronoUnit.MINUTES.between(begin, Instant.now());
+                long seconds = ChronoUnit.SECONDS.between(begin, Instant.now()) - minutes * 60;
+                logMsg = String.format("Computed metrics for %d%% of all entries in %d:%2d minutes.", percentage, minutes, seconds);
+                percentage += 5;
+                logger.logFine(logMsg);
             }
 
             // check out to the tag of the version of the entry
@@ -106,27 +124,8 @@ public class MetricsController {
                 this.commitAndDiffListAll.put(commit, commitDiffEntries);
             }
 
-            // follow filename through commits and assign correct diff to each commit
-            this.commitAndDiffAll = new LinkedHashMap<>();
-            String mostRecentPath = entry.getLongName().substring(1);
-            boolean addFound = false;
-
-            for (Map.Entry<RevCommit, List<DiffEntry>> commitAndDiff : this.commitAndDiffListAll.entrySet()) {
-                if (addFound) break;
-
-                for (DiffEntry diffEntry : commitAndDiff.getValue()) {
-                    if (mostRecentPath.equals(diffEntry.getNewPath())) {
-                        mostRecentPath = diffEntry.getOldPath();
-                    }
-                    if (mostRecentPath.equals(diffEntry.getOldPath())) {
-                        this.commitAndDiffAll.put(commitAndDiff.getKey(), diffEntry);
-
-                        if (diffEntry.getChangeType() == DiffEntry.ChangeType.ADD)
-                            addFound = true;
-                        break;
-                    }
-                }
-            }
+            // // follow filename through commits and assign correct diff to each commit
+            this.followFilename();
 
             this.getLOC();
             this.getAge();
